@@ -1,2 +1,6 @@
+#Java files
 *.jar
 *.class
+
+#Eclipse files
+*.project
