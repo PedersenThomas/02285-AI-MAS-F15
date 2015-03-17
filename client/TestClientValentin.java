@@ -1,6 +1,5 @@
 package client;
 
-import java.awt.Point;
 import java.io.*;
 import java.util.*;
 
@@ -47,6 +46,7 @@ public class TestClientValentin {
 			//execute the plan
 			Command cmd = pi.execute();
 			world.update(this, cmd);
+			System.err.println(cmd.toString());
 			System.err.println(this.position.toString());
 			return cmd.toString();
 			
