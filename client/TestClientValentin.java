@@ -5,8 +5,6 @@ import java.util.*;
 
 import javax.swing.text.Position;
 
-import client.RandomWalkClient.Agent;
-
 public class TestClientValentin {
 	private static Random rand = new Random();	
 	public World world = new World();
