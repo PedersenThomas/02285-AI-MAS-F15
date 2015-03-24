@@ -141,7 +141,7 @@ public class World {
 
 			if (boxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
-					&& !Command.isOpposite(c.dir1, c.dir2)) {
+					&& (c.dir1 != c.dir2)) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(a.position);
 				a.position = agentDestPosition;
