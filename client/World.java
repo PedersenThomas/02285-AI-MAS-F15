@@ -51,10 +51,6 @@ public class World {
 		return false;
 	}
 
-	private boolean boxAt(int x, int y) {
-		return boxAt(new Point(x, y));
-	}
-
 	private boolean wallAt(Point point) {
 		for (int i = 0; i < walls.size(); i++) {
 			if (walls.get(i) == point) {
