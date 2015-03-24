@@ -1,13 +1,9 @@
 package client;
 
-
-
 public class Box {
 	public Point position;
 	private int letter;
 	private Color color;
-	
-	
 	
 	public Box(int x, int y, int letter, Color color) {
 		super();
@@ -15,7 +11,6 @@ public class Box {
 		this.letter = letter;
 		this.color = color;
 	}
-	
 	
 	public int getLetter() {
 		return letter;
@@ -30,17 +25,11 @@ public class Box {
 		this.color = color;
 	}
 
-
 	public Point getPosition() {
 		return position;
 	}
 
-
 	public void setPosition(Point position) {
 		this.position = position;
 	}
-	
-	
-	
-	
 }
