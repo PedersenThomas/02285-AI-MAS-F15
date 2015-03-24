@@ -30,6 +30,6 @@ public class Box {
 	}
 
 	public void setPosition(Point position) {
-		this.position = position;
+		this.position = new Point(position);
 	}
 }
