@@ -102,7 +102,7 @@ public class World {
 		return true;
 	}
 
-	public Box getBoxAt(Point position) {
+	private Box getBoxAt(Point position) {
 		for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i).getPosition().equals(position)) {
 				return boxes.get(i);
@@ -110,16 +110,9 @@ public class World {
 		}
 		return null;
 	}
-	
-	public boolean isGoalCompleted(Goal goal) {
-		Box box = getBoxAt(goal.getPosition());
-		if(box == null){
-			return false;
-		}
-		return box.getLetter() == goal.getLetter();
-	}
 
 	public int update(Agent a, Command c) {
+		
 		switch (c.actType) {
 		case Move: {
 			Point agentDestPosition = a.position.move(c.dir1);
@@ -149,7 +142,7 @@ public class World {
 
 			if (boxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
-					&& (c.dir1 != c.dir2)) {
+					&& c.dir1 != c.dir2) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(a.position);
 				a.position = agentDestPosition;
