@@ -14,6 +14,7 @@ public class Point {
 		this.x = x;
 		this.y = y;
 	}
+		
 
 	public Point move(Command.dir dir) {
 		Point p = new Point(this);
@@ -56,9 +57,7 @@ public class Point {
 			   this.y;
 	}
 
-	public int distance(Point position) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int distance(Point p) {
+		return Math.abs(x-p.x) + Math.abs(y-p.y);		
 	}
-	
 }

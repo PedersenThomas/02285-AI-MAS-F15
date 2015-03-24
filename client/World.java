@@ -160,4 +160,20 @@ public class World {
 
 		return 0;
 	}
+
+	public List<Box> getBoxes() {
+		return boxes;
+	}
+
+	public List<Goal> getGoals() {
+		return goals;
+	}
+
+	public List<Agent> getAgents() {
+		return agents;
+	}
+
+	public List<Point> getWalls() {
+		return walls;
+	}
 }
