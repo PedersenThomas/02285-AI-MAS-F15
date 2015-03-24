@@ -38,10 +38,10 @@ public class TestClientValentin {
 			B.brf();
 			
 			//deliberate by choosing a set of intentions based on current beliefs
-			Intention I = new Intention(B);
+			Intention I = new Intention(world);
 			
 			//compute a plan from current beliefs and intentions:
-			Plan pi = new Plan(B, I);
+			Plan pi = new Plan(world, I, id);
 			
 			//execute the plan
 			Command cmd = pi.execute();

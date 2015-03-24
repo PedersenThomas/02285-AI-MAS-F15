@@ -55,5 +55,10 @@ public class Point {
 		return this.x * prime + 
 			   this.y;
 	}
+
+	public int distance(Point position) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }
