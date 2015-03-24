@@ -112,11 +112,51 @@ public class World {
 	}
 
 	public int update(Agent a, Command c) {
+		Point p=a.position;
+		int flag=0;
+		//System.err.println(c.actType+"sdfsdffd");
+		if (c.actType==Command.type.Move){
+			Point agentDestPosition = p.move(c.dir1);
+			if (isFreeCell(agentDestPosition)) {
+				a.position = agentDestPosition;
+				flag=1;
+				System.err.println(flag);
+			}
+		}else if (c.actType==Command.type.Push){
+			Point bp,boxSrcPosition;
+			bp=boxSrcPosition = p.move(c.dir1);
+			Point boxDestPosition = bp.move(c.dir2);
+
+			if (boxAt(boxSrcPosition) && isFreeCell(boxDestPosition)
+					&& !Command.isOpposite(c.dir1, c.dir2)) {
+				a.position = boxSrcPosition;
+				Box b = getBoxAt(boxSrcPosition);
+				b.setPosition(boxDestPosition);
+				flag=2;
+				System.err.println(flag);
+			}
+		}else if (c.actType==Command.type.Pull){
+			Point agentDestPosition,ap;
+			ap = agentDestPosition = p.move(c.dir1);
+			Point boxSrcPosition = ap.move(c.dir2);
+			if (boxAt(boxSrcPosition.x, boxSrcPosition.y)
+					&& isFreeCell(agentDestPosition)
+					&& !Command.isOpposite(c.dir1, c.dir2)) {
+				Box b = getBoxAt(boxSrcPosition);
+				b.setPosition(a.position);
+				a.position = agentDestPosition;
+				flag=3;
+				System.err.println(flag);
+			}
+		}
+		/*
 		switch (c.actType) {
 		case Move: {
 			Point agentDestPosition = a.position.move(c.dir1);
 			if (isFreeCell(agentDestPosition)) {
 				a.position = agentDestPosition;
+				flag=1;
+				System.err.println(flag);
 			}
 			break;
 		}
@@ -131,6 +171,8 @@ public class World {
 				a.position = boxSrcPosition;
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(boxDestPosition);
+				flag=2;
+				System.err.println(flag);
 			}
 
 			break;
@@ -138,18 +180,24 @@ public class World {
 		case Pull: {
 			Point agentDestPosition = a.position.move(c.dir1);
 			Point boxSrcPosition = a.position.move(c.dir2);
+<<<<<<< Updated upstream
 
 			if (boxAt(boxSrcPosition)
+=======
+			if (boxAt(boxSrcPosition.x, boxSrcPosition.y)
+>>>>>>> Stashed changes
 					&& isFreeCell(agentDestPosition)
 					&& !Command.isOpposite(c.dir1, c.dir2)) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(a.position);
 				a.position = agentDestPosition;
+				flag=3;
+				System.err.println(flag);
 			}
 			break;
 		}
 		}
-
-		return 0;
+*/
+		return flag;
 	}
 }
