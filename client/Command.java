@@ -29,7 +29,8 @@ public class Command {
 
 	public final static Command[] every;
 
-	private static boolean isOpposite( dir d1, dir d2 ) {
+	// changed from private
+	public static boolean isOpposite( dir d1, dir d2 ) {
 		return d1.ordinal() + d2.ordinal() == 3;
 	}
 
