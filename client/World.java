@@ -111,7 +111,7 @@ public class World {
 			Point agentDestPosition = a.position.move(c.dir1);
 			Point boxSrcPosition = a.position.move(c.dir2);
 
-			if (boxAt(boxSrcPosition.x, boxSrcPosition.y)
+			if (boxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
 					&& !Command.isOpposite(c.dir1, c.dir2)) {
 				Box b = getBoxAt(boxSrcPosition);
