@@ -41,19 +41,50 @@ public class World {
 	public void addAgent(Agent a) {
 		agents.add(a);
 	}
+	
+	public void printWorld() {
+		System.err.println("==============================");
+		for(int y=0;y<height;y++) {
+			for(int x=0;x<width;x++) {
+				Point p = new Point(x,y);
+				if(wallAt(p)) {
+					System.err.print("+");
+				}
+				else if(boxAt(p)) {
+					System.err.print("A");
+				}
+				else {				
+					boolean printFlag = false;
+					for (Agent a:agents) {
+						if(a.position.equals(p)) {
+							System.err.print("0");
+							printFlag = true;
+							break;
+						}
+					}
+					if(!printFlag) {
+						System.err.print(" ");
+					}
+				}
+			}
+			System.err.print("\n");
+		}
+		System.err.println("==============================");
+	}
 
 	private boolean boxAt(Point point) {
 		for (int i = 0; i < boxes.size(); i++) {
-			if (boxes.get(i).getPosition() == point) {
+			if (boxes.get(i).getPosition().equals(point)) {
 				return true;
+				
 			}
 		}
 		return false;
 	}
 
-	private boolean wallAt(Point point) {
+	private boolean wallAt(Point point) {		
 		for (int i = 0; i < walls.size(); i++) {
-			if (walls.get(i) == point) {
+			if (walls.get(i).equals(point)) {
 				return true;
 			}
 		}
@@ -73,7 +104,7 @@ public class World {
 
 	public Box getBoxAt(Point position) {
 		for (int i = 0; i < boxes.size(); i++) {
-			if (boxes.get(i).getPosition() == position) {
+			if (boxes.get(i).getPosition().equals(position)) {
 				return boxes.get(i);
 			}
 		}
@@ -102,8 +133,9 @@ public class World {
 			Point boxSrcPosition = a.position.move(c.dir1);
 			Point boxDestPosition = boxSrcPosition.move(c.dir2);
 
-			if (boxAt(boxSrcPosition) && isFreeCell(boxDestPosition)
-					&& !Command.isOpposite(c.dir1, c.dir2)) {
+			if (boxAt(boxSrcPosition) 
+					&& isFreeCell(boxDestPosition)
+					&& (!Command.isOpposite(c.dir1, c.dir2))) {
 				a.position = boxSrcPosition;
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(boxDestPosition);
@@ -117,7 +149,7 @@ public class World {
 
 			if (boxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
-					&& !Command.isOpposite(c.dir1, c.dir2)) {
+					&& (c.dir1 != c.dir2)) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(a.position);
 				a.position = agentDestPosition;

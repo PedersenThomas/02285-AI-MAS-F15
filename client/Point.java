@@ -46,7 +46,7 @@ public class Point {
 			return false;
 		}
 		Point other = (Point)obj;
-		return other.x == this.x && other.y == this.y;
+		return (other.x == this.x) && (other.y == this.y);
 	}
 	
 	@Override

@@ -46,8 +46,7 @@ public class TestClientValentin {
 			//execute the plan
 			Command cmd = pi.execute();
 			world.update(this, cmd);
-			System.err.println(cmd.toString());
-			System.err.println(this.position.toString());
+			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 			
 		}
@@ -75,6 +74,7 @@ public class TestClientValentin {
 
 		// Read lines specifying level layout
 		int y=0;
+		int width = 0;
 		while ( !line.equals( "" ) ) {
 			for ( int i = 0; i < line.length(); i++ ) {
 				char id = line.charAt( i );
@@ -85,13 +85,17 @@ public class TestClientValentin {
 				else if ( 'a' <= id && id <= 'z' )
 					world.addGoal( new Goal(i,y,id));
 				else if ( id=='+')
-					world.addWall( i,y);
+					world.addWall(i,y);
 			}
-
+			if(line.length() > width) {
+				width = line.length();
+			}
 			line = in.readLine();
 			y++;
 
 		}
+		world.setLevelSize(width, y);
+		
 	}
 
 	public boolean update() throws IOException {
