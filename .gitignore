@@ -4,3 +4,6 @@
 
 #Eclipse files
 *.project
+
+#Intelj Idea
+*.idea
