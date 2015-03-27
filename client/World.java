@@ -1,18 +1,48 @@
 package client;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import client.TestClientValentin.Agent;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
-	private List<Goal> goals = new ArrayList<Goal>();
+	private static List<Goal> goals = new ArrayList<Goal>();
 	private List<Agent> agents = new ArrayList<Agent>();
-	private List<Point> walls = new ArrayList<Point>();
+	private static List<Point> walls = new ArrayList<Point>();
 	private int width;
 	private int height;
 
+	public World() {}
+	
+	public World(World old) {
+		for (Box box : old.boxes) {
+			this.boxes.add(new Box(box));
+		}
+		for (Agent agent : old.agents) {
+			this.agents.add(agent.CloneAgent());
+		}
+		this.width = old.width;
+		this.height = old.height;
+	}
+	
+	public List<Box> getBoxes() {
+		return boxes;
+	}
+
+	public List<Goal> getGoals() {
+		return goals;
+	}
+
+	public List<Agent> getAgents() {
+		return agents;
+	}
+
+	public List<Point> getWalls() {
+		return walls;
+	}
+	
 	public int getNumberOfAgents() {
 		return agents.size();
 	}
@@ -50,13 +80,13 @@ public class World {
 				if(wallAt(p)) {
 					System.err.print("+");
 				}
-				else if(boxAt(p)) {
+				else if(isBoxAt(p)) {
 					System.err.print("A");
 				}
 				else {				
 					boolean printFlag = false;
 					for (Agent a:agents) {
-						if(a.position.equals(p)) {
+						if(a.getPosition().equals(p)) {
 							System.err.print("0");
 							printFlag = true;
 							break;
@@ -72,7 +102,16 @@ public class World {
 		System.err.println("==============================");
 	}
 
-	private boolean boxAt(Point point) {
+	public boolean isGoalCompleted(Goal goal) {
+		Box box = getBoxAt(goal.getPosition());
+		if(box == null){
+			return false;
+		}
+		return box.getLetter() == goal.getLetter();
+	}
+
+	
+	public boolean isBoxAt(Point point) {
 		for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i).getPosition().equals(point)) {
 				return true;
@@ -92,17 +131,17 @@ public class World {
 		return false;
 	}
 
-	private boolean isFreeCell(Point point) {
+	public boolean isFreeCell(Point point) {
 		if (wallAt(point))
 			return false;
 
-		if (boxAt(point))
+		if (isBoxAt(point))
 			return false;
 
 		return true;
 	}
 
-	private Box getBoxAt(Point position) {
+	public Box getBoxAt(Point position) {
 		for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i).getPosition().equals(position)) {
 				return boxes.get(i);
@@ -115,21 +154,21 @@ public class World {
 		
 		switch (c.actType) {
 		case Move: {
-			Point agentDestPosition = a.position.move(c.dir1);
+			Point agentDestPosition = a.getPosition().move(c.dir1);
 			if (isFreeCell(agentDestPosition)) {
-				a.position = agentDestPosition;
+				a.setPosition(agentDestPosition);
 			}
 			break;
 		}
 		case Push: {
 
-			Point boxSrcPosition = a.position.move(c.dir1);
+			Point boxSrcPosition = a.getPosition().move(c.dir1);
 			Point boxDestPosition = boxSrcPosition.move(c.dir2);
 
-			if (boxAt(boxSrcPosition) 
+			if (isBoxAt(boxSrcPosition) 
 					&& isFreeCell(boxDestPosition)
 					&& (!Command.isOpposite(c.dir1, c.dir2))) {
-				a.position = boxSrcPosition;
+				a.setPosition(boxSrcPosition);
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(boxDestPosition);
 			}
@@ -137,15 +176,15 @@ public class World {
 			break;
 		}
 		case Pull: {
-			Point agentDestPosition = a.position.move(c.dir1);
-			Point boxSrcPosition = a.position.move(c.dir2);
+			Point agentDestPosition = a.getPosition().move(c.dir1);
+			Point boxSrcPosition = a.getPosition().move(c.dir2);
 
-			if (boxAt(boxSrcPosition)
+			if (isBoxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
 					&& c.dir1 != c.dir2) {
 				Box b = getBoxAt(boxSrcPosition);
-				b.setPosition(a.position);
-				a.position = agentDestPosition;
+				b.setPosition(a.getPosition());
+				a.setPosition(agentDestPosition);
 			}
 			break;
 		}
@@ -153,20 +192,37 @@ public class World {
 
 		return 0;
 	}
-
-	public List<Box> getBoxes() {
-		return boxes;
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.deepHashCode( agents.toArray() );
+		result = prime * result + Arrays.deepHashCode( boxes.toArray() );
+		return result;
 	}
 
-	public List<Goal> getGoals() {
-		return goals;
-	}
-
-	public List<Agent> getAgents() {
-		return agents;
-	}
-
-	public List<Point> getWalls() {
-		return walls;
+	@Override
+	public boolean equals( Object obj ) {
+		if ( this == obj )
+			return true;
+		if ( obj == null )
+			return false;
+		if ( getClass() != obj.getClass() )
+			return false;
+		World other = (World) obj;
+		
+		for(Box box : boxes) {
+			if (!other.boxes.contains(box)) {
+				return false;
+			}
+		}
+		
+		for(Agent agent : agents) {
+			if (!other.agents.contains(agent)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
