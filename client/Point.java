@@ -13,6 +13,7 @@ public class Point {
 		this.x = x;
 		this.y = y;
 	}
+		
 
 	public Point move(Command.dir dir) {
 		Point p = new Point(this);
@@ -63,4 +64,11 @@ public class Point {
 		return this.x * prime + 
 			   this.y;
 	}
+<<<<<<< HEAD
+=======
+
+	public int distance(Point p) {
+		return Math.abs(x-p.x) + Math.abs(y-p.y);		
+	}
+>>>>>>> 41ce5c94b2a39b460426eae8addb1c122e2b57c6
 }

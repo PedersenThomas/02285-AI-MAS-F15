@@ -27,6 +27,22 @@ public class World {
 		this.height = old.height;
 	}
 	
+	public List<Box> getBoxes() {
+		return boxes;
+	}
+
+	public List<Goal> getGoals() {
+		return goals;
+	}
+
+	public List<Agent> getAgents() {
+		return agents;
+	}
+
+	public List<Point> getWalls() {
+		return walls;
+	}
+	
 	public int getNumberOfAgents() {
 		return agents.size();
 	}
@@ -86,6 +102,15 @@ public class World {
 		System.err.println("==============================");
 	}
 
+	public boolean isGoalCompleted(Goal goal) {
+		Box box = getBoxAt(goal.getPosition());
+		if(box == null){
+			return false;
+		}
+		return box.getLetter() == goal.getLetter();
+	}
+
+	
 	public boolean isBoxAt(Point point) {
 		for (int i = 0; i < boxes.size(); i++) {
 			if (boxes.get(i).getPosition().equals(point)) {
@@ -124,16 +149,9 @@ public class World {
 		}
 		return null;
 	}
-	
-	public boolean isGoalCompleted(Goal goal) {
-		Box box = getBoxAt(goal.getPosition());
-		if(box == null){
-			return false;
-		}
-		return box.getLetter() == goal.getLetter();
-	}
 
 	public int update(Agent a, Command c) {
+		
 		switch (c.actType) {
 		case Move: {
 			Point agentDestPosition = a.getPosition().move(c.dir1);
@@ -163,7 +181,7 @@ public class World {
 
 			if (isBoxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
-					&& (c.dir1 != c.dir2)) {
+					&& c.dir1 != c.dir2) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(a.getPosition());
 				a.setPosition(agentDestPosition);

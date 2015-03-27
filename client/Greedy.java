@@ -21,8 +21,8 @@ public class Greedy extends Heuristic {
 	}
 	
 	@Override
-	public int compare(StrategyActionNode world1, StrategyActionNode world2) {
-		return this.f( world1 ) - this.f( world2 );
+	public int compare(StrategyActionNode node1, StrategyActionNode node2) {
+		return this.f( node1 ) - this.f( node2 );
 	}
 
 	@Override

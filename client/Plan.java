@@ -54,6 +54,11 @@ public class Plan {
 	}
 	
 	public Command execute() {
-		return Command.every[rand.nextInt( Command.every.length )];
+		//System.err.println(Command.every.length);
+		//System.err.println("sdfsdffdff");
+		int randNum=rand.nextInt(Command.every.length);
+		//System.err.println(randNum);
+		return Command.every[randNum];
+		
 	}
 }
