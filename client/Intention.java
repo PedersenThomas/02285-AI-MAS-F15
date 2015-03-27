@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import client.TestClientValentin.Agent;
+import client.Client.Agent;
 
 public class Intention {
 	private Goal goal;
@@ -78,5 +78,10 @@ public class Intention {
 
 	public void setBox(Box box) {
 		this.box = box;
+	}
+	
+	@Override
+	public String toString() {
+		return "IntenTion = Box: " + box + " Goal: " + goal;	
 	}
 }

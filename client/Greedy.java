@@ -14,7 +14,6 @@ public class Greedy extends Heuristic {
 	}
 	
 	private int heuristic(StrategyActionNode world) {
-		
 		Box box = i.getBox();
 		Goal goal = i.getGoal();
 		return box.getPosition().distance(goal.getPosition());

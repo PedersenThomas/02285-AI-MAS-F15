@@ -61,14 +61,6 @@ public class Point {
 	@Override
 	public int hashCode() {
 		final int prime = 127;
-		return this.x * prime + 
-			   this.y;
+		return this.x * prime + this.y;
 	}
-<<<<<<< HEAD
-=======
-
-	public int distance(Point p) {
-		return Math.abs(x-p.x) + Math.abs(y-p.y);		
-	}
->>>>>>> 41ce5c94b2a39b460426eae8addb1c122e2b57c6
 }

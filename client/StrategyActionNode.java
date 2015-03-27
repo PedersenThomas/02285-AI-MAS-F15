@@ -5,35 +5,40 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import client.Command.type;
-import client.TestClientValentin.Agent;
+import client.Client.Agent;
 
 public class StrategyActionNode {
 	private World world;
 	private StrategyActionNode previousNode;
 	private Command command;
-	private Agent agent;
+	private int agentId;
 	
-	public StrategyActionNode(World world, Agent agent) {
+	public StrategyActionNode(World world, int agentId) {
 		this.world = world;
-		this.agent = agent;
+		this.agentId = agentId;
 	}
 	
-	public StrategyActionNode(World world, Agent agent, StrategyActionNode parentNode, Command command) {
+	public StrategyActionNode(World world, int agentId, StrategyActionNode parentNode, Command command) {
 		this.world = new World(world);
-		this.agent = agent;
+		this.agentId = agentId;
 		this.previousNode = parentNode;
 		this.command = command;
 	}
 	
 	public Queue<Command> extractList() {
 		LinkedList<Command> queue = new LinkedList<Command>();
-		
-		StrategyActionNode node = previousNode;
-		while(node != null) {
+
+		System.err.println("---------------------------------------");
+		StrategyActionNode node = this;
+		while(node != null && node.command != null) {
+			System.err.println(node);
 			queue.add(0, node.command);
 			node = node.previousNode;
 		}
-		
+		System.err.println("---------------------------------------");
+		for (Command command : queue) {
+			System.err.println(command);
+		}
 		return queue;
 	}
 	
@@ -43,6 +48,7 @@ public class StrategyActionNode {
 	
 	public ArrayList< StrategyActionNode > getExpandedNodes() {
 		ArrayList< StrategyActionNode > expandedNodes = new ArrayList< StrategyActionNode >( Command.every.length );
+		Agent agent = world.getAgent(agentId);
 		for ( Command c : Command.every ) {
 			// Determine applicability of action
 			Point newAgentPosition = agent.getPosition().move(c.dir1);
@@ -50,7 +56,7 @@ public class StrategyActionNode {
 			if ( c.actType == type.Move ) {
 				// Check if there's a wall or box on the cell to which the agent is moving
 				if ( world.isFreeCell(newAgentPosition) ) {
-					StrategyActionNode node = new StrategyActionNode(this.world, this.agent, this, c);
+					StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
 					node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
 					expandedNodes.add( node );
 				}
@@ -60,7 +66,7 @@ public class StrategyActionNode {
 					Point newBoxPosition = newAgentPosition.move(c.dir2);
 					// .. and that new cell of box is free
 					if ( world.isFreeCell(newBoxPosition) ) {
-						StrategyActionNode node = new StrategyActionNode(this.world, this.agent, this, c);
+						StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
 						node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
 						node.getWorld().getBoxAt(newAgentPosition).setPosition(newBoxPosition);
 						expandedNodes.add( node );
@@ -73,15 +79,31 @@ public class StrategyActionNode {
 					Point currentBoxPosition = agent.getPosition().move(c.dir2);
 					Point newBoxPosition = agent.getPosition();
 					if ( world.isBoxAt( currentBoxPosition ) ) {
-						StrategyActionNode node = new StrategyActionNode(this.world, this.agent, this, c);
+						StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
 						node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
-						node.getWorld().getBoxAt(newAgentPosition).setPosition(newBoxPosition);
+						node.getWorld().getBoxAt(currentBoxPosition).setPosition(newBoxPosition);
 						expandedNodes.add( node );
 					}
 				}
 			}
 		}
 		return expandedNodes;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		for (Box box : world.getBoxes()) {
+			buffer.append(box.toString() + " ");
+		}
+		
+		for (Agent agent : world.getAgents()) {
+			buffer.append(agent.toString() + " ");
+		}
+		
+		buffer.append(" Command: " + command);
+		
+		return buffer.toString();
 	}
 	
 	@Override
@@ -98,9 +120,6 @@ public class StrategyActionNode {
 		if ( getClass() != obj.getClass() )
 			return false;
 		StrategyActionNode other = (StrategyActionNode) obj;
-		if(!this.world.equals(other.world)) {
-			return false;
-		}
-		return true;
+		return this.world.equals(other.world);
 	}
 }
