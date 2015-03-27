@@ -1,8 +1,8 @@
 package client;
 
 public class Point {
-	int x;
-	int y;
+	private int x;
+	private int y;
 	
 	public Point(Point src) {
 		this.x = src.x;
@@ -10,7 +10,6 @@ public class Point {
 	}
 	
 	public Point(int x, int y) {
-		super();
 		this.x = x;
 		this.y = y;
 	}
@@ -34,6 +33,15 @@ public class Point {
 		}
 		return p;
 	}
+	
+	/**
+	 * Manhatten distance
+	 * @param position
+	 * @return
+	 */
+	public int distance(Point position) {
+		return Math.abs(position.x - this.x) + Math.abs(position.y - this.y);
+	}
 
 	@Override
 	public String toString() {
@@ -55,10 +63,4 @@ public class Point {
 		return this.x * prime + 
 			   this.y;
 	}
-
-	public int distance(Point position) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
 }

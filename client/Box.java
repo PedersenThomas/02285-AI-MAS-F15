@@ -5,6 +5,12 @@ public class Box {
 	private int letter;
 	private Color color;
 	
+	public Box(Box old) {
+		this.letter = old.letter;
+		this.color = old.color;
+		this.position = new Point(old.position);
+	}
+	
 	public Box(int x, int y, int letter, Color color) {
 		super();
 		this.position = new Point(x, y);

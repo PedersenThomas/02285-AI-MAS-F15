@@ -1,21 +1,32 @@
 package client;
 
+import java.util.HashSet;
 import java.util.PriorityQueue;
 
 public class StrategyBestFirst {
+	private HashSet< StrategyActionNode > explored;
 	private Heuristic heuristic;
-	private PriorityQueue< World > frontier;
+	private PriorityQueue< StrategyActionNode > frontier;
 	
 	public StrategyBestFirst( Heuristic h ) {
 		super();
 		heuristic = h;
-		frontier = new PriorityQueue<World>(h);
+		frontier = new PriorityQueue<StrategyActionNode>(h);
 	}
-	public World getAndRemoveLeaf() {
+	
+	public void addToExplored( StrategyActionNode n ) {
+		explored.add( n );
+	}
+	
+	public boolean isExplored( StrategyActionNode n ) {
+		return explored.contains( n );
+	}
+	
+	public StrategyActionNode getAndRemoveLeaf() {
 		return frontier.poll();
 	}
 
-	public void addToFrontier( World n ) {
+	public void addToFrontier( StrategyActionNode n ) {
 		frontier.add(n);
 	}
 
@@ -27,7 +38,7 @@ public class StrategyBestFirst {
 		return frontier.isEmpty();
 	}
 
-	public boolean inFrontier( World n ) {
+	public boolean inFrontier( StrategyActionNode n ) {
 		return frontier.contains(n);
 	}
 

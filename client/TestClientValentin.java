@@ -14,8 +14,7 @@ public class TestClientValentin {
 		private char id;
 		private String color;	
 		private Beliefs B;
-		
-		public Point position;
+		private Point position;
 
 		Agent( char id, String color, Point position ) {
 			this.id = id;
@@ -25,8 +24,22 @@ public class TestClientValentin {
 			// Initial Beliefs
 			this.B = new Beliefs();
 		}
-
 		
+		public Agent CloneAgent() {
+			return new Agent(this.id, this.color, this.position);
+		}
+		
+		public Point getPosition() {
+			return position;
+		}
+		
+		public void setPosition(Point position) {
+			this.position = position;
+		}
+		
+		public char getId() {
+			return id;
+		}
 		
 		public String act() {
 			
@@ -39,7 +52,7 @@ public class TestClientValentin {
 			Intention I = new Intention(world);
 			
 			//compute a plan from current beliefs and intentions:
-			Plan pi = new Plan(world, I, id);
+			Plan pi = new Plan(world, I, this);
 			
 			//execute the plan
 			Command cmd = pi.execute();

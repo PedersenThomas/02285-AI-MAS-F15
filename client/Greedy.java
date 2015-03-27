@@ -9,19 +9,19 @@ public class Greedy extends Heuristic {
 		this.agentId = agentId;
 	}
 	
-	public int f( World n) {
+	public int f( StrategyActionNode n) {
 		return heuristic( n );
 	}
 	
-	private int heuristic(World world) {
+	private int heuristic(StrategyActionNode world) {
 		
 		Box box = i.getBox();
 		Goal goal = i.getGoal();
-		return 0;
+		return box.getPosition().distance(goal.getPosition());
 	}
 	
 	@Override
-	public int compare(World world1, World world2) {
+	public int compare(StrategyActionNode world1, StrategyActionNode world2) {
 		return this.f( world1 ) - this.f( world2 );
 	}
 
