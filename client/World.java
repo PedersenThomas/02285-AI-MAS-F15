@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import client.TestClientValentin.Agent;
+import client.Client.Agent;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
@@ -52,8 +52,8 @@ public class World {
 		this.height = height;
 	}
 
-	public Agent getAgent(int i) {
-		return agents.get(i);
+	public Agent getAgent(int id) {
+		return agents.get(id);
 	}
 
 	public void addBox(Box b) {
@@ -77,7 +77,7 @@ public class World {
 		for(int y=0;y<height;y++) {
 			for(int x=0;x<width;x++) {
 				Point p = new Point(x,y);
-				if(wallAt(p)) {
+				if(isWallAt(p)) {
 					System.err.print("+");
 				}
 				else if(isBoxAt(p)) {
@@ -107,23 +107,22 @@ public class World {
 		if(box == null){
 			return false;
 		}
-		return box.getLetter() == goal.getLetter();
+		return Character.toLowerCase(box.getLetter()) == goal.getLetter();
 	}
 
 	
 	public boolean isBoxAt(Point point) {
-		for (int i = 0; i < boxes.size(); i++) {
-			if (boxes.get(i).getPosition().equals(point)) {
+		for (Box box : boxes) {
+			if(box.getPosition().equals(point)) {
 				return true;
-				
 			}
 		}
 		return false;
 	}
 
-	private boolean wallAt(Point point) {		
-		for (int i = 0; i < walls.size(); i++) {
-			if (walls.get(i).equals(point)) {
+	public boolean isWallAt(Point point) {
+		for (Point wall : walls) {
+			if(wall.equals(point)) {
 				return true;
 			}
 		}
@@ -132,11 +131,13 @@ public class World {
 	}
 
 	public boolean isFreeCell(Point point) {
-		if (wallAt(point))
+		if (isWallAt(point)) {
 			return false;
+		}
 
-		if (isBoxAt(point))
-			return false;
+		if (isBoxAt(point)) {
+			return false;			
+		}
 
 		return true;
 	}
