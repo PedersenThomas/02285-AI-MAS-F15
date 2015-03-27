@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 
 public class Client {
-	private static Random rand = new Random();	
 	public World world = new World();
 	
 	public class Agent {

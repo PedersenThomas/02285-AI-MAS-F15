@@ -1,9 +1,5 @@
 package client;
 
-import java.util.Arrays;
-
-import client.Client.Agent;
-
 public class Box {
 	public Point position;
 	private char letter;

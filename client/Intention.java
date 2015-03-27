@@ -52,9 +52,6 @@ public class Intention {
 		}
 		intentions.removeAll(remove_list);
 
-
-		
-		
 		return intentions.get(0);
 	}
 	

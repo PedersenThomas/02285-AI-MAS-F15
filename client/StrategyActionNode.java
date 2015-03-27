@@ -28,16 +28,10 @@ public class StrategyActionNode {
 	public Queue<Command> extractList() {
 		LinkedList<Command> queue = new LinkedList<Command>();
 
-		System.err.println("---------------------------------------");
 		StrategyActionNode node = this;
 		while(node != null && node.command != null) {
-			System.err.println(node);
 			queue.add(0, node.command);
 			node = node.previousNode;
-		}
-		System.err.println("---------------------------------------");
-		for (Command command : queue) {
-			System.err.println(command);
 		}
 		return queue;
 	}
