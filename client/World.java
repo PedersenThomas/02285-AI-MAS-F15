@@ -2,6 +2,8 @@ package client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import client.Client.Agent;
@@ -28,19 +30,19 @@ public class World {
 	}
 	
 	public List<Box> getBoxes() {
-		return boxes;
+		return Collections.unmodifiableList(boxes);
 	}
 
 	public List<Goal> getGoals() {
-		return goals;
+		return Collections.unmodifiableList(goals);
 	}
 
 	public List<Agent> getAgents() {
-		return agents;
+		return Collections.unmodifiableList(agents);
 	}
 
 	public List<Point> getWalls() {
-		return walls;
+		return Collections.unmodifiableList(walls);
 	}
 	
 	public int getNumberOfAgents() {

@@ -14,45 +14,57 @@ public class Intention {
 	private Box box;
 	
 	//TODO This should be beliefs not world.
-	public static Intention deliberate(World world) {
+	public static Intention deliberate(World world, Agent agent) {
 		//Generate the desires, that is, everything the agent might want to achieve.
 		List<Box> boxes = world.getBoxes();	
-		List<Agent> agents = world.getAgents();
+		//List<Agent> agents = world.getAgents();  // only one agent
 		List<Goal> goals = world.getGoals();
 		
-		List<Intention> intentions = new ArrayList<>();
-		
+		List<Intention> intentions = new ArrayList<>();		
 		Map<Goal,Map.Entry<Box,Integer>> minGoalDistance = new HashMap<Goal,Map.Entry<Box,Integer>>();
 		
-		for(Box box:boxes) {
-			for(Goal goal:goals) {
-				if((box.getLetter()-'A' == goal.getLetter()-'a') &&
-					(!box.getPosition().equals(goal.getPosition())))	{
-					intentions.add(new Intention(goal, box));	
-					
-					if(minGoalDistance.containsKey(goal)) {
-						if(minGoalDistance.get(goal).getValue() > goal.getPosition().distance(box.getPosition())) {
+		// determine for each goal its closest box
+		for(Goal goal:goals) {
+			if(!world.isGoalCompleted(goal)) {
+				for(Box box:boxes) {			
+					if(box.getLetter()-'A' == goal.getLetter()-'a')	{					
+						if(minGoalDistance.containsKey(goal)) {
+							if(minGoalDistance.get(goal).getValue() > goal.getPosition().distance(box.getPosition())) {
+								minGoalDistance.put(goal, new AbstractMap.SimpleEntry(box, goal.getPosition().distance(box.getPosition())));
+							}
+						}
+						else {
 							minGoalDistance.put(goal, new AbstractMap.SimpleEntry(box, goal.getPosition().distance(box.getPosition())));
 						}
-					}
-					else {
-						minGoalDistance.put(goal, new AbstractMap.SimpleEntry(box, goal.getPosition().distance(box.getPosition())));
-					}
-				}			
-			}			
+					}			
+				}	
+			}
+		}		
+
+
+		// Create for each unsatisfied goal an intention
+		for (Map.Entry<Goal,Map.Entry<Box,Integer>> entry : minGoalDistance.entrySet())
+		{
+			intentions.add(new Intention(entry.getKey(), entry.getValue().getKey()));
 		}
 		
+		// Check if all goals are satisfied
+		if(intentions.isEmpty())
+			return null;
 		
-		//Generate the intentions by choosing between competing desires and commit to some of them.
-		List<Intention> remove_list = new ArrayList<Intention>();
-		for(Intention intention:intentions) {
-			if(minGoalDistance.get(intention.getGoal()).getKey() != intention.getBox()) {
-				remove_list.add(intention);
+		int minAgentDistance = intentions.get(0).box.getPosition().distance(agent.getPosition());
+		int resultIdx = 0;
+		
+		// determine which box is closest to the agent
+		for(int i=1;i<intentions.size();i++) {
+			int distance = intentions.get(i).box.getPosition().distance(agent.getPosition());
+			if(distance < minAgentDistance) {
+				resultIdx = i;
+				minAgentDistance = distance;
 			}
 		}
-		intentions.removeAll(remove_list);
 
-		return intentions.get(0);
+		return intentions.get(resultIdx);
 	}
 	
 	
