@@ -30,17 +30,16 @@ public class Intention {
 					if(box.getLetter()-'A' == goal.getLetter()-'a')	{					
 						if(minGoalDistance.containsKey(goal)) {
 							if(minGoalDistance.get(goal).getValue() > goal.getPosition().distance(box.getPosition())) {
-								minGoalDistance.put(goal, new AbstractMap.SimpleEntry(box, goal.getPosition().distance(box.getPosition())));
+								minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, goal.getPosition().distance(box.getPosition())));
 							}
 						}
 						else {
-							minGoalDistance.put(goal, new AbstractMap.SimpleEntry(box, goal.getPosition().distance(box.getPosition())));
+							minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, goal.getPosition().distance(box.getPosition())));
 						}
 					}			
 				}	
 			}
 		}		
-
 
 		// Create for each unsatisfied goal an intention
 		for (Map.Entry<Goal,Map.Entry<Box,Integer>> entry : minGoalDistance.entrySet())
