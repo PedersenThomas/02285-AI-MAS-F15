@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import client.Client.Agent;
+import client.Command.dir;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
@@ -140,6 +141,26 @@ public class World {
 
 		return false;
 	}
+	
+	public boolean isGoalAt(Point point) {
+		for (Goal goal : goals) {
+			if(goal.getPosition().equals(point)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public Goal getGoalAt(Point point) {
+		for (Goal goal : goals) {
+			if(goal.getPosition().equals(point)) {
+				return goal;
+			}
+		}
+
+		return null;
+	}
 
 	public boolean isFreeCell(Point point) {
 		if (isWallAt(point)) {
@@ -246,4 +267,68 @@ public class World {
 		}
 		return true;
 	}
+	
+	public boolean isInnerGoal(Goal goal) {
+		int numSurroundedWalls = 0;
+		int numSurroundedGoals = 0;
+		
+		for(Command.dir dir:Command.dir.values()) {
+			if(isWallAt(goal.getPosition().move(dir)))
+				numSurroundedWalls++;
+			if(isGoalAt(goal.getPosition().move(dir)))
+				numSurroundedGoals++;
+		}
+		
+		if((numSurroundedWalls + numSurroundedGoals) == 4)
+			return true;
+		
+		return false;
+	}
+	
+	public int getGoalPriorityScore(Goal goal) {
+		boolean innerGoal = isInnerGoal(goal);
+		int numSurroundedWalls = 0;
+		int numSurroundedGoals = 0;
+		
+		for(Command.dir dir:Command.dir.values()) {
+			if(isWallAt(goal.getPosition().move(dir)))
+				numSurroundedWalls++;
+			if(isGoalAt(goal.getPosition().move(dir)))
+				numSurroundedGoals++;
+		}
+		
+		int score = numSurroundedWalls * 1000 +
+				    numSurroundedGoals *  100;
+		
+		if(innerGoal) {
+			List<Goal> connectedGoals = new ArrayList<Goal>();
+			connectedGoals.add(goal);
+			getConnectedGoals(goal,connectedGoals);
+			
+			int minDistance = 9999999;
+			for(Goal g:connectedGoals) {
+				int distance = g.getPosition().distance(goal.getPosition());
+				if((!isInnerGoal(g)) && (distance < minDistance)) {
+					minDistance = distance;					
+				}
+			}
+			score += 100-minDistance;
+		}
+		
+		return score;
+	}
+	
+	public void getConnectedGoals(Goal goal, List<Goal> result) {		
+		for(Command.dir dir:Command.dir.values()) {
+			Point p = goal.getPosition().move(dir);
+			if(isGoalAt(p)) {
+				Goal neighborGoal = getGoalAt(p);
+				if(!result.contains(neighborGoal)) {
+					result.add(neighborGoal);
+					getConnectedGoals(neighborGoal, result);
+				}
+			}
+		}
+	}
+	
 }

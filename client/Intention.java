@@ -2,6 +2,7 @@ package client;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +14,30 @@ public class Intention {
 	private Goal goal;
 	private Box box;
 	
+	static class GoalComparator implements Comparator<Goal> {
+		World world;
+		public GoalComparator(World world) {
+			this.world = world;
+		}
+		
+	    @Override
+	    public int compare(Goal a, Goal b) {
+	        return world.getGoalPriorityScore(b) - world.getGoalPriorityScore(a);
+	    }
+	}
+	
 	//TODO This should be beliefs not world.
 	public static Intention deliberate(World world, Agent agent) {
 		//Generate the desires, that is, everything the agent might want to achieve.
 		List<Box> boxes = world.getBoxes();	
 		//List<Agent> agents = world.getAgents();  // only one agent
-		List<Goal> goals = world.getGoals();
+		List<Goal> goals = new ArrayList<>(world.getGoals());
+		
+		/*goals.sort(new GoalComparator(world));
+		
+		for(Goal goal:goals) {
+			System.err.println(goal.getPosition() + ": " + world.getGoalPriorityScore(goal));
+		}*/
 		
 		List<Intention> intentions = new ArrayList<>();		
 		Map<Goal,Map.Entry<Box,Integer>> minGoalDistance = new HashMap<Goal,Map.Entry<Box,Integer>>();
@@ -37,8 +56,7 @@ public class Intention {
 								Integer boxToOtherGoalDistance = otherGoal.getPosition().distance(box.getPosition());
 								if(boxToOtherGoalDistance < boxToGoalDistance) {
 									boxSuitable = false;
-									break;
-																	
+									break;																	
 								}
 							}
 						}
