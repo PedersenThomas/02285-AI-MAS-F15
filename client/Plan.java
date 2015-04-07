@@ -11,6 +11,9 @@ public class Plan {
 	Queue<Command> commandQueue;
 	
 	public Plan(World world, Intention i, Agent agent) {
+		if(i == null) {
+			throw new RuntimeException("Intention is null");
+		}
 		System.err.println("Planing for Intention: " + i);
 		Heuristic h = new Greedy(i, agent.getId());
 		strategy = new StrategyBestFirst(h);
@@ -20,14 +23,14 @@ public class Plan {
 		
 		int numUncompletedGoals = world.getNumberOfUncompletedGoals();
 
-		int cnt = 0;
+		int iterations = 0;
 		while ( true ) {
-			cnt++;
+			iterations++;
 			if ( strategy.frontierIsEmpty() ) {
 				break;
 			}
-			if(cnt % 1000 == 0)
-			  System.err.println( cnt + "..." );
+			if(iterations % 10000 == 0)
+			  System.err.println( iterations + "..." );
 			
 			StrategyActionNode leafNode = strategy.getAndRemoveLeaf();
 			

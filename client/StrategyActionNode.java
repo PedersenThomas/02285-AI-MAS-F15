@@ -12,6 +12,7 @@ public class StrategyActionNode {
 	private StrategyActionNode previousNode;
 	private Command command;
 	private int agentId;
+	private int stepCount = 0;
 	
 	public StrategyActionNode(World world, int agentId) {
 		this.world = world;
@@ -23,6 +24,7 @@ public class StrategyActionNode {
 		this.agentId = agentId;
 		this.previousNode = parentNode;
 		this.command = command;
+		this.stepCount = parentNode.getStepCount() +1;
 	}
 	
 	public Queue<Command> extractList() {
@@ -38,6 +40,10 @@ public class StrategyActionNode {
 	
 	public World getWorld() {
 		return world;
+	}
+	
+	public int getStepCount() {
+		return stepCount;
 	}
 	
 	public ArrayList< StrategyActionNode > getExpandedNodes() {

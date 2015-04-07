@@ -10,13 +10,16 @@ public class Greedy extends Heuristic {
 	}
 	
 	public int f( StrategyActionNode n) {
-		return heuristic( n );
+		//TODO - This has now turned into A*.
+		return heuristic( n ) + n.getStepCount();
 	}
 	
 	private int heuristic(StrategyActionNode node) {
 		Box box = node.getWorld().getBoxById(i.getBox().getId());
 		Goal goal = i.getGoal();
-		return box.getPosition().distance(goal.getPosition());
+		int distanceFromBoxToGoal = box.getPosition().distance(goal.getPosition()); 
+		int goalCount = node.getWorld().getGoals().size() - node.getWorld().getNumberOfUncompletedGoals();
+		return distanceFromBoxToGoal + goalCount;
 	}
 	
 	@Override
