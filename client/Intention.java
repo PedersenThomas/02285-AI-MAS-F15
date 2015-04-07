@@ -27,19 +27,37 @@ public class Intention {
 		for(Goal goal:goals) {
 			if(!world.isGoalCompleted(goal)) {
 				for(Box box:boxes) {
-					if(box.getLetter() == Character.toUpperCase(goal.getLetter()))	{					
-						if(minGoalDistance.containsKey(goal)) {
-							if(minGoalDistance.get(goal).getValue() > goal.getPosition().distance(box.getPosition())) {
-								minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, goal.getPosition().distance(box.getPosition())));
+					if(box.getLetter() == Character.toUpperCase(goal.getLetter()))	{	
+						
+						Boolean boxSuitable = true;
+						Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());
+						for(Goal otherGoal:goals) {
+							if((otherGoal != goal) &&
+							   (otherGoal.getLetter() == goal.getLetter())) {
+								Integer boxToOtherGoalDistance = otherGoal.getPosition().distance(box.getPosition());
+								if(boxToOtherGoalDistance < boxToGoalDistance) {
+									boxSuitable = false;
+									break;
+																	
+								}
 							}
 						}
-						else {
-							minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, goal.getPosition().distance(box.getPosition())));
-						}
+							
+						if(boxSuitable) {
+							if(minGoalDistance.containsKey(goal)) {
+								if(minGoalDistance.get(goal).getValue() > boxToGoalDistance) {
+									minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
+								}
+							}
+							else {
+								minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
+							}
+						}							
 					}			
 				}	
 			}
-		}		
+		}	
+		
 
 		// Create for each unsatisfied goal an intention
 		for (Map.Entry<Goal,Map.Entry<Box,Integer>> entry : minGoalDistance.entrySet())
