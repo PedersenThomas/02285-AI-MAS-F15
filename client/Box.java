@@ -1,20 +1,23 @@
 package client;
 
 public class Box {
+	private int id;
 	public Point position;
 	private char letter;
 	private Color color;
 	
 	public Box(Box old) {
+		this.id = old.id;
 		this.letter = old.letter;
 		this.color = old.color;
 		this.position = new Point(old.position);
 	}
 	
-	public Box(int x, int y, char letter, Color color) {
+	public Box(int x, int y, char letter, Color color, int id) {
 		this.position = new Point(x, y);
 		this.letter = letter;
 		this.color = color;
+		this.id = id;
 	}
 	
 	public char getLetter() {
@@ -38,9 +41,13 @@ public class Box {
 		this.position = new Point(position);
 	}
 	
+	public int getId() {
+		return id;
+	}
+	
 	@Override
 	public String toString() {
-		return "BOX Letter: " + letter + " Color: " + color + " Position: " + position;
+		return "BOX id: " + id + " Letter: " + letter + " Color: " + color + " Position: " + position;
 	}
 	
 	@Override
@@ -62,15 +69,18 @@ public class Box {
 		if ( getClass() != obj.getClass() )
 			return false;
 		Box other = (Box) obj;
-		if(!this.position.equals(other.position)) {
+		if(other.getId() != this.getId()) {
 			return false;
 		}
-		if(this.letter != other.letter) {
-			return false;
-		}
-		if(this.color != other.color) {
-			return false;
-		}
+//		if(!this.position.equals(other.position)) {
+//			return false;
+//		}
+//		if(this.letter != other.letter) {
+//			return false;
+//		}
+//		if(this.color != other.color) {
+//			return false;
+//		}
 		return true;
 	}
 }

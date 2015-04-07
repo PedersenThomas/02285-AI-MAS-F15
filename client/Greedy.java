@@ -13,8 +13,8 @@ public class Greedy extends Heuristic {
 		return heuristic( n );
 	}
 	
-	private int heuristic(StrategyActionNode world) {
-		Box box = i.getBox();
+	private int heuristic(StrategyActionNode node) {
+		Box box = node.getWorld().getBoxById(i.getBox().getId());
 		Goal goal = i.getGoal();
 		return box.getPosition().distance(goal.getPosition());
 	}

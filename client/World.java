@@ -182,6 +182,15 @@ public class World {
 		}
 		return null;
 	}
+	
+	public Box getBoxById(int id) {
+		for(Box box: this.getBoxes()) {
+			if(box.getId() == id) {
+				return box;
+			}
+		}
+		return null;
+	}
 
 	public int update(Agent a, Command c) {
 		

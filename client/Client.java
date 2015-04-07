@@ -119,13 +119,14 @@ public class Client {
 		// Read lines specifying level layout
 		int y=0;
 		int width = 0;
+		int boxId = 0;
 		while ( !line.equals( "" ) ) {
 			for ( int i = 0; i < line.length(); i++ ) {
 				char id = line.charAt( i );
 				if ( '0' <= id && id <= '9' )
 					world.addAgent( new Agent( id - '0', colors.get( id ),new Point(i,y) ) );
 				else if ( 'A' <= id && id <= 'Z' )
-					world.addBox( new Box(i,y,id,Color.BLUE));
+					world.addBox( new Box(i,y,id,Color.BLUE, boxId++));
 				else if ( 'a' <= id && id <= 'z' )
 					world.addGoal( new Goal(i,y,id));
 				else if ( id=='+')
