@@ -12,6 +12,7 @@ public class Client {
 		private String color;	
 		private Beliefs B;
 		private Point position;
+		Plan plan = null;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -44,15 +45,16 @@ public class Client {
 		public String act() {
 			
 			// BDI Version 2
+			if((plan == null) || (plan.commandQueue.size() == 0)) {
 			
-			// Update Beliefs
-			B.brf();
-			
-			//deliberate by choosing a set of intentions based on current beliefs
-			Intention I = Intention.deliberate(world, this);
-			
-			//compute a plan from current beliefs and intentions:
-			Plan plan = new Plan(world, I, this);
+				// Update Beliefs
+				B.brf();
+				
+				//deliberate by choosing a set of intentions based on current beliefs
+				Intention I = Intention.deliberate(world, this);
+				//compute a plan from current beliefs and intentions:
+				plan = new Plan(world, I, this);
+			}
 			
 			//execute the plan
 			Command cmd = plan.execute();

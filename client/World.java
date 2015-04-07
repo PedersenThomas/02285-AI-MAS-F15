@@ -36,6 +36,15 @@ public class World {
 	public List<Goal> getGoals() {
 		return Collections.unmodifiableList(goals);
 	}
+	
+	public int getNumberOfUncompletedGoals() {
+		int result = 0;
+		for(Goal g: goals) {
+			if(!isGoalCompleted(g))
+				result++;
+		}
+		return result;
+	}
 
 	public List<Agent> getAgents() {
 		return Collections.unmodifiableList(agents);

@@ -40,7 +40,7 @@ public class Box {
 	
 	@Override
 	public String toString() {
-		return "BOX Letter: " + letter + " Color:" + color + " Position: " + position;
+		return "BOX Letter: " + letter + " Color: " + color + " Position: " + position;
 	}
 	
 	@Override

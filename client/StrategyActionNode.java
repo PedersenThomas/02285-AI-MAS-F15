@@ -42,10 +42,16 @@ public class StrategyActionNode {
 	
 	public ArrayList< StrategyActionNode > getExpandedNodes() {
 		ArrayList< StrategyActionNode > expandedNodes = new ArrayList< StrategyActionNode >( Command.every.length );
-		Agent agent = world.getAgent(agentId);
+		//Agent agent = world.getAgent(agentId);
 		for ( Command c : Command.every ) {
+			World newWorld = new World(world);
+			newWorld.update(newWorld.getAgent(agentId), c);
+			if(!world.equals(newWorld)) {
+				StrategyActionNode node = new StrategyActionNode(newWorld, agentId, this, c);
+				expandedNodes.add( node );
+			}
 			// Determine applicability of action
-			Point newAgentPosition = agent.getPosition().move(c.dir1);
+			/*Point newAgentPosition = agent.getPosition().move(c.dir1);
 
 			if ( c.actType == type.Move ) {
 				// Check if there's a wall or box on the cell to which the agent is moving
@@ -79,7 +85,7 @@ public class StrategyActionNode {
 						expandedNodes.add( node );
 					}
 				}
-			}
+			}*/
 		}
 		return expandedNodes;
 	}

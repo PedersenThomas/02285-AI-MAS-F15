@@ -26,8 +26,8 @@ public class Intention {
 		// determine for each goal its closest box
 		for(Goal goal:goals) {
 			if(!world.isGoalCompleted(goal)) {
-				for(Box box:boxes) {			
-					if(box.getLetter()-'A' == goal.getLetter()-'a')	{					
+				for(Box box:boxes) {
+					if(box.getLetter() == Character.toUpperCase(goal.getLetter()))	{					
 						if(minGoalDistance.containsKey(goal)) {
 							if(minGoalDistance.get(goal).getValue() > goal.getPosition().distance(box.getPosition())) {
 								minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, goal.getPosition().distance(box.getPosition())));
@@ -90,6 +90,6 @@ public class Intention {
 	
 	@Override
 	public String toString() {
-		return "IntenTion = Box: " + box + " Goal: " + goal;	
+		return "Intention = Box: " + box + " Goal: " + goal;	
 	}
 }
