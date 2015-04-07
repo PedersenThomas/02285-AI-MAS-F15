@@ -33,11 +33,14 @@ public class Intention {
 		//List<Agent> agents = world.getAgents();  // only one agent
 		List<Goal> goals = new ArrayList<>(world.getGoals());
 		
-		/*goals.sort(new GoalComparator(world));
+		goals.sort(new GoalComparator(world));
 		
-		for(Goal goal:goals) {
+		/*
+		for(int i=0;i<goals.size();i++) {			
+			Goal goal = goals.get(i);
 			System.err.println(goal.getPosition() + ": " + world.getGoalPriorityScore(goal));
-		}*/
+		}
+		*/
 		
 		List<Intention> intentions = new ArrayList<>();		
 		Map<Goal,Map.Entry<Box,Integer>> minGoalDistance = new HashMap<Goal,Map.Entry<Box,Integer>>();
@@ -53,12 +56,21 @@ public class Intention {
 						for(Goal otherGoal:goals) {
 							if((otherGoal != goal) &&
 							   (otherGoal.getLetter() == goal.getLetter())) {
-								Integer boxToOtherGoalDistance = otherGoal.getPosition().distance(box.getPosition());
+								/*Integer boxToOtherGoalDistance = otherGoal.getPosition().distance(box.getPosition());
 								if(boxToOtherGoalDistance < boxToGoalDistance) {
 									boxSuitable = false;
 									break;																	
 								}
-							}
+								
+								if(boxToOtherGoalDistance == boxToGoalDistance) {
+									if(goals.indexOf(goal) > goals.indexOf(otherGoal))
+									boxSuitable = false;
+									break;																	
+								}*/
+								if(otherGoal.getPosition().equals(box.getPosition())) {
+									boxSuitable = false;
+								}
+							}							
 						}
 							
 						if(boxSuitable) {
@@ -76,9 +88,16 @@ public class Intention {
 			}
 		}	
 		
+		for(int i=0;i<goals.size();i++) {			
+			Goal intendedGoal = goals.get(i);
+			if(minGoalDistance.containsKey(intendedGoal))		
+			  return new Intention(intendedGoal, minGoalDistance.get(intendedGoal).getKey());
+		}
+		return null;
+		
 
 		// Create for each unsatisfied goal an intention
-		for (Map.Entry<Goal,Map.Entry<Box,Integer>> entry : minGoalDistance.entrySet())
+		/*for (Map.Entry<Goal,Map.Entry<Box,Integer>> entry : minGoalDistance.entrySet())
 		{
 			intentions.add(new Intention(entry.getKey(), entry.getValue().getKey()));
 		}
@@ -99,7 +118,7 @@ public class Intention {
 			}
 		}
 
-		return intentions.get(resultIdx);
+		return intentions.get(resultIdx);*/
 	}
 	
 	

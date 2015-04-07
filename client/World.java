@@ -305,14 +305,14 @@ public class World {
 			connectedGoals.add(goal);
 			getConnectedGoals(goal,connectedGoals);
 			
-			int minDistance = 9999999;
+			int minDistance = 99999;
 			for(Goal g:connectedGoals) {
 				int distance = g.getPosition().distance(goal.getPosition());
 				if((!isInnerGoal(g)) && (distance < minDistance)) {
 					minDistance = distance;					
 				}
 			}
-			score += 100-minDistance;
+			score += minDistance;
 		}
 		
 		return score;
