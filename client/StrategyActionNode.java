@@ -56,42 +56,6 @@ public class StrategyActionNode {
 				StrategyActionNode node = new StrategyActionNode(newWorld, agentId, this, c);
 				expandedNodes.add( node );
 			}
-			// Determine applicability of action
-			/*Point newAgentPosition = agent.getPosition().move(c.dir1);
-
-			if ( c.actType == type.Move ) {
-				// Check if there's a wall or box on the cell to which the agent is moving
-				if ( world.isFreeCell(newAgentPosition) ) {
-					StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
-					node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
-					expandedNodes.add( node );
-				}
-			} else if ( c.actType == type.Push ) {
-				// Make sure that there's actually a box to move
-				if ( world.isBoxAt(newAgentPosition) ) {
-					Point newBoxPosition = newAgentPosition.move(c.dir2);
-					// .. and that new cell of box is free
-					if ( world.isFreeCell(newBoxPosition) ) {
-						StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
-						node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
-						node.getWorld().getBoxAt(newAgentPosition).setPosition(newBoxPosition);
-						expandedNodes.add( node );
-					}
-				}
-			} else if ( c.actType == type.Pull ) {
-				// Cell is free where agent is going
-				if ( world.isFreeCell(newAgentPosition) ) {
-					// .. and there's a box in "dir2" of the agent
-					Point currentBoxPosition = agent.getPosition().move(c.dir2);
-					Point newBoxPosition = agent.getPosition();
-					if ( world.isBoxAt( currentBoxPosition ) ) {
-						StrategyActionNode node = new StrategyActionNode(this.world, agentId, this, c);
-						node.getWorld().getAgent(agent.getId()).setPosition(newAgentPosition);
-						node.getWorld().getBoxAt(currentBoxPosition).setPosition(newBoxPosition);
-						expandedNodes.add( node );
-					}
-				}
-			}*/
 		}
 		return expandedNodes;
 	}
