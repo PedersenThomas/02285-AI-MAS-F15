@@ -49,7 +49,7 @@ public class Intention {
 		for(Goal goal:goals) {
 			if(!world.isGoalCompleted(goal)) {
 				for(Box box:boxes) {
-					if(box.getLetter() == Character.toUpperCase(goal.getLetter()))	{	
+					if(box.getLetter() == goal.getLetter())	{	
 						
 						Boolean boxSuitable = true;
 						Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());

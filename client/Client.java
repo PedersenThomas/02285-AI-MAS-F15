@@ -128,7 +128,7 @@ public class Client {
 				else if ( 'A' <= id && id <= 'Z' )
 					world.addBox( new Box(i,y,id,Color.BLUE, boxId++));
 				else if ( 'a' <= id && id <= 'z' )
-					world.addGoal( new Goal(i,y,id));
+					world.addGoal( new Goal(i,y, Character.toUpperCase(id)));
 				else if ( id=='+')
 					world.addWall(i,y);
 			}

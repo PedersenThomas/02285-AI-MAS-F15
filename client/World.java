@@ -119,7 +119,7 @@ public class World {
 		if(box == null){
 			return false;
 		}
-		return Character.toLowerCase(box.getLetter()) == goal.getLetter();
+		return box.getLetter() == goal.getLetter();
 	}
 
 	
