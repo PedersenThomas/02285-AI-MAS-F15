@@ -2,12 +2,10 @@ package client;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 import client.Client.Agent;
-import client.Command.dir;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
@@ -330,5 +328,4 @@ public class World {
 			}
 		}
 	}
-	
 }
