@@ -3,7 +3,6 @@ package client;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
-
 import client.Client.Agent;
 
 public class StrategyActionNode {
@@ -47,12 +46,11 @@ public class StrategyActionNode {
 	
 	public ArrayList< StrategyActionNode > getExpandedNodes() {
 		ArrayList< StrategyActionNode > expandedNodes = new ArrayList< StrategyActionNode >( Command.every.length );
-		//Agent agent = world.getAgent(agentId);
 		for ( Command c : Command.every ) {
 			World newWorld = new World(world);
 			boolean validCommand = newWorld.update(newWorld.getAgent(agentId), c);
 			if(validCommand) {
-				StrategyActionNode node = new StrategyActionNode(newWorld, agentId, this, c);
+				StrategyActionNode node = new StrategyActionNode(newWorld, agentId, this, c);								
 				expandedNodes.add( node );
 			}
 		}

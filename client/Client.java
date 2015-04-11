@@ -43,6 +43,8 @@ public class Client {
 		}
 		
 		public String act() {
+			if(world.getNumberOfUncompletedGoals() == 0)
+				return "";
 			
 			// BDI Version 2
 			if((plan == null) || (plan.commandQueue.size() == 0)) {
