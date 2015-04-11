@@ -13,8 +13,8 @@ public class Greedy extends Heuristic {
 	
 	public int f( StrategyActionNode n) {
 		//TODO - This has now turned into A*.
-		//return heuristic( n ) + n.getStepCount();
-		return heuristic( n ) + (n.getStepCount()*n.getStepCount());  // for testing
+		return heuristic( n ) + n.getStepCount();
+		//return heuristic( n ) + (n.getStepCount()*n.getStepCount());  // for testing
 	}
 	
 	private int heuristic(StrategyActionNode node) {
