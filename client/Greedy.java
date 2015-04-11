@@ -1,5 +1,7 @@
 package client;
 
+import client.Client.Agent;
+
 public class Greedy extends Heuristic {
 	private Intention i;
 	private int agentId;
@@ -17,9 +19,11 @@ public class Greedy extends Heuristic {
 	private int heuristic(StrategyActionNode node) {
 		Box box = node.getWorld().getBoxById(i.getBox().getId());
 		Goal goal = i.getGoal();
+		Agent agent = node.getWorld().getAgent(agentId);
+		int distanceFromAgentToBox = agent.getPosition().distance(box.getPosition());
 		int distanceFromBoxToGoal = box.getPosition().distance(goal.getPosition()); 
 		int goalCount = node.getWorld().getGoals().size() - node.getWorld().getNumberOfUncompletedGoals();
-		return distanceFromBoxToGoal + goalCount;
+		return distanceFromAgentToBox + distanceFromBoxToGoal + goalCount;
 	}
 	
 	@Override
