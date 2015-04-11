@@ -48,7 +48,7 @@ public class Plan {
 						if((!n.getWorld().isGoalCompleted(g)) &&
 						    (leafNode.getWorld().isGoalCompleted(g))) {							
 							// Check if the destroyed goal has a higher priority score than the intended goal
-							if(n.getWorld().getGoalPriorityScore(g) >= world.getGoalPriorityScore(i.getGoal())) {
+							if(n.getWorld().getGoalPriorityScore(g) > world.getGoalPriorityScore(i.getGoal())) {
 								//yes -> that's not ok
 								highPriorityGoalDestroyed = true;								
 							}

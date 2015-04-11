@@ -72,9 +72,9 @@ public class Box {
 		if(other.getId() != this.getId()) {
 			return false;
 		}
-//		if(!this.position.equals(other.position)) {
-//			return false;
-//		}
+		if(!this.position.equals(other.position)) {
+			return false;
+		}
 //		if(this.letter != other.letter) {
 //			return false;
 //		}
