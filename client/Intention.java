@@ -31,47 +31,48 @@ public class Intention {
 		//List<Agent> agents = world.getAgents();  // only one agent
 		List<Goal> goals = new ArrayList<Goal>(world.getGoals());
 		
+		// Sort goals by there priority score
 		goals.sort(new GoalComparator(world));
-		
-		List<Intention> intentions = new ArrayList<Intention>();		
-		Map<Goal,Map.Entry<Box,Integer>> minGoalDistance = new HashMap<Goal,Map.Entry<Box,Integer>>();
+				
+		Map<Goal,Map.Entry<Box,Integer>> intentenionsMap = new HashMap<Goal,Map.Entry<Box,Integer>>();
+		List<Box> takenBoxes = new ArrayList<>();
 		
 		// determine for each goal its closest box
 		for(Goal goal:goals) {
 			if(!world.isGoalCompleted(goal)) {
-				for(Box box:boxes) {
+				for(Box box:boxes) {					
+					// Check if box is already taken
+					if(takenBoxes.contains(box))
+						continue;
+					
 					if(box.getLetter() == goal.getLetter())	{					
+						Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());	
 						
-						Boolean boxSuitable = true;
-						Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());
-						for(Goal otherGoal:goals) {
-							if((otherGoal != goal) &&
-							   (otherGoal.getLetter() == goal.getLetter())) {
-								if(otherGoal.getPosition().equals(box.getPosition())) {
-									boxSuitable = false;
-								}
-							}							
+						if(intentenionsMap.containsKey(goal)) {
+							if(intentenionsMap.get(goal).getValue() > boxToGoalDistance) {
+								intentenionsMap.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
+							}
 						}
-							
-						if(boxSuitable) {
-							if(minGoalDistance.containsKey(goal)) {
-								if(minGoalDistance.get(goal).getValue() > boxToGoalDistance) {
-									minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
-								}
-							}
-							else {
-								minGoalDistance.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
-							}
-						}							
+						else {
+							intentenionsMap.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
+						}
+													
 					}			
-				}	
+				}
+				// Add the box to the list of taken boxes
+				takenBoxes.add(intentenionsMap.get(goal).getKey());			
+			}
+			else {
+				// If goal is already completed then add it to the list of taken boxes
+				// so that goals with a lower priority can't take it away
+				takenBoxes.add(world.getBoxAt(goal.getPosition()));			
 			}
 		}	
 		
 		for(int i=0;i<goals.size();i++) {			
 			Goal intendedGoal = goals.get(i);
-			if(minGoalDistance.containsKey(intendedGoal))		
-			  return new Intention(intendedGoal, minGoalDistance.get(intendedGoal).getKey());
+			if(intentenionsMap.containsKey(intendedGoal))		
+			  return new Intention(intendedGoal, intentenionsMap.get(intendedGoal).getKey());
 		}
 		return null;
 	}
