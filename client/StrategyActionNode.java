@@ -50,8 +50,8 @@ public class StrategyActionNode {
 		//Agent agent = world.getAgent(agentId);
 		for ( Command c : Command.every ) {
 			World newWorld = new World(world);
-			newWorld.update(newWorld.getAgent(agentId), c);
-			if(!world.equals(newWorld)) {
+			boolean validCommand = newWorld.update(newWorld.getAgent(agentId), c);
+			if(validCommand) {
 				StrategyActionNode node = new StrategyActionNode(newWorld, agentId, this, c);
 				expandedNodes.add( node );
 			}
