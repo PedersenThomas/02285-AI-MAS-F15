@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 import client.Client.Agent;
 
@@ -291,6 +292,10 @@ public class World {
 	}
 
 	public int getGoalPriorityScore(Goal goal) {
+		// Can be pre-computed because it doesn't change
+		if(goal.getPriorityScore() >= 0)
+			return goal.getPriorityScore();		
+		
 		boolean innerGoal = isInnerGoal(goal);
 		int numSurroundedWalls = 0;
 		int numSurroundedInnerGoals = 0;
@@ -305,8 +310,7 @@ public class World {
 					numSurroundedInnerGoals++;
 				else
 					numSurroundedOuterGoals++;
-			}
-				
+			}				
 		}
 
 		int score = numSurroundedWalls      * 10000 +
@@ -327,7 +331,8 @@ public class World {
 			}
 			score += minDistance;
 		}
-
+		
+		goal.setPriorityScore(score);
 		return score;
 	}
 
@@ -343,4 +348,53 @@ public class World {
 			}
 		}
 	}
+	
+	/* Under development
+	public int getBoxAccessibility(Box box) {		
+		Point boxPos = box.getPosition();
+		Point agentPos = agents.get(0).getPosition();
+
+		Stack<Point> path = new Stack<>();
+		
+		int xDir = 1;
+		if(boxPos.getX() > agentPos.getX()) 
+			xDir = -1;
+		
+		int yDir = 1;
+		if(boxPos.getY() > agentPos.getY()) 
+			yDir = -1;
+		
+		
+		int y = boxPos.getY();
+		boolean goback = false;
+		for(int x = boxPos.getX(); x != (agentPos.getX()+xDir) ; x+= xDir) {
+			for(; y != (agentPos.getY()+yDir) ; y+= yDir) {
+				Point p = new Point(x,y);
+				if(!isWallAt(p)) {
+					path.push(p);
+				}
+				else {
+					break;
+				}	
+			}
+			if(y == (agentPos.getY()+yDir))
+				y = agentPos.getY();
+		}
+		
+		if(!path.peek().equals(agentPos))
+			return 20;
+		
+		int boxesOnPath = 0;
+		int i=0;
+		while(!path.isEmpty()) {
+			i++;
+			Point p = path.pop();
+			if(p.equals(boxPos))
+				continue;
+			
+			if(isBoxAt(p))
+				boxesOnPath++;
+		}
+		return boxesOnPath;
+	}*/
 }
