@@ -23,8 +23,7 @@ public class Greedy extends Heuristic {
 		Agent agent = node.getWorld().getAgent(agentId);
 		int distanceFromAgentToBox = (agent.getPosition().distance(box.getPosition()));
 		int distanceFromBoxToGoal = box.getPosition().distance(goal.getPosition()); 
-		// I think it should be like this?
-		int goalCount = /*node.getWorld().getGoals().size() -*/ node.getWorld().getNumberOfUncompletedGoals();
+		int goalCount = node.getWorld().getNumberOfUncompletedGoals();
 		return distanceFromAgentToBox + distanceFromBoxToGoal + goalCount;
 	}
 	
