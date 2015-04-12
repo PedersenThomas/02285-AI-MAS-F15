@@ -7,7 +7,6 @@ public class Client {
 	public World world = new World();
 	
 	public class Agent {
-		// We don't actually use these for Randomly Walking Around
 		private int id;
 		private String color;	
 		private Beliefs B;
@@ -61,7 +60,6 @@ public class Client {
 			world.update(this, cmd);
 			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
-			
 		}
 		
 		@Override
@@ -150,7 +148,6 @@ public class Client {
 			jointAction += world.getAgent( i ).act() + ",";
 		
 		jointAction += world.getAgent( world.getNumberOfAgents() - 1 ).act() + "]";
-
 		// Place message in buffer
 		System.out.println( jointAction );
 		
