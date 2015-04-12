@@ -69,18 +69,18 @@ public class Box {
 		if ( getClass() != obj.getClass() )
 			return false;
 		Box other = (Box) obj;
-		if(other.getId() != this.getId()) {
+//		if(other.getId() != this.getId()) {
+//			return false;
+//		}
+		if(!this.position.equals(other.position)) {
 			return false;
 		}
-//		if(!this.position.equals(other.position)) {
-//			return false;
-//		}
-//		if(this.letter != other.letter) {
-//			return false;
-//		}
-//		if(this.color != other.color) {
-//			return false;
-//		}
+		if(this.letter != other.letter) {
+			return false;
+		}
+		if(this.color != other.color) {
+			return false;
+		}
 		return true;
 	}
 }
