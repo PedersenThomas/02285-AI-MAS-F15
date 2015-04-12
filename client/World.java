@@ -293,17 +293,25 @@ public class World {
 	public int getGoalPriorityScore(Goal goal) {
 		boolean innerGoal = isInnerGoal(goal);
 		int numSurroundedWalls = 0;
-		int numSurroundedGoals = 0;
+		int numSurroundedInnerGoals = 0;
+		int numSurroundedOuterGoals = 0;
 
 		for(Command.dir dir:Command.dir.values()) {
-			if(isWallAt(goal.getPosition().move(dir)))
+			Point p = goal.getPosition().move(dir);
+			if(isWallAt(p))
 				numSurroundedWalls++;
-			if(isGoalAt(goal.getPosition().move(dir)))
-				numSurroundedGoals++;
+			if(isGoalAt(p)) {
+				if(isInnerGoal(getGoalAt(p)))
+					numSurroundedInnerGoals++;
+				else
+					numSurroundedOuterGoals++;
+			}
+				
 		}
 
-		int score = numSurroundedWalls * 1000 +
-				    numSurroundedGoals *  100;
+		int score = numSurroundedWalls      * 10000 +
+				    numSurroundedInnerGoals *  1000 +
+		            numSurroundedOuterGoals *   100;
 
 		if(innerGoal) {
 			List<Goal> connectedGoals = new ArrayList<Goal>();

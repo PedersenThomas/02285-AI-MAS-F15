@@ -69,9 +69,9 @@ public class Box {
 		if ( getClass() != obj.getClass() )
 			return false;
 		Box other = (Box) obj;
-//		if(other.getId() != this.getId()) {
-//			return false;
-//		}
+		if(other.getId() != this.getId()) {
+			return false;
+		}
 		if(!this.position.equals(other.position)) {
 			return false;
 		}

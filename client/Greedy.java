@@ -14,15 +14,17 @@ public class Greedy extends Heuristic {
 	public int f( StrategyActionNode n) {
 		//TODO - This has now turned into A*.
 		return heuristic( n ) + n.getStepCount();
+		//return heuristic( n ) + (n.getStepCount()*n.getStepCount());  // for testing
 	}
 	
 	private int heuristic(StrategyActionNode node) {
 		Box box = node.getWorld().getBoxById(i.getBox().getId());
 		Goal goal = i.getGoal();
 		Agent agent = node.getWorld().getAgent(agentId);
-		int distanceFromAgentToBox = agent.getPosition().distance(box.getPosition());
+		int distanceFromAgentToBox = (agent.getPosition().distance(box.getPosition()));
 		int distanceFromBoxToGoal = box.getPosition().distance(goal.getPosition()); 
-		int goalCount = node.getWorld().getGoals().size() - node.getWorld().getNumberOfUncompletedGoals();
+		// I think it should be like this?
+		int goalCount = /*node.getWorld().getGoals().size() -*/ node.getWorld().getNumberOfUncompletedGoals();
 		return distanceFromAgentToBox + distanceFromBoxToGoal + goalCount;
 	}
 	
