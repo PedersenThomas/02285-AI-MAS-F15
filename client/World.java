@@ -7,12 +7,13 @@ import java.util.List;
 import java.util.Stack;
 
 import client.Client.Agent;
+import client.Intention.GoalComparator;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
 	private static List<Goal> goals = new ArrayList<Goal>();
 	private List<Agent> agents = new ArrayList<Agent>();
-	private static List<Point> walls = new ArrayList<Point>();
+	private List<Point> walls = new ArrayList<Point>();
 	private int width;
 	private int height;
 
@@ -25,8 +26,16 @@ public class World {
 		for (Agent agent : old.agents) {
 			this.agents.add(agent.CloneAgent());
 		}
+		for (Point wall : old.walls) {
+			this.walls.add(new Point(wall));
+		}
+		
 		this.width = old.width;
 		this.height = old.height;
+	}
+	
+	public int getLevelSize() {
+		return width*height;
 	}
 
 	public List<Box> getBoxes() {
@@ -294,7 +303,7 @@ public class World {
 	public int getGoalPriorityScore(Goal goal) {
 		// Can be pre-computed because it doesn't change
 		if(goal.getPriorityScore() >= 0)
-			return goal.getPriorityScore();		
+			return goal.getPriorityScore();
 		
 		boolean innerGoal = isInnerGoal(goal);
 		int numSurroundedWalls = 0;
@@ -349,52 +358,66 @@ public class World {
 		}
 	}
 	
-	/* Under development
-	public int getBoxAccessibility(Box box) {		
-		Point boxPos = box.getPosition();
-		Point agentPos = agents.get(0).getPosition();
-
-		Stack<Point> path = new Stack<>();
+	static boolean sorted = false;
+	public void sortGoals() {
 		
-		int xDir = 1;
-		if(boxPos.getX() > agentPos.getX()) 
-			xDir = -1;
+		if(sorted) return;
+		sorted = true;
 		
-		int yDir = 1;
-		if(boxPos.getY() > agentPos.getY()) 
-			yDir = -1;
+		goals.sort(new GoalComparator(this));		
 		
-		
-		int y = boxPos.getY();
-		boolean goback = false;
-		for(int x = boxPos.getX(); x != (agentPos.getX()+xDir) ; x+= xDir) {
-			for(; y != (agentPos.getY()+yDir) ; y+= yDir) {
-				Point p = new Point(x,y);
-				if(!isWallAt(p)) {
-					path.push(p);
+		// Check paths
+		boolean allChecked = false;
+		while(!allChecked) {
+			World copyOfWorld = new World(this);
+			Point agentPos = new Point(copyOfWorld.getAgent(0).getPosition());
+			for(int i=0;i<goals.size();i++) {			
+				Goal g = goals.get(i);
+				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
+				if(pathExists) {
+					copyOfWorld.addWall(g.getPosition().getX(), g.getPosition().getY());
+					//agentPos = g.getPosition();
+					if(i==goals.size()-1) {
+						allChecked = true;
+					}
 				}
 				else {
+					//Collections.swap(goals, i, i-1);
+					goals.remove(i);
+					goals.add(0, g);
 					break;
-				}	
+				}				
+			}  //for(int i=0;i<goals.size();i++)
+		}  //while(!allChecked) 
+		
+		for(int i=0;i<goals.size();i++) {		
+			goals.get(i).setTotalOrder(i);
+			System.err.println(goals.get(i));
+		}
+	}
+	
+	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {
+		AgentPathSearch pathSearch = new AgentPathSearch(pos);
+		pathSearch.addToFrontier(new PathNode(agentPos, this));
+		while ( true ) {
+			if ( pathSearch.frontierIsEmpty() ) {
+				//System.err.println(i + "> " + goal + ": No path!" );
+				return false;
 			}
-			if(y == (agentPos.getY()+yDir))
-				y = agentPos.getY();
-		}
-		
-		if(!path.peek().equals(agentPos))
-			return 20;
-		
-		int boxesOnPath = 0;
-		int i=0;
-		while(!path.isEmpty()) {
-			i++;
-			Point p = path.pop();
-			if(p.equals(boxPos))
-				continue;
-			
-			if(isBoxAt(p))
-				boxesOnPath++;
-		}
-		return boxesOnPath;
-	}*/
+
+			PathNode leafNode = pathSearch.getAndRemoveLeaf();
+
+			if ( leafNode.getPosition().equals(pos)) {				
+				//System.err.println(i + "> " +  goal + ": path found!" );
+				return true;
+			}
+
+			pathSearch.addToExplored( leafNode );
+			for ( PathNode n : leafNode.getExpandedNodes(pos,ignoreBoxes) ) {
+				if ( !pathSearch.isExplored( n ) && !pathSearch.inFrontier( n ) ) {
+					pathSearch.addToFrontier( n );
+				}
+			}
+		} // while(true)
+	}
 }

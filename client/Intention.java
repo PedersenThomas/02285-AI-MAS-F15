@@ -1,11 +1,14 @@
 package client;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import client.Client.Agent;
 
 public class Intention {
@@ -29,10 +32,11 @@ public class Intention {
 		//Generate the desires, that is, everything the agent might want to achieve.
 		List<Box> boxes = world.getBoxes();	
 		//List<Agent> agents = world.getAgents();  // only one agent
+		world.sortGoals();
 		List<Goal> goals = new ArrayList<Goal>(world.getGoals());
 		
 		// Sort goals by there priority score
-		goals.sort(new GoalComparator(world));
+		//goals.sort(new GoalComparator(world));
 				
 		Map<Goal,Map.Entry<Box,Integer>> intentenionsMap = new HashMap<Goal,Map.Entry<Box,Integer>>();
 		List<Box> takenBoxes = new ArrayList<>();
@@ -40,24 +44,35 @@ public class Intention {
 		// determine for each goal its closest box
 		for(Goal goal:goals) {
 			if(!world.isGoalCompleted(goal)) {
-				for(Box box:boxes) {					
-					// Check if box is already taken
-					if(takenBoxes.contains(box))
-						continue;
-					
-					if(box.getLetter() == goal.getLetter())	{					
-						Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());	
+				boolean checkReachability = true;
+				while(intentenionsMap.get(goal) == null) {
+					for(Box box:boxes) {					
+						// Check if box is already taken
+						if(takenBoxes.contains(box))
+							continue;
 						
-						if(intentenionsMap.containsKey(goal)) {
-							if(intentenionsMap.get(goal).getValue() > boxToGoalDistance) {
+						if(box.getLetter() == goal.getLetter())	{
+							if(checkReachability) {
+								boolean isBoxReachable = world.isPositionReachable(world.getAgent(0).getPosition(), 
+										                                           box.getPosition(), false);								
+								if(!isBoxReachable)
+									continue;
+							}
+							
+							Integer boxToGoalDistance = goal.getPosition().distance(box.getPosition());	
+							
+							if(intentenionsMap.containsKey(goal)) {
+								if(intentenionsMap.get(goal).getValue() > boxToGoalDistance) {
+									intentenionsMap.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
+								}
+							}
+							else {
 								intentenionsMap.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
 							}
-						}
-						else {
-							intentenionsMap.put(goal, new AbstractMap.SimpleEntry<Box,Integer>(box, boxToGoalDistance));
-						}
-													
-					}			
+														
+						}			
+					}
+					checkReachability = false;
 				}
 				// Add the box to the list of taken boxes
 				takenBoxes.add(intentenionsMap.get(goal).getKey());			
@@ -68,6 +83,8 @@ public class Intention {
 				takenBoxes.add(world.getBoxAt(goal.getPosition()));			
 			}
 		}	
+		
+		
 		
 		for(int i=0;i<goals.size();i++) {			
 			Goal intendedGoal = goals.get(i);
