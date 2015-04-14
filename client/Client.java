@@ -5,10 +5,10 @@ import java.util.*;
 
 public class Client {
 	public World world = new World();
-	
+
 	public class Agent {
 		private int id;
-		private String color;	
+		private String color;
 		private Beliefs B;
 		private Point position;
 		Plan plan = null;
@@ -20,55 +20,55 @@ public class Client {
 			this.id = id;
 			this.color = color;
 			this.position = position;
-			
+
 			// Initial Beliefs
 			this.B = new Beliefs();
 		}
-		
+
 		public Agent CloneAgent() {
 			return new Agent(this.id, this.color, this.position);
 		}
-		
+
 		public Point getPosition() {
 			return position;
 		}
-		
+
 		public void setPosition(Point position) {
 			this.position = position;
 		}
-		
+
 		public int getId() {
 			return id;
 		}
-		
+
 		public String act() {
 			if(world.getNumberOfUncompletedGoals() == 0)
 				return "";
-			
+
 			// BDI Version 2
-			if((plan == null) || (plan.commandQueue.size() == 0)) {
-			
+			if((plan == null) || (plan.isEmpty())) {
+
 				// Update Beliefs
 				B.brf();
-				
+
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention I = Intention.deliberate(world, this);
 				//compute a plan from current beliefs and intentions:
 				plan = new Plan(world, I, this);
 			}
-			
+
 			//execute the plan
 			Command cmd = plan.execute();
 			world.update(this, cmd);
 			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}
-		
+
 		@Override
 		public String toString() {
 			return "AGENT " + id + " Color: " + color + " Position: " + position;
 		}
-		
+
 		@Override
 		public int hashCode() {
 			final int prime = 31;
@@ -97,7 +97,7 @@ public class Client {
 	}
 
 	private BufferedReader in = new BufferedReader( new InputStreamReader( System.in ) );
-	
+
 
 	public Client() throws IOException {
 		readMap();
@@ -140,7 +140,7 @@ public class Client {
 
 		}
 		world.setLevelSize(width, y);
-		
+
 	}
 
 	public boolean update() throws IOException {
@@ -148,11 +148,11 @@ public class Client {
 
 		for ( int i = 0; i < world.getNumberOfAgents() - 1; i++ )
 			jointAction += world.getAgent( i ).act() + ",";
-		
+
 		jointAction += world.getAgent( world.getNumberOfAgents() - 1 ).act() + "]";
 		// Place message in buffer
 		System.out.println( jointAction );
-		
+
 		// Flush buffer
 		System.out.flush();
 
@@ -165,7 +165,7 @@ public class Client {
 	}
 
 	public static void main( String[] args ) {
-		
+
 		// Use stderr to print to console
 		System.err.println( "Hello from RandomWalkClient. I am sending this using the error outputstream" );
 		try {
