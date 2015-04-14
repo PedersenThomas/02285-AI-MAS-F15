@@ -28,6 +28,14 @@ public class World {
 		this.width = old.width;
 		this.height = old.height;
 	}
+	
+	public int getWidth() {
+		return width;
+	}
+	
+	public int getHeight() {
+		return height;
+	}
 
 	public List<Box> getBoxes() {
 		return Collections.unmodifiableList(boxes);
@@ -121,6 +129,14 @@ public class World {
 		return box.getLetter() == goal.getLetter();
 	}
 
+	public boolean isAgentAt(Point point) {
+		for (Agent agent : agents) {
+			if(agent.getPosition().equals(point)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public boolean isBoxAt(Point point) {
 		for (Box box : boxes) {
