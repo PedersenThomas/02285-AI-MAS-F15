@@ -53,6 +53,9 @@ public class Client {
 
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention I = Intention.deliberate(world, this);
+				
+				
+				
 				//compute a plan from current beliefs and intentions:
 				plan = new Plan(world, I, this);
 			}

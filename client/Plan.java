@@ -3,6 +3,9 @@ package client;
 import java.util.Queue;
 
 import client.Client.Agent;
+import client.Heuristic.AStar;
+import client.Heuristic.Heuristic;
+import client.Heuristic.HeuristicPlannerFunction;
 
 public class Plan {
 	private StrategyBestFirst strategy;
@@ -13,7 +16,7 @@ public class Plan {
 			throw new RuntimeException("Intention is null");
 		}
 		System.err.println("Planing for Intention: " + i);
-		Heuristic h = new Greedy(i, agent.getId());
+		Heuristic h = new AStar(new HeuristicPlannerFunction(i, agent.getId()));
 		strategy = new StrategyBestFirst(h);
 
 		System.err.format( "Search starting with strategy %s\n", strategy );

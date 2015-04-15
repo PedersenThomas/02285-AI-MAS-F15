@@ -3,6 +3,8 @@ package client;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
+import client.Heuristic.Heuristic;
+
 public class StrategyBestFirst {
 	private HashSet< StrategyActionNode > explored;
 	private Heuristic heuristic;

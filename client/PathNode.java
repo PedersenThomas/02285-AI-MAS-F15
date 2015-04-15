@@ -17,7 +17,6 @@ public class PathNode {
 	public int getStepCount() {
 		return stepCount;
 	}
-
 	
 	PathNode(Point position, int parentStepCount, World world) {
 		this.position = position;
