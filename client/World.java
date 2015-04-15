@@ -199,6 +199,10 @@ public class World {
 		if (isBoxAt(point)) {
 			return false;
 		}
+		
+		if (isAgentAt(point)) {
+			return false;
+		}
 
 		return true;
 	}
