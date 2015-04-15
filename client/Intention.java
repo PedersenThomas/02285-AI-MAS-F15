@@ -1,6 +1,5 @@
 package client;
 
-import java.io.ObjectInputStream.GetField;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;

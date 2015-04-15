@@ -36,13 +36,13 @@ public class Plan {
 			if(iterations % 10000 == 0)
 			  System.err.println( iterations + "..." );
 
-			SearchNode leafNode = strategy.getAndRemoveLeaf();
+			PlannerNode leafNode = (PlannerNode)strategy.getAndRemoveLeaf();
 
 			if ( leafNode.getWorld().isGoalCompleted(i.getGoal()) 
 					//I don't think this will be a good idea when we start to move into Multi-Agents.
 					/*&&
 				 (leafNode.getWorld().getNumberOfUncompletedGoals() < numUncompletedGoals)*/) {
-			    commandQueue = leafNode.extractList();
+			    commandQueue = leafNode.extractListOfCommands();
 				break;
 			}
 

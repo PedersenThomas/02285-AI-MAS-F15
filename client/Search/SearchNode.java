@@ -36,17 +36,6 @@ public abstract class SearchNode {
 		return stepCount;
 	}
 	
-	public Queue<Command> extractList() {
-		LinkedList<Command> queue = new LinkedList<Command>();
-
-		SearchNode node = this;
-		while(node != null && node.command != null) {
-			queue.add(0, node.command);
-			node = node.previousNode;
-		}
-		return queue;
-	}
-	
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();

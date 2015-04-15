@@ -1,6 +1,8 @@
 package client.Search;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import client.Command;
 import client.Point;
@@ -37,6 +39,17 @@ public class PathNode extends SearchNode {
 			}
 		}
 		return expandedNodes;
+	}
+	
+	public Queue<Point> extractListOfPossitions() {
+		LinkedList<Point> queue = new LinkedList<Point>();
+
+		PathNode node = this;
+		while(node != null && node.getPosition() != null) {
+			queue.add(0, node.getPosition());
+			node = (PathNode)node.previousNode;
+		}
+		return queue;
 	}
 	
 	public Point getPosition() {

@@ -19,6 +19,7 @@ public class World {
 	private static List<Goal> goals = new ArrayList<Goal>();
 	private List<Agent> agents = new ArrayList<Agent>();
 	private List<Point> walls = new ArrayList<Point>();
+	private static List<Point> rechableCells = new ArrayList<Point>();
 	private int width;
 	private int height;
 
@@ -50,6 +51,15 @@ public class World {
 	public int getLevelSize() {
 		return width*height;
 	}
+	
+	public List<Point> getRechableCells() {
+		return rechableCells;
+	}
+	
+	public void setRechableCells(List<Point> rechableCells) {
+		this.rechableCells = Collections.unmodifiableList(rechableCells);
+	}
+	
 
 	public List<Box> getBoxes() {
 		return Collections.unmodifiableList(boxes);

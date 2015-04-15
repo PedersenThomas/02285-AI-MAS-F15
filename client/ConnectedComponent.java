@@ -73,6 +73,16 @@ public class ConnectedComponent {
 		}
 	}
 	
+	/**
+	 * You can use the same connected component object to call this function twice
+	 * @param point
+	 * @return
+	 */
+	public ArrayList<Point> findPointInConnectedComponent(Point point) {
+		BFS(point);
+		return new ArrayList<Point>(explored);
+	}
+	
 	private ArrayList<Point> findNeighbours(Point point) {
 		ArrayList<Point> result = new ArrayList<Point>();
 		if(point.getX() > 0) {

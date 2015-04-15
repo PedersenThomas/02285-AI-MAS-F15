@@ -53,8 +53,11 @@ public class Client {
 
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention I = Intention.deliberate(world, this);
-				
-				
+//				List<SubIntention> subIntentions = IntentionDecomposer.decomposeIntention(I, world, this.id);
+//				
+//				for(SubIntention subIntention : subIntentions) {
+//					
+//				}
 				
 				//compute a plan from current beliefs and intentions:
 				plan = new Plan(world, I, this);
@@ -143,7 +146,8 @@ public class Client {
 
 		}
 		world.setLevelSize(width, y);
-
+		ConnectedComponent cc = new ConnectedComponent(world);
+		world.setRechableCells(cc.findPointInConnectedComponent(world.getAgents().get(0).getPosition()));
 	}
 
 	public boolean update() throws IOException {

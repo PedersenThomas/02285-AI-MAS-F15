@@ -1,6 +1,8 @@
 package client.Search;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import client.Command;
 import client.World;
@@ -29,6 +31,17 @@ public class PlannerNode extends SearchNode {
 			}
 		}
 		return expandedNodes;
+	}
+	
+	public Queue<Command> extractListOfCommands() {
+		LinkedList<Command> queue = new LinkedList<Command>();
+
+		SearchNode node = this;
+		while(node != null && node.command != null) {
+			queue.add(0, node.command);
+			node = node.previousNode;
+		}
+		return queue;
 	}
 	
 	@Override
