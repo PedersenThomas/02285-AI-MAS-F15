@@ -2,8 +2,8 @@ package client.Heuristic;
 
 import java.util.Comparator;
 
-import client.StrategyActionNode;
+import client.Search.SearchNode;
 
-public abstract class Heuristic implements Comparator< StrategyActionNode > {
+public abstract class Heuristic implements Comparator< SearchNode > {
 
 }

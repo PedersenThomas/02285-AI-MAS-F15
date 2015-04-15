@@ -1,11 +1,10 @@
 package client.Heuristic;
 
 import client.Box;
-import client.Client;
 import client.Goal;
 import client.Intention;
-import client.StrategyActionNode;
 import client.Client.Agent;
+import client.Search.SearchNode;
 
 public class HeuristicPlannerFunction implements IHeuristicFunction {
 	private Intention intention;
@@ -17,7 +16,7 @@ public class HeuristicPlannerFunction implements IHeuristicFunction {
 	}	
 	
 	@Override
-	public int heuristic(StrategyActionNode node) {
+	public int heuristic(SearchNode node) {
 		Box box = node.getWorld().getBoxById(intention.getBox().getId());
 		Goal goal = intention.getGoal();
 		Agent agent = node.getWorld().getAgent(agentId);

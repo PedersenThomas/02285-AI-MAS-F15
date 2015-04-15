@@ -1,34 +1,34 @@
-package client;
+package client.Search;
 
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
 import client.Heuristic.Heuristic;
 
-public class StrategyBestFirst {
-	private HashSet< StrategyActionNode > explored;
+public class BestFirstSearch {
+	private HashSet< SearchNode > explored;
 	private Heuristic heuristic;
-	private PriorityQueue< StrategyActionNode > frontier;
+	private PriorityQueue< SearchNode > frontier;
 	
-	public StrategyBestFirst( Heuristic h ) {
+	public BestFirstSearch( Heuristic h ) {
 		heuristic = h;
-		explored = new HashSet<StrategyActionNode>();
-		frontier = new PriorityQueue<StrategyActionNode>(h);
+		explored = new HashSet<SearchNode>();
+		frontier = new PriorityQueue<SearchNode>(h);
 	}
 	
-	public void addToExplored( StrategyActionNode n ) {
+	public void addToExplored( SearchNode n ) {
 		explored.add( n );
 	}
 	
-	public boolean isExplored( StrategyActionNode n ) {
+	public boolean isExplored( SearchNode n ) {
 		return explored.contains( n );
 	}
 	
-	public StrategyActionNode getAndRemoveLeaf() {
+	public SearchNode getAndRemoveLeaf() {
 		return frontier.poll();
 	}
 
-	public void addToFrontier( StrategyActionNode n ) {
+	public void addToFrontier( SearchNode n ) {
 		frontier.add(n);
 	}
 
@@ -40,7 +40,7 @@ public class StrategyBestFirst {
 		return frontier.isEmpty();
 	}
 
-	public boolean inFrontier( StrategyActionNode n ) {
+	public boolean inFrontier( SearchNode n ) {
 		return frontier.contains(n);
 	}
 

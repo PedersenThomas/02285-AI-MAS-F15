@@ -1,7 +1,7 @@
 @ECHO off
 
 cd ".\client"
-javac ./*.java
+javac ./*.java ./Heuristic/*.java ./Search/*.java
 
 cd ..
 

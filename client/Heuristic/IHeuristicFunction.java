@@ -1,7 +1,7 @@
 package client.Heuristic;
 
-import client.StrategyActionNode;
+import client.Search.SearchNode;
 
 public interface IHeuristicFunction {
-	public int heuristic(StrategyActionNode node);
+	public int heuristic(SearchNode node);
 }

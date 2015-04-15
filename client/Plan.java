@@ -6,9 +6,12 @@ import client.Client.Agent;
 import client.Heuristic.AStar;
 import client.Heuristic.Heuristic;
 import client.Heuristic.HeuristicPlannerFunction;
+import client.Search.BestFirstSearch;
+import client.Search.SearchNode;
+import client.Search.PlannerNode;
 
 public class Plan {
-	private StrategyBestFirst strategy;
+	private BestFirstSearch strategy;
 	private Queue<Command> commandQueue;
 
 	public Plan(World world, Intention i, Agent agent) {
@@ -17,10 +20,10 @@ public class Plan {
 		}
 		System.err.println("Planing for Intention: " + i);
 		Heuristic h = new AStar(new HeuristicPlannerFunction(i, agent.getId()));
-		strategy = new StrategyBestFirst(h);
+		strategy = new BestFirstSearch(h);
 
 		System.err.format( "Search starting with strategy %s\n", strategy );
-		strategy.addToFrontier( new StrategyActionNode( world, agent.getId() ) );
+		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
 
 		int numUncompletedGoals = world.getNumberOfUncompletedGoals();
 		int intendedGoalScore = world.getGoalPriorityScore(i.getGoal());
@@ -33,7 +36,7 @@ public class Plan {
 			if(iterations % 10000 == 0)
 			  System.err.println( iterations + "..." );
 
-			StrategyActionNode leafNode = strategy.getAndRemoveLeaf();
+			SearchNode leafNode = strategy.getAndRemoveLeaf();
 
 			if ( leafNode.getWorld().isGoalCompleted(i.getGoal()) 
 					//I don't think this will be a good idea when we start to move into Multi-Agents.
@@ -44,7 +47,7 @@ public class Plan {
 			}
 
 			strategy.addToExplored( leafNode );
-			for ( StrategyActionNode n : leafNode.getExpandedNodes() ) {
+			for ( SearchNode n : leafNode.getExpandedNodes() ) {
 				if ( !strategy.isExplored( n ) && !strategy.inFrontier( n ) ) {
 
 					// Check if a completed goal has been destroyed

@@ -4,10 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 import client.Client.Agent;
 import client.Intention.GoalComparator;
+import client.Heuristic.AStar;
+import client.Heuristic.HeuristicPathFunction;
+import client.Heuristic.IHeuristicFunction;
+import client.Search.BestFirstSearch;
+import client.Search.PathNode;
+import client.Search.SearchNode;
 
 public class World {
 	private List<Box> boxes = new ArrayList<Box>();
@@ -413,15 +418,17 @@ public class World {
 	}
 	
 	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {
-		AgentPathSearch pathSearch = new AgentPathSearch(pos);
-		pathSearch.addToFrontier(new PathNode(agentPos, this));
+		IHeuristicFunction function = new HeuristicPathFunction(pos);
+		AStar heuristic = new AStar(function);
+		BestFirstSearch pathSearch = new BestFirstSearch(heuristic);
+		pathSearch.addToFrontier(new PathNode(this, agentPos, pos, ignoreBoxes));
 		while ( true ) {
 			if ( pathSearch.frontierIsEmpty() ) {
 				//System.err.println(i + "> " + goal + ": No path!" );
 				return false;
 			}
 
-			PathNode leafNode = pathSearch.getAndRemoveLeaf();
+			PathNode leafNode = (PathNode)pathSearch.getAndRemoveLeaf();
 
 			if ( leafNode.getPosition().equals(pos)) {				
 				//System.err.println(i + "> " +  goal + ": path found!" );
@@ -429,7 +436,7 @@ public class World {
 			}
 
 			pathSearch.addToExplored( leafNode );
-			for ( PathNode n : leafNode.getExpandedNodes(pos,ignoreBoxes) ) {
+			for ( SearchNode n : leafNode.getExpandedNodes() ) {
 				if ( !pathSearch.isExplored( n ) && !pathSearch.inFrontier( n ) ) {
 					pathSearch.addToFrontier( n );
 				}

@@ -1,6 +1,6 @@
 package client.Heuristic;
 
-import client.StrategyActionNode;
+import client.Search.SearchNode;
 
 public class AStar extends Heuristic {
 	private IHeuristicFunction function;
@@ -9,12 +9,12 @@ public class AStar extends Heuristic {
 		this.function = function;
 	}
 	
-	public int f( StrategyActionNode n) {
+	public int f( SearchNode n) {
 		return function.heuristic( n ) + n.getStepCount();
 	}
 	
 	@Override
-	public int compare(StrategyActionNode node1, StrategyActionNode node2) {
+	public int compare(SearchNode node1, SearchNode node2) {
 		return this.f( node1 ) - this.f( node2 );
 	}
 
