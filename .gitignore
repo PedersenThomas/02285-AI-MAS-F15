@@ -7,3 +7,6 @@
 
 #Intelj Idea
 *.idea
+
+script.sh
+.DS_Store
