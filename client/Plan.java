@@ -14,7 +14,7 @@ public class Plan {
 	private BestFirstSearch strategy;
 	private Queue<Command> commandQueue;
 
-	public Plan(World world, Intention i, Agent agent) {
+	public Plan(World world, SubIntention i, Agent agent) {
 		if(i == null) {
 			throw new RuntimeException("Intention is null");
 		}
@@ -25,8 +25,8 @@ public class Plan {
 		System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
 
-		int numUncompletedGoals = world.getNumberOfUncompletedGoals();
-		int intendedGoalScore = world.getGoalPriorityScore(i.getGoal());
+		//int numUncompletedGoals = world.getNumberOfUncompletedGoals();
+		//int intendedGoalScore = world.getGoalPriorityScore(i.getGoal());
 		int iterations = 0;
 		while ( true ) {
 			iterations++;
@@ -38,10 +38,7 @@ public class Plan {
 
 			PlannerNode leafNode = (PlannerNode)strategy.getAndRemoveLeaf();
 
-			if ( leafNode.getWorld().isGoalCompleted(i.getGoal()) 
-					//I don't think this will be a good idea when we start to move into Multi-Agents.
-					/*&&
-				 (leafNode.getWorld().getNumberOfUncompletedGoals() < numUncompletedGoals)*/) {
+			if ( leafNode.getWorld().getBoxById(i.getBox().getId()).getPosition().equals(i.getEndPosition())) {
 			    commandQueue = leafNode.extractListOfCommands();
 				break;
 			}
@@ -51,21 +48,21 @@ public class Plan {
 				if ( !strategy.isExplored( n ) && !strategy.inFrontier( n ) ) {
 
 					// Check if a completed goal has been destroyed
-					boolean highPriorityGoalDestroyed = false;
-					for(Goal g:n.getWorld().getGoals()) {
-						if((!n.getWorld().isGoalCompleted(g)) &&
-						    (leafNode.getWorld().isGoalCompleted(g))) {
-							// Check if the destroyed goal has a higher priority score than the intended goal
-							//if(n.getWorld().getGoalPriorityScore(g) > intendedGoalScore) {
-							if(g.getTotalOrder() < i.getGoal().getTotalOrder()) {
-								//yes -> that's not ok
-								highPriorityGoalDestroyed = true;
-							}
-							break;
-						}
-					}
-					// Everything ok -> add node to frontier
-					if(!highPriorityGoalDestroyed)
+//					boolean highPriorityGoalDestroyed = false;
+//					for(Goal g:n.getWorld().getGoals()) {
+//						if((!n.getWorld().isGoalCompleted(g)) &&
+//						    (leafNode.getWorld().isGoalCompleted(g))) {
+//							// Check if the destroyed goal has a higher priority score than the intended goal
+//							//if(n.getWorld().getGoalPriorityScore(g) > intendedGoalScore) {
+//							if(g.getTotalOrder() < i.getGoal().getTotalOrder()) {
+//								//yes -> that's not ok
+//								highPriorityGoalDestroyed = true;
+//							}
+//							break;
+//						}
+//					}
+//					// Everything ok -> add node to frontier
+//					if(!highPriorityGoalDestroyed)
 						strategy.addToFrontier( n );
 
 				}

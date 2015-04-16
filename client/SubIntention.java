@@ -16,4 +16,9 @@ public class SubIntention {
 	public Point getEndPosition() {
 		return endPosition;
 	}
+	
+	@Override
+	public String toString() {
+		return "SubIntention: " + box + " -> " + endPosition;
+	}
 }

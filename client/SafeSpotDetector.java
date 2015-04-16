@@ -7,6 +7,9 @@ public class SafeSpotDetector {
 	public static List<Point> detectSafeSpots(World world) {
 		List<Point> safeSpots = new ArrayList<Point>();
 		for(Point point : world.getRechableCells()) {
+			if(world.getGoalAt(point) != null) {
+				continue;
+			}
 			int nearObjectsCounter = 0;
 			for(Command.dir dir: Command.dir.values()) {
 				Point p = point.move(dir);

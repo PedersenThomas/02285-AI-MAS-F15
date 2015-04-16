@@ -14,19 +14,28 @@ public class IntentionDecomposer {
 	
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
-		Point boxPosition = intention.getBox().getPosition();
 		Point agentPosition = world.getAgent(agentId).getPosition();
-		Queue<Point> path = findPathFromAgentToBox(world, agentPosition, boxPosition);
-		ArrayList<SubIntention> moveBoxesIntentions = moveBoxesOnPathToSafePlaces(world, path);
+		Point boxPosition = intention.getBox().getPosition();
+		Point goalPosition = intention.getGoal().getPosition();
+		Queue<Point> pathFromAgentToBox = findPath(world, agentPosition, boxPosition);
+		World clearPathToBoxWorld = moveBoxesOnPathToSafePlaces(world, pathFromAgentToBox, subIntentions);
 		
-		//SubIntention to move Box to goal.
+		//SubIntention to clear path from Box to Goal.
+		Queue<Point> pathFromBoxToGoal = findPath(clearPathToBoxWorld, boxPosition, goalPosition);
+		moveBoxesOnPathToSafePlaces(clearPathToBoxWorld, pathFromBoxToGoal, subIntentions);
+
+		//SubIntention for moving box to goal.
+		subIntentions.add(new SubIntention(intention.getBox(), goalPosition));
 		
-		subIntentions.addAll(moveBoxesIntentions);
+		System.err.println("----------- Intention Decomposer START----------");
+		for (SubIntention subIntention : subIntentions) {
+			System.err.println("" + subIntention.getBox() + " -> " + subIntention.getEndPosition());
+		}
+		System.err.println("----------- Intention Decomposer END----------");
 		return subIntentions;
 	}
 
-	private static ArrayList<SubIntention> moveBoxesOnPathToSafePlaces(World world, Queue<Point> path) {
-		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
+	private static World moveBoxesOnPathToSafePlaces(World world, Queue<Point> path, ArrayList<SubIntention> subIntentions) {
 		World newWorld = world;
 		
 		for(Point point : path) {
@@ -39,16 +48,15 @@ public class IntentionDecomposer {
 				newWorld.getBoxById(box.getId()).setPosition(savePosition);
 			}
 		}
-		return subIntentions;
+		return newWorld;
 	};
 
-	private static Queue<Point> findPathFromAgentToBox(World world, Point agentPosition,
-			Point boxPosition) {
-		HeuristicPathFunction pathFunction = new HeuristicPathFunction(boxPosition);
+	private static Queue<Point> findPath(World world, Point sourcePosition, Point targetPosition) {
+		HeuristicPathFunction pathFunction = new HeuristicPathFunction(targetPosition);
 		AStar heuristic = new AStar(pathFunction);
 		BestFirstSearch search = new BestFirstSearch(heuristic);
 
-		search.addToFrontier(new PathNode(world, agentPosition, boxPosition, true));
+		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true));
 		while (true) {
 			if (search.frontierIsEmpty()) {
 				throw new RuntimeException("Unable to reach the target position");
@@ -56,7 +64,7 @@ public class IntentionDecomposer {
 
 			PathNode leafNode = (PathNode) search.getAndRemoveLeaf();
 
-			if (leafNode.getPosition().equals(boxPosition)) {
+			if (leafNode.getPosition().equals(targetPosition)) {
 				return leafNode.extractListOfPossitions();
 			}
 
