@@ -147,7 +147,7 @@ public class Client {
 		}
 		world.setLevelSize(width, y);
 		ConnectedComponent cc = new ConnectedComponent(world);
-		world.setRechableCells(cc.findPointInConnectedComponent(world.getAgents().get(0).getPosition()));
+		world.setRechableCells(cc.findPointsInConnectedComponent(world.getAgents().get(0).getPosition()));
 	}
 
 	public boolean update() throws IOException {

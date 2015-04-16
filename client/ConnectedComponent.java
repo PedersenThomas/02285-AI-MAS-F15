@@ -78,7 +78,7 @@ public class ConnectedComponent {
 	 * @param point
 	 * @return
 	 */
-	public ArrayList<Point> findPointInConnectedComponent(Point point) {
+	public ArrayList<Point> findPointsInConnectedComponent(Point point) {
 		BFS(point);
 		return new ArrayList<Point>(explored);
 	}
