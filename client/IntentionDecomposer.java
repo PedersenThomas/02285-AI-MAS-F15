@@ -17,6 +17,16 @@ public class IntentionDecomposer {
 		Point boxPosition = intention.getBox().getPosition();
 		Point agentPosition = world.getAgent(agentId).getPosition();
 		Queue<Point> path = findPathFromAgentToBox(world, agentPosition, boxPosition);
+		ArrayList<SubIntention> moveBoxesIntentions = moveBoxesOnPathToSafePlaces(world, path);
+		
+		//SubIntention to move Box to goal.
+		
+		subIntentions.addAll(moveBoxesIntentions);
+		return subIntentions;
+	}
+
+	private static ArrayList<SubIntention> moveBoxesOnPathToSafePlaces(World world, Queue<Point> path) {
+		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		World newWorld = world;
 		
 		for(Point point : path) {
@@ -29,14 +39,12 @@ public class IntentionDecomposer {
 				newWorld.getBoxById(box.getId()).setPosition(savePosition);
 			}
 		}
-		
 		return subIntentions;
 	};
 
 	private static Queue<Point> findPathFromAgentToBox(World world, Point agentPosition,
 			Point boxPosition) {
-		HeuristicPathFunction pathFunction = new HeuristicPathFunction(
-				boxPosition);
+		HeuristicPathFunction pathFunction = new HeuristicPathFunction(boxPosition);
 		AStar heuristic = new AStar(pathFunction);
 		BestFirstSearch search = new BestFirstSearch(heuristic);
 
