@@ -1,7 +1,9 @@
 package client;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 import client.Heuristic.AStar;
@@ -17,15 +19,28 @@ public class IntentionDecomposer {
 		Point agentPosition = world.getAgent(agentId).getPosition();
 		Point boxPosition = intention.getBox().getPosition();
 		Point goalPosition = intention.getGoal().getPosition();
+		
+		//SubIntention to clear path from Agent to Box.
 		Queue<Point> pathFromAgentToBox = findPath(world, agentPosition, boxPosition);
 		World clearPathToBoxWorld = moveBoxesOnPathToSafePlaces(world, pathFromAgentToBox, subIntentions);
 		
+		System.err.println("----------- Agent Path ----------");
+		for (Point point : pathFromAgentToBox) {
+			System.err.println("" + point);
+		}
+		
 		//SubIntention to clear path from Box to Goal.
 		Queue<Point> pathFromBoxToGoal = findPath(clearPathToBoxWorld, boxPosition, goalPosition);
+		System.err.println("----------- Path ----------");
+		for (Point point : pathFromBoxToGoal) {
+			System.err.println("" + point);
+		}
+		
 		moveBoxesOnPathToSafePlaces(clearPathToBoxWorld, pathFromBoxToGoal, subIntentions);
-
+		
 		//SubIntention for moving box to goal.
 		subIntentions.add(new SubIntention(intention.getBox(), goalPosition));
+		
 		
 		System.err.println("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
@@ -41,8 +56,14 @@ public class IntentionDecomposer {
 		for(Point point : path) {
 			Box box = world.getBoxAt(point);
 			if (box != null) {
-				List<Point> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld);
-				Point savePosition = safeSpots.get(0);
+				PriorityQueue<SafePoint> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld);
+				
+				System.err.println("-----------  Safe spots ----------");
+				for (SafePoint safespot : safeSpots) {
+					System.err.println("" + safespot);
+				}
+				
+				Point savePosition = safeSpots.poll();
 				subIntentions.add(new SubIntention(box, savePosition));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(savePosition);
@@ -65,7 +86,12 @@ public class IntentionDecomposer {
 			PathNode leafNode = (PathNode) search.getAndRemoveLeaf();
 
 			if (leafNode.getPosition().equals(targetPosition)) {
-				return leafNode.extractListOfPossitions();
+				Queue<Point> path = leafNode.extractListOfPossitions();
+				//do not want to clear the objectives away from the path
+				path.poll();
+				removeLastFromQueue(path);
+				
+				return path;
 			}
 
 			search.addToExplored(leafNode);
@@ -75,5 +101,11 @@ public class IntentionDecomposer {
 				}
 			}
 		}
+	}
+	
+	private static void removeLastFromQueue (Queue<Point> queue) {
+		LinkedList<Point> list = (LinkedList)queue;
+		list.removeLast();
+		
 	}
 }
