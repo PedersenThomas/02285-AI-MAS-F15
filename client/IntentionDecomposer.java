@@ -117,8 +117,8 @@ public class IntentionDecomposer {
 	}
 
 	private static void removeLastFromQueue (Queue<Point> queue) {
-		LinkedList<Point> list = (LinkedList)queue;
+		//This is a hack. But the queue do not have a function for removing the last item.
+		LinkedList<Point> list = (LinkedList<Point>)queue;
 		list.removeLast();
-
 	}
 }
