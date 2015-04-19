@@ -13,35 +13,41 @@ import client.Search.PathNode;
 import client.Search.SearchNode;
 
 public class IntentionDecomposer {
-	
+
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		Point agentPosition = world.getAgent(agentId).getPosition();
 		Point boxPosition = intention.getBox().getPosition();
 		Point goalPosition = intention.getGoal().getPosition();
-		
-		//SubIntention to clear path from Agent to Box.
-		Queue<Point> pathFromAgentToBox = findPath(world, agentPosition, boxPosition);
-		World clearPathToBoxWorld = moveBoxesOnPathToSafePlaces(world, pathFromAgentToBox, subIntentions);
-		
-		System.err.println("----------- Agent Path ----------");
-		for (Point point : pathFromAgentToBox) {
-			System.err.println("" + point);
+
+		World currentWorld = world;
+		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
+			//SubIntention to clear path from Agent to Box.
+			Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);
+			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions);
+
+			//TODO Debug information
+			System.err.println("----------- Agent Path ----------");
+			for (Point point : pathFromAgentToBox) {
+				System.err.println("" + point);
+			}
 		}
-		
-		//SubIntention to clear path from Box to Goal.
-		Queue<Point> pathFromBoxToGoal = findPath(clearPathToBoxWorld, boxPosition, goalPosition);
-		System.err.println("----------- Path ----------");
-		for (Point point : pathFromBoxToGoal) {
-			System.err.println("" + point);
+
+		if(!world.isPositionReachable(boxPosition, goalPosition, false)) {
+			//SubIntention to clear path from Box to Goal.
+			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
+			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions);
+
+			//TODO Debug Infor
+			System.err.println("----------- Path ----------");
+			for (Point point : pathFromBoxToGoal) {
+				System.err.println("" + point);
+			}
 		}
-		
-		moveBoxesOnPathToSafePlaces(clearPathToBoxWorld, pathFromBoxToGoal, subIntentions);
-		
+
 		//SubIntention for moving box to goal.
 		subIntentions.add(new SubIntention(intention.getBox(), goalPosition));
-		
-		
+
 		System.err.println("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
 			System.err.println("" + subIntention.getBox() + " -> " + subIntention.getEndPosition());
@@ -52,21 +58,28 @@ public class IntentionDecomposer {
 
 	private static World moveBoxesOnPathToSafePlaces(World world, Queue<Point> path, ArrayList<SubIntention> subIntentions) {
 		World newWorld = world;
-		
+
 		for(Point point : path) {
 			Box box = world.getBoxAt(point);
 			if (box != null) {
 				PriorityQueue<SafePoint> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld);
-				
+
 				System.err.println("-----------  Safe spots ----------");
 				for (SafePoint safespot : safeSpots) {
 					System.err.println("" + safespot);
 				}
-				
-				Point savePosition = safeSpots.poll();
-				subIntentions.add(new SubIntention(box, savePosition));
+				Point safePosition = null;
+				//Find a safepoint not on the path.
+				for (SafePoint safespot : safeSpots) {
+					if(!path.contains(safespot)) {
+						safePosition = safespot;
+						break;
+					}
+				}
+				//Point savePosition = safeSpots.poll();
+				subIntentions.add(new SubIntention(box, safePosition));
 				newWorld = new World(newWorld);
-				newWorld.getBoxById(box.getId()).setPosition(savePosition);
+				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}
 		}
 		return newWorld;
@@ -90,7 +103,7 @@ public class IntentionDecomposer {
 				//do not want to clear the objectives away from the path
 				path.poll();
 				removeLastFromQueue(path);
-				
+
 				return path;
 			}
 
@@ -102,10 +115,10 @@ public class IntentionDecomposer {
 			}
 		}
 	}
-	
+
 	private static void removeLastFromQueue (Queue<Point> queue) {
 		LinkedList<Point> list = (LinkedList)queue;
 		list.removeLast();
-		
+
 	}
 }

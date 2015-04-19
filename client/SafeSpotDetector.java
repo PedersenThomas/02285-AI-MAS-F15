@@ -21,7 +21,7 @@ public class SafeSpotDetector {
 					spoint.increaseNumberOfBoxes();
 				}
 			}
-			if (spoint.getNumberOfSurrandedObjects() == 3) {
+			if (spoint.getNumberOfSurrandedObjects() == 3 || spoint.getNumberOfSurrandedObjects() == 1) {
 				safeSpots.add(spoint);
 			}
 		}
