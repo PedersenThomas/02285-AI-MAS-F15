@@ -12,6 +12,7 @@ import client.Client.Agent;
 public class Intention {
 	private Goal goal;
 	private Box box;
+	private Command.dir agentPos;
 	
 	static class GoalComparator implements Comparator<Goal> {
 		World world;
@@ -30,11 +31,7 @@ public class Intention {
 		//Generate the desires, that is, everything the agent might want to achieve.
 		List<Box> boxes = world.getBoxes();	
 		//List<Agent> agents = world.getAgents();  // only one agent
-		world.sortGoals();
-		List<Goal> goals = new ArrayList<Goal>(world.getGoals());
-		
-		// Sort goals by there priority score
-		//goals.sort(new GoalComparator(world));
+		List<Goal> goals = world.getGoalOrderForAgent(agent.getId());
 				
 		Map<Goal,Map.Entry<Box,Integer>> intentenionsMap = new HashMap<Goal,Map.Entry<Box,Integer>>();
 		List<Box> takenBoxes = new ArrayList<>();
@@ -114,6 +111,16 @@ public class Intention {
 		this.box = box;
 	}
 	
+	public Command.dir getAgentPos() {
+		return agentPos;
+	}
+
+
+	public void setAgentPos(Command.dir agentPos) {
+		this.agentPos = agentPos;
+	}
+
+
 	@Override
 	public String toString() {
 		return "Intention = Box: " + box + " Goal: " + goal;	

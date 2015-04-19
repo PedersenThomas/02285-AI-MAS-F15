@@ -3,7 +3,9 @@ package client;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import client.Client.Agent;
 import client.Intention.GoalComparator;
@@ -392,42 +394,54 @@ public class World {
 		}
 	}
 	
-	static boolean sorted = false;
-	public void sortGoals() {
+	private Map<Integer, List<Goal>> agentGoalOrder;
+	
+	public List<Goal> getGoalOrderForAgent(int agentId) {
 		
-		if(sorted) return;
-		sorted = true;
+		if(agentGoalOrder == null)
+			agentGoalOrder = new HashMap<Integer, List<Goal>>();
 		
-		goals.sort(new GoalComparator(this));		
+		if(agentGoalOrder.containsKey(agentId))
+			return agentGoalOrder.get(agentId);
+		
+		// initial sorting according to goal priority score
+		goals.sort(new GoalComparator(this));
+		
+		List<Goal> orderedGoals = new ArrayList<Goal>(goals);		
+		Point initialAgentPos = new Point(getAgent(agentId).getPosition());
 		
 		// Check paths
 		boolean allChecked = false;
 		while(!allChecked) {
 			World copyOfWorld = new World(this);
-			Point agentPos = new Point(copyOfWorld.getAgent(0).getPosition());
-			for(int i=0;i<goals.size();i++) {			
-				Goal g = goals.get(i);
+			Point agentPos = initialAgentPos;
+			for(int i=0;i<orderedGoals.size();i++) {			
+				Goal g = orderedGoals.get(i);
 				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
 				if(pathExists) {
 					copyOfWorld.addWall(g.getPosition().getX(), g.getPosition().getY());
-					//agentPos = g.getPosition();
-					if(i==goals.size()-1) {
+					//agentPos = g.getPosition();  //TODO Update agent-pos
+					if(i==orderedGoals.size()-1) {
 						allChecked = true;
 					}
 				}
 				else {
 					//Collections.swap(goals, i, i-1);
-					goals.remove(i);
-					goals.add(0, g);
+					orderedGoals.remove(i);
+					orderedGoals.add(0, g);
 					break;
 				}				
 			}  //for(int i=0;i<goals.size();i++)
 		}  //while(!allChecked) 
 		
-		for(int i=0;i<goals.size();i++) {		
-			goals.get(i).setTotalOrder(i);
-			System.err.println(goals.get(i));
+		for(int i=0;i<orderedGoals.size();i++) {		
+			orderedGoals.get(i).setTotalOrder(i);
+			System.err.println(orderedGoals.get(i));
 		}
+		
+		agentGoalOrder.put(agentId, orderedGoals);
+		
+		return orderedGoals;
 	}
 	
 	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {
