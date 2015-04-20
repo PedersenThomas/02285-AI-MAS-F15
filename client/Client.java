@@ -12,6 +12,7 @@ public class Client {
 		private Beliefs B;
 		private Point position;
 		Plan plan = null;
+		Queue<SubIntention> subIntentions = null;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -46,21 +47,18 @@ public class Client {
 				return "";
 
 			// BDI Version 2
-			if((plan == null) || (plan.isEmpty())) {
-
-				// Update Beliefs
-				B.brf();
-
+			if((subIntentions == null || subIntentions.isEmpty()) && (plan == null) || (plan.isEmpty())) {
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention I = Intention.deliberate(world, this);
-//				List<SubIntention> subIntentions = IntentionDecomposer.decomposeIntention(I, world, this.id);
-//				
-//				for(SubIntention subIntention : subIntentions) {
-//					
-//				}
-				
+				System.err.println("----------- Intention in Client----------");
+				System.err.println(world.getBoxAt(new Point(1,6)));
+				System.err.println(world.getBoxAt(new Point(5,6)));
+				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(I, world, this.id));
+			}
+			if((plan == null) || (plan.isEmpty())) {
+			
 				//compute a plan from current beliefs and intentions:
-				plan = new Plan(world, I, this);
+				plan = new Plan(world, subIntentions.poll(), this);
 			}
 
 			//execute the plan

@@ -2,20 +2,27 @@ package client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 public class SafeSpotDetector {
-	public static List<Point> detectSafeSpots(World world) {
-		List<Point> safeSpots = new ArrayList<Point>();
+	public static PriorityQueue<SafePoint> detectSafeSpots(World world) {
+		PriorityQueue<SafePoint> safeSpots = new PriorityQueue<SafePoint>();
 		for(Point point : world.getRechableCells()) {
-			int nearObjectsCounter = 0;
+			if(world.isGoalAt(point) || world.isBoxAt(point)) {
+				continue;
+			}
+			SafePoint spoint = new SafePoint(point);
 			for(Command.dir dir: Command.dir.values()) {
 				Point p = point.move(dir);
-				if (!world.isFreeCell(p)) {
-					nearObjectsCounter++;
+				if (world.isWallAt(p)) {
+					spoint.increaseNumberOfWalls();
+				}
+				if (world.isBoxAt(p)) {
+					spoint.increaseNumberOfBoxes();
 				}
 			}
-			if (nearObjectsCounter == 3) {
-				safeSpots.add(point);
+			if (spoint.getNumberOfSurrandedObjects() == 3 || spoint.getNumberOfSurrandedObjects() == 1) {
+				safeSpots.add(spoint);
 			}
 		}
 		return safeSpots;
