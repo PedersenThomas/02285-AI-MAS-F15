@@ -58,8 +58,8 @@ public class World {
 		return rechableCells;
 	}
 	
-	public void setRechableCells(List<Point> rechableCells) {
-		this.rechableCells = Collections.unmodifiableList(rechableCells);
+	public static void setRechableCells(List<Point> rechableCells) {
+		rechableCells = Collections.unmodifiableList(rechableCells);
 	}	
 
 	public List<Box> getBoxes() {
