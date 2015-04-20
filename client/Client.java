@@ -47,7 +47,7 @@ public class Client {
 				return "";
 
 			// BDI Version 2
-			if((subIntentions == null || subIntentions.isEmpty()) && (plan == null) || (plan.isEmpty())) {
+			if((subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {				
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention intention = Intention.deliberate(world, this);
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));
