@@ -141,6 +141,8 @@ public class Client {
 
 		}
 		world.setLevelSize(width, y);
+		
+		//Find all the reachable cells.
 		ConnectedComponent cc = new ConnectedComponent(world);
 		world.setRechableCells(cc.findPointsInConnectedComponent(world.getAgents().get(0).getPosition()));
 	}
