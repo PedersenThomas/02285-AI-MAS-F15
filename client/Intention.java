@@ -41,7 +41,11 @@ public class Intention {
 			if(!world.isGoalCompleted(goal)) {
 				boolean checkReachability = true;
 				while(intentenionsMap.get(goal) == null) {
-					for(Box box:boxes) {					
+					for(Box box:boxes) {	
+						// Check if agent can move box
+						if(!agent.getColor().equals(box.getColor()))
+							continue;
+						
 						// Check if box is already taken
 						if(takenBoxes.contains(box))
 							continue;
@@ -83,8 +87,9 @@ public class Intention {
 		
 		for(int i=0;i<goals.size();i++) {			
 			Goal intendedGoal = goals.get(i);
-			if(intentenionsMap.containsKey(intendedGoal))		
+			if(intentenionsMap.containsKey(intendedGoal)) {		
 			  return new Intention(intendedGoal, intentenionsMap.get(intendedGoal).getKey());
+			}
 		}
 		return null;
 	}
