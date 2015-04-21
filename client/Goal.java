@@ -23,11 +23,6 @@ public class Goal {
 	}
 	public void setLetter(char letter) {
 		this.letter = letter;
-	}	
-	
-	@Override
-	public String toString() {
-		return "Letter: " + letter + " Position: " + position + " Order: " + totalOrder;
 	}
 	
 	public void setPriorityScore(int priorityScore) {
@@ -44,5 +39,10 @@ public class Goal {
 	
 	public void setTotalOrder(int totalOrder) {
 		this.totalOrder = totalOrder;
+	}
+	
+	@Override
+	public String toString() {
+		return "GOAL: Letter: " + letter + " Position: " + position + " Order: " + totalOrder;
 	}
 }

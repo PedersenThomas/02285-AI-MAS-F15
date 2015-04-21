@@ -51,6 +51,8 @@ public class IntentionDecomposer {
 		for (SubIntention subIntention : subIntentions) {
 			System.err.println("" + subIntention.getBox() + " -> " + subIntention.getEndPosition());
 		}
+		System.err.println("-- Agent info --");
+		System.err.println(world.getAgent(agentId));
 		System.err.println("----------- Intention Decomposer END----------");
 		return subIntentions;
 	}
