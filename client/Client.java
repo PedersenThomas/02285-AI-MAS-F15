@@ -144,7 +144,7 @@ public class Client {
 		
 		//Find all the reachable cells.
 		ConnectedComponent cc = new ConnectedComponent(world);
-		world.setRechableCells(cc.findPointsInConnectedComponent(world.getAgents().get(0).getPosition()));
+		World.setRechableCells(cc.findPointsInConnectedComponent(world.getAgents().get(0).getPosition()));
 	}
 
 	public boolean update() throws IOException {
