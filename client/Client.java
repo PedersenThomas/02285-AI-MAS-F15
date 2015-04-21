@@ -8,7 +8,7 @@ public class Client {
 
 	public class Agent {
 		private int id;
-		private String color;
+		private String color = "NoColor";
 		private Beliefs B;
 		private Point position;
 		Plan plan = null;
@@ -19,8 +19,11 @@ public class Client {
 				throw new RuntimeException("Id is invalid: " + id);
 			}
 			this.id = id;
-			this.color = color;
 			this.position = position;
+			
+			if(color != null) {
+				this.color = color;
+			}
 
 			// Initial Beliefs
 			this.B = new Beliefs();
@@ -47,10 +50,10 @@ public class Client {
 		}
 
 		public String act() {
-			System.err.println("No Operation for agent " + this);
-			for (Goal goal : world.getGoals()) {
-				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
-			}
+//			System.err.println("No Operation for agent " + this);
+//			for (Goal goal : world.getGoals()) {
+//				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
+//			}
 			if(world.getNumberOfUncompletedGoals() == 0) {
 				return "NoOp";
 			}
@@ -136,7 +139,7 @@ public class Client {
 				if ( '0' <= id && id <= '9' )
 					world.addAgent( new Agent( id - '0', colors.get( id ),new Point(i,y) ) );
 				else if ( 'A' <= id && id <= 'Z' )
-					world.addBox( new Box(i,y,id,Color.BLUE, boxId++));
+					world.addBox( new Box(i,y,id,colors.get(id), boxId++));
 				else if ( 'a' <= id && id <= 'z' )
 					world.addGoal( new Goal(i,y, Character.toUpperCase(id)));
 				else if ( id=='+')

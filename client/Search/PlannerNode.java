@@ -25,6 +25,7 @@ public class PlannerNode extends SearchNode {
 		for ( Command c : Command.every ) {
 			World newWorld = new World(world);
 			boolean validCommand = newWorld.update(newWorld.getAgent(agentId), c);
+			
 			if(validCommand) {
 				PlannerNode node = new PlannerNode(newWorld, this, c, agentId);								
 				expandedNodes.add( node );

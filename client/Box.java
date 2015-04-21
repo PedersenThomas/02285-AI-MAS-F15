@@ -4,7 +4,7 @@ public class Box {
 	private int id;
 	public Point position;
 	private char letter;
-	private Color color;
+	private String color = "NoColor";
 	
 	public Box(Box old) {
 		this.id = old.id;
@@ -13,11 +13,14 @@ public class Box {
 		this.position = new Point(old.position);
 	}
 	
-	public Box(int x, int y, char letter, Color color, int id) {
+	public Box(int x, int y, char letter, String color, int id) {
 		this.position = new Point(x, y);
 		this.letter = letter;
-		this.color = color;
 		this.id = id;
+
+		if(color != null) {
+			this.color = color;
+		}
 	}
 	
 	public char getLetter() {
@@ -26,10 +29,10 @@ public class Box {
 	public void setLetter(char letter) {
 		this.letter = letter;
 	}
-	public Color getColor() {
+	public String getColor() {
 		return color;
 	}
-	public void setColor(Color color) {
+	public void setColor(String color) {
 		this.color = color;
 	}
 
