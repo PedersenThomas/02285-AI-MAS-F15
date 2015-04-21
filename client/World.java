@@ -73,8 +73,9 @@ public class World {
 	public int getNumberOfUncompletedGoals() {
 		int result = 0;
 		for(Goal g: goals) {
-			if(!isGoalCompleted(g))
-				result++;
+			if(!isGoalCompleted(g)) {
+				result++;	
+			}
 		}
 		return result;
 	}
@@ -256,9 +257,10 @@ public class World {
 			Point boxSrcPosition = agent.getPosition().move(command.dir1);
 			Point boxDestPosition = boxSrcPosition.move(command.dir2);
 
-			if (isBoxAt(boxSrcPosition)
+			if ( isBoxAt(boxSrcPosition)
 					&& isFreeCell(boxDestPosition)
-					&& (!Command.isOpposite(command.dir1, command.dir2))) {
+					&& (!Command.isOpposite(command.dir1, command.dir2))
+					&& getBoxAt(boxSrcPosition).getColor().equals(agent.getColor()) ) {
 				agent.setPosition(boxSrcPosition);
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(boxDestPosition);
@@ -273,7 +275,8 @@ public class World {
 
 			if (isBoxAt(boxSrcPosition)
 					&& isFreeCell(agentDestPosition)
-					&& command.dir1 != command.dir2) {
+					&& command.dir1 != command.dir2
+					&& getBoxAt(boxSrcPosition).getColor().equals(agent.getColor()) ) {
 				Box b = getBoxAt(boxSrcPosition);
 				b.setPosition(agent.getPosition());
 				agent.setPosition(agentDestPosition);
