@@ -65,6 +65,15 @@ public class World {
 	public List<Box> getBoxes() {
 		return Collections.unmodifiableList(boxes);
 	}
+	
+	public List<Box> getBoxes(String color) {
+		List<Box> result = new ArrayList<Box>();
+		for(Box b:boxes) {
+			if(b.getColor().equals(color))
+				result.add(b);
+		}
+		return result;
+	}
 
 	public List<Goal> getGoals() {
 		return Collections.unmodifiableList(goals);
@@ -423,6 +432,7 @@ public class World {
 		// initial sorting according to goal priority score
 		goals.sort(new GoalComparator(this));
 		
+		
 		List<Goal> orderedGoals = new ArrayList<Goal>(goals);		
 		Point initialAgentPos = new Point(getAgent(agentId).getPosition());
 		
@@ -431,12 +441,25 @@ public class World {
 		while(!allChecked) {
 			World copyOfWorld = new World(this);
 			Point agentPos = initialAgentPos;
+			List<Box> boxes = copyOfWorld.getBoxes(getAgent(agentId).getColor());
+			Collections.shuffle(boxes);  // could be done in a better way
 			for(int i=0;i<orderedGoals.size();i++) {			
 				Goal g = orderedGoals.get(i);
+				
+				for(Box b:boxes) {
+					if(g.getLetter() == b.getLetter()) {
+						if(copyOfWorld.isPositionReachable(agentPos, b.getPosition(), true)) {
+							agentPos = b.getPosition();
+							boxes.remove(b);
+							break;
+						}
+					}
+				}				
+				
 				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
 				if(pathExists) {
 					copyOfWorld.addWall(g.getPosition().getX(), g.getPosition().getY());
-					//agentPos = g.getPosition();  //TODO Update agent-pos
+					agentPos = g.getPosition();
 					if(i==orderedGoals.size()-1) {
 						allChecked = true;
 					}
@@ -450,6 +473,7 @@ public class World {
 			}  //for(int i=0;i<goals.size();i++)
 		}  //while(!allChecked) 
 		
+		System.err.println("=== ORDERED GOALS ===");
 		for(int i=0;i<orderedGoals.size();i++) {		
 			orderedGoals.get(i).setTotalOrder(i);
 			System.err.println(orderedGoals.get(i));
