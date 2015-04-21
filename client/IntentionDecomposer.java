@@ -15,6 +15,7 @@ public class IntentionDecomposer {
 
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
+		
 		Point agentPosition = world.getAgent(agentId).getPosition();
 		Point boxPosition = intention.getBox().getPosition();
 		Point goalPosition = intention.getGoal().getPosition();

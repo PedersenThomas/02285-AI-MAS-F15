@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import client.Client.Agent;
 import client.Intention.GoalComparator;
@@ -24,6 +26,8 @@ public class World {
 	private static List<Point> rechableCells = new ArrayList<Point>();
 	private int width;
 	private int height;
+	private Map<Integer,Intention> intentionMap = new HashMap<>();
+	private List<SubIntention> jobList = new ArrayList<>();
 
 	public World() {}
 
@@ -133,6 +137,28 @@ public class World {
 
 	public void addAgent(Agent a) {
 		agents.add(a);
+	}
+	
+	public boolean putIntention(int agentId, Box box, Goal goal) {
+		if(!isIntentionAvailable(box,goal))
+			return false;
+		
+		intentionMap.put(agentId,new Intention(goal, box));
+		return true;
+	}
+	
+	public void clearIntention(int agentId) {
+		intentionMap.remove(agentId);
+	}
+	
+	public boolean isIntentionAvailable(Box box, Goal goal) {
+		for (Map.Entry<Integer, Intention> entry : intentionMap.entrySet())
+		{
+		    if(entry.getValue().getBox().equals(box) || entry.getValue().getGoal().equals(goal)) {
+		    	return false;
+		    }
+		}
+		return true;
 	}
 
 	public void printWorld() {
@@ -433,28 +459,62 @@ public class World {
 		goals.sort(new GoalComparator(this));
 		
 		
-		List<Goal> orderedGoals = new ArrayList<Goal>(goals);		
+		List<Goal> orderedGoals = new ArrayList<Goal>(goals);	
+		
+		//remove goals, which cannot be completed by this agent
+		List<Goal> removeGoals = new ArrayList<Goal>();
+		for(Goal g:orderedGoals) {
+			List<Box> boxes = getBoxes(getAgent(agentId).getColor());
+			boolean goalCanBeCompleted = false;
+			for(Box b:boxes) {
+				if(b.getLetter() == g.getLetter()) {
+					goalCanBeCompleted = true;
+					break;
+				}
+			}
+			if(!goalCanBeCompleted) {
+				removeGoals.add(g);
+			}			
+		}
+		orderedGoals.removeAll(removeGoals);
+		
+		if(orderedGoals.isEmpty()) {
+			return Collections.emptyList();
+		}
+		
 		Point initialAgentPos = new Point(getAgent(agentId).getPosition());
+		World initialCopyOfWorld = new World(this);
+		
+		/*for(Box b:boxes) {
+			if(!b.getColor().equals(getAgent(agentId).getColor())) {
+				initialCopyOfWorld.addWall(b.getPosition().getX(), b.getPosition().getY());
+			}
+		}*/
+		
 		
 		// Check paths
 		boolean allChecked = false;
 		while(!allChecked) {
-			World copyOfWorld = new World(this);
+			World copyOfWorld = new World(initialCopyOfWorld);
 			Point agentPos = initialAgentPos;
 			List<Box> boxes = copyOfWorld.getBoxes(getAgent(agentId).getColor());
 			Collections.shuffle(boxes);  // could be done in a better way
 			for(int i=0;i<orderedGoals.size();i++) {			
 				Goal g = orderedGoals.get(i);
-				
+				boolean reachableBoxFound = false;
 				for(Box b:boxes) {
 					if(g.getLetter() == b.getLetter()) {
 						if(copyOfWorld.isPositionReachable(agentPos, b.getPosition(), true)) {
 							agentPos = b.getPosition();
 							boxes.remove(b);
+							reachableBoxFound = true;
 							break;
 						}
 					}
-				}				
+				}
+				//if(!reachableBoxFound)
+				//	break;
+				
 				
 				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
 				if(pathExists) {
@@ -466,6 +526,10 @@ public class World {
 				}
 				else {
 					//Collections.swap(goals, i, i-1);
+					if(i == 0) {
+						return Collections.emptyList();
+					}
+					
 					orderedGoals.remove(i);
 					orderedGoals.add(0, g);
 					break;
@@ -475,13 +539,25 @@ public class World {
 		
 		System.err.println("=== ORDERED GOALS ===");
 		for(int i=0;i<orderedGoals.size();i++) {		
-			orderedGoals.get(i).setTotalOrder(i);
+			orderedGoals.get(i).setTotalOrder(agentId, i);
 			System.err.println(orderedGoals.get(i));
 		}
 		
 		agentGoalOrder.put(agentId, orderedGoals);
 		
 		return orderedGoals;
+	}
+	
+	public void addJob(SubIntention i) {
+		jobList.add(i);
+	}
+	
+	public SubIntention getJob(Agent agent) {
+		for(SubIntention i:jobList) {
+			if(i.getBox().getColor().equals(agent.getColor()))
+				return i;
+		}
+		return null;
 	}
 	
 	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {

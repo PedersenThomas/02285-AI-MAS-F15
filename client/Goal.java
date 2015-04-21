@@ -1,16 +1,19 @@
 package client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Goal {
 	private Point position;
 	private char letter;
 	private int priorityScore;
-	private int totalOrder;
+	private Map<Integer,Integer> totalOrder;
 	
 	public Goal(int x, int y, char letter) {
 		super();
 		position = new Point(x,y);
 		priorityScore = -1;
-		totalOrder = -1;
+		totalOrder = new HashMap<>();
 		this.letter = letter;
 	}
 	
@@ -33,16 +36,16 @@ public class Goal {
 		return priorityScore;
 	}
 	
-	public int getTotalOrder() {
-		return totalOrder;
+	public Integer getTotalOrder(int agentId) {
+		return totalOrder.get(agentId);
 	}
 	
-	public void setTotalOrder(int totalOrder) {
-		this.totalOrder = totalOrder;
+	public void setTotalOrder(int agentId, int totalOrder) {
+		this.totalOrder.put(agentId, totalOrder);
 	}
 	
 	@Override
 	public String toString() {
-		return "GOAL: Letter: " + letter + " Position: " + position + " Order: " + totalOrder;
+		return "GOAL: Letter: " + letter + " Position: " + position /*+ " Order: " + totalOrder*/;
 	}
 }

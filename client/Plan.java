@@ -26,6 +26,10 @@ public class Plan {
 
 		System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
+		
+		if(!i.getBox().getColor().equals(agent.getColor())) {
+			
+		}
 
 		int iterations = 0;
 		List<Goal> completedGoals = world.getCompletedGoals();
@@ -51,7 +55,8 @@ public class Plan {
 					// Check if a high-priority goal has been destroyed
 					boolean validAction = true;
 					for(Goal g:completedGoals) {
-						if(g.getTotalOrder() < i.getRootIntention().getGoal().getTotalOrder() &&
+						Integer goalOrder = g.getTotalOrder(agent.getId());
+						if(goalOrder != null && goalOrder < i.getRootIntention().getGoal().getTotalOrder(agent.getId()) &&
 						   !n.getWorld().isGoalCompleted(g)) {
 							validAction = false;
 							break;

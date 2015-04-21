@@ -59,20 +59,43 @@ public class Client {
 			}
 
 			// BDI Version 2
-			if((subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {				
+			SubIntention subIntention = null;
+			if((plan == null) || (plan.isEmpty())) {
+				//Check first if there is something to do for me
+				subIntention = world.getJob(this);
+			}
+			if((subIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention intention = Intention.deliberate(world, this);
-				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));
+				if(intention == null)
+					return "NoOp";
+				
+				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
-			if((plan == null) || (plan.isEmpty())) {
-			
+			if((plan == null) || (plan.isEmpty())) {						
 				//compute a plan from current beliefs and intentions:
-				plan = new Plan(world, subIntentions.poll(), this);
+				if(subIntention == null)
+					subIntention = subIntentions.poll();
+				
+				// Check if I can do the job
+				if(!subIntention.getBox().getColor().equals(color)) {
+					world.addJob(subIntention);
+					return "NoOp";
+				}
+				
+				if(!world.putIntention(this.id, subIntention.getBox(), subIntention.getRootIntention().getGoal())) {
+					return "NoOp";
+				}
+				plan = new Plan(world, subIntention, this);
 			}
 
 			//execute the plan
 			Command cmd = plan.execute();
 			world.update(this, cmd);
+			
+			if(plan.isEmpty())
+				world.clearIntention(this.id);
+			
 			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}

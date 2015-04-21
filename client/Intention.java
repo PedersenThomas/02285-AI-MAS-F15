@@ -12,7 +12,7 @@ import client.Client.Agent;
 public class Intention {
 	private Goal goal;
 	private Box box;
-	private Command.dir agentPos;  //not used at the moment
+	//private Command.dir agentPos;  //currently not used
 	
 	static class GoalComparator implements Comparator<Goal> {
 		World world;
@@ -116,6 +116,7 @@ public class Intention {
 		this.box = box;
 	}
 	
+	/* Currently not used
 	public Command.dir getAgentPos() {
 		return agentPos;
 	}
@@ -123,6 +124,30 @@ public class Intention {
 
 	public void setAgentPos(Command.dir agentPos) {
 		this.agentPos = agentPos;
+	}
+	*/
+	
+	@Override
+	public boolean equals( Object obj ) {
+		if ( this == obj )
+			return true;
+		if ( obj == null )
+			return false;
+		if ( getClass() != obj.getClass() )
+			return false;
+		Intention other = (Intention) obj;
+		if(!this.box.equals(other.box)) {
+			return false;
+		}
+		if(!this.goal.equals(other.goal)) {
+			return false;
+		}
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return this.box.hashCode() + this.goal.hashCode()*701;
 	}
 
 
