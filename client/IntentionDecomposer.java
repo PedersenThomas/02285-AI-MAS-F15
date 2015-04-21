@@ -23,7 +23,7 @@ public class IntentionDecomposer {
 		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
 			//SubIntention to clear path from Agent to Box.
 			Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);
-			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions);
+			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention);
 
 			//TODO Debug information
 			System.err.println("----------- Agent Path ----------");
@@ -35,7 +35,7 @@ public class IntentionDecomposer {
 		if(!world.isPositionReachable(boxPosition, goalPosition, false)) {
 			//SubIntention to clear path from Box to Goal.
 			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
-			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions);
+			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention);
 
 			//TODO Debug Infor
 			System.err.println("----------- Path ----------");
@@ -45,7 +45,7 @@ public class IntentionDecomposer {
 		}
 
 		//SubIntention for moving box to goal.
-		subIntentions.add(new SubIntention(intention.getBox(), goalPosition));
+		subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
 
 		System.err.println("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
@@ -55,7 +55,8 @@ public class IntentionDecomposer {
 		return subIntentions;
 	}
 
-	private static World moveBoxesOnPathToSafePlaces(World world, Queue<Point> path, ArrayList<SubIntention> subIntentions) {
+	private static World moveBoxesOnPathToSafePlaces(World world, Queue<Point> path, 
+			                                         ArrayList<SubIntention> subIntentions, Intention intention) {
 		World newWorld = world;
 
 		for(Point point : path) {
@@ -76,7 +77,7 @@ public class IntentionDecomposer {
 					}
 				}
 				//Point savePosition = safeSpots.poll();
-				subIntentions.add(new SubIntention(box, safePosition));
+				subIntentions.add(new SubIntention(box, safePosition,intention));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}

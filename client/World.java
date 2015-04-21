@@ -69,6 +69,15 @@ public class World {
 	public List<Goal> getGoals() {
 		return Collections.unmodifiableList(goals);
 	}
+	
+	public List<Goal> getCompletedGoals() {
+		List<Goal> completedGoals = new ArrayList<Goal>();
+		for(Goal g:goals) {
+			if(isGoalCompleted(g))
+				completedGoals.add(g);
+		}
+		return Collections.unmodifiableList(completedGoals);
+	}
 
 	public int getNumberOfUncompletedGoals() {
 		int result = 0;
@@ -358,7 +367,11 @@ public class World {
 			}				
 		}
 
-		int score = numSurroundedWalls      * 10000 +
+		int score = 0;
+		if(innerGoal)
+			score += 50000;
+		
+		score += 	numSurroundedWalls      * 10000 +
 				    numSurroundedInnerGoals *  1000 +
 		            numSurroundedOuterGoals *   100;
 

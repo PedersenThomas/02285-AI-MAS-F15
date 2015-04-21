@@ -3,10 +3,12 @@ package client;
 public class SubIntention {
 	private Point endPosition;
 	private Box box;
+	private Intention rootIntention;
 	
-	public SubIntention(Box box, Point endPosition) {
+	public SubIntention(Box box, Point endPosition, Intention rootIntention) {
 		this.box = box;
 		this.endPosition = endPosition;
+		this.rootIntention = rootIntention;
 	}
 	
 	public Box getBox() {
@@ -20,5 +22,9 @@ public class SubIntention {
 	@Override
 	public String toString() {
 		return "SubIntention: " + box + " -> " + endPosition;
+	}
+
+	public Intention getRootIntention() {
+		return rootIntention;
 	}
 }

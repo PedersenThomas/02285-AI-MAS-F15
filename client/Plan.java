@@ -1,7 +1,9 @@
 package client;
 
+import java.util.List;
 import java.util.Queue;
 
+import client.Goal;
 import client.Client.Agent;
 import client.Heuristic.AStar;
 import client.Heuristic.Heuristic;
@@ -26,6 +28,7 @@ public class Plan {
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
 
 		int iterations = 0;
+		List<Goal> completedGoals = world.getCompletedGoals();
 		while ( true ) {
 			iterations++;
 			if ( strategy.frontierIsEmpty() ) {
@@ -44,7 +47,18 @@ public class Plan {
 			strategy.addToExplored( leafNode );
 			for ( SearchNode n : leafNode.getExpandedNodes() ) {
 				if ( !strategy.isExplored( n ) && !strategy.inFrontier( n ) ) {
-					strategy.addToFrontier( n );
+					
+					// Check if a high-priority goal has been destroyed
+					boolean validAction = true;
+					for(Goal g:completedGoals) {
+						if(g.getTotalOrder() < i.getRootIntention().getGoal().getTotalOrder() &&
+						   !n.getWorld().isGoalCompleted(g)) {
+							validAction = false;
+							break;
+						}
+					}
+					if(validAction)
+						strategy.addToFrontier( n );
 				}
 			}
 		}

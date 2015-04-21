@@ -12,7 +12,7 @@ import client.Client.Agent;
 public class Intention {
 	private Goal goal;
 	private Box box;
-	private Command.dir agentPos;
+	private Command.dir agentPos;  //not used at the moment
 	
 	static class GoalComparator implements Comparator<Goal> {
 		World world;
