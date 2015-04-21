@@ -37,14 +37,23 @@ public class Client {
 		public void setPosition(Point position) {
 			this.position = position;
 		}
+		
+		public String getColor() {
+			return color;
+		}
 
 		public int getId() {
 			return id;
 		}
 
 		public String act() {
-			if(world.getNumberOfUncompletedGoals() == 0)
-				return "";
+			System.err.println("No Operation for agent " + this);
+			for (Goal goal : world.getGoals()) {
+				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
+			}
+			if(world.getNumberOfUncompletedGoals() == 0) {
+				return "NoOp";
+			}
 
 			// BDI Version 2
 			if((subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {				
