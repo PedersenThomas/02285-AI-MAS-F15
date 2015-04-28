@@ -37,6 +37,7 @@ public class Plan {
 		System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), true) );
 		int iterations = 0;
+		
 		while ( true ) {
 			iterations++;
 			if ( strategy.frontierIsEmpty() ) {
@@ -52,7 +53,7 @@ public class Plan {
 				//removeLastFromQueue(path);
 				commandQueue = leafNode.extractListOfCommands();
 			    world.putPlan(agent.getId(), commandQueue);
-
+			    break;
 			}
 
 			strategy.addToExplored(leafNode);
@@ -93,6 +94,7 @@ public class Plan {
 
 			if ( leafNode.getWorld().getBoxById(subIntention.getBox().getId()).getPosition().equals(subIntention.getEndPosition())) {
 			    commandQueue = leafNode.extractListOfCommands();
+			    world.putPlan(agent.getId(), commandQueue);
 				break;
 			}
 

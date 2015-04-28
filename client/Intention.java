@@ -39,11 +39,11 @@ public class Intention {
 		List<Goal> goals = world.getGoalOrderForAgent(agent.getId());
 				
 		Map<Goal,Map.Entry<Box,Integer>> intentenionsMap = new HashMap<Goal,Map.Entry<Box,Integer>>();
-		List<Box> takenBoxes = new ArrayList<>();
+		List<Box> takenBoxes = new ArrayList<>();		
 		
 		// determine for each goal its closest box
 		for(Goal goal:goals) {
-			if(!world.isGoalCompleted(goal)) {
+			if((!world.isGoalCompleted(goal)) && (world.isGoalAvailable(goal))) {
 				boolean checkReachability = true;
 				while(intentenionsMap.get(goal) == null) {
 					for(Box box:boxes) {	
@@ -79,12 +79,15 @@ public class Intention {
 					checkReachability = false;
 				}
 				// Add the box to the list of taken boxes
-				takenBoxes.add(intentenionsMap.get(goal).getKey());			
+				takenBoxes.add(intentenionsMap.get(goal).getKey());				
 			}
 			else {
 				// If goal is already completed then add it to the list of taken boxes
 				// so that goals with a lower priority can't take it away
-				takenBoxes.add(world.getBoxAt(goal.getPosition()));			
+				if(world.isGoalCompleted(goal))
+					takenBoxes.add(world.getBoxAt(goal.getPosition()));		
+				else
+					takenBoxes.add(world.getIntendedBoxForGoal(goal));	
 			}
 		}	
 		

@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import client.Client.Agent;
+import client.Command.type;
 import client.Intention.GoalComparator;
 import client.Heuristic.AStar;
 import client.Heuristic.HeuristicPathFunction;
@@ -206,18 +207,44 @@ public class World {
 		
 		for(int i=0;i<Math.max(plan1.size(), plan2.size());i++) {			
 			Point newPos1 = pos1;
-			if(i<plan1.size())
+			Point boxPos1 = pos1;
+			if(i<plan1.size()) {
 				newPos1 = pos1.move(plan1.get(i).dir1);
+				
+				if(plan1.get(i).actType == type.Push) {
+					boxPos1 = newPos1.move(plan1.get(i).dir2);
+				}
+				else if(plan1.get(i).actType == type.Pull) {
+					boxPos1 = pos1.move(plan1.get(i).dir2);
+				}
+			}
 			
 			Point newPos2 = pos2;
+			Point boxPos2 = pos2;
 			if(agentId1 > agentId2) {
 				if(i==0)
 					newPos2 = a2.getPosition();
-				else if(i-1<plan2.size())
+				else if(i-1<plan2.size()) {
 					newPos2 = pos2.move(plan2.get(i-1).dir1);
+					
+					if(plan2.get(i-1).actType == type.Push) {
+						boxPos2 = newPos2.move(plan2.get(i-1).dir2);
+					}
+					else if(plan2.get(i-1).actType == type.Pull) {
+						boxPos2 = pos2.move(plan2.get(i-1).dir2);
+					}
+				}
 			}
-			else if(i<plan2.size())
+			else if(i<plan2.size()) {
 				newPos2 = pos2.move(plan2.get(i).dir1);
+				
+				if(plan2.get(i).actType == type.Push) {
+					boxPos2 = newPos2.move(plan2.get(i).dir2);
+				}
+				else if(plan2.get(i).actType == type.Pull) {
+					boxPos2 = pos2.move(plan2.get(i).dir2);
+				}
+			}
 			
 			if(pos1.equals(pos2))
 				return true;
@@ -225,11 +252,28 @@ public class World {
 			if(pos1.equals(newPos2))
 				return true;
 			
+			if(pos1.equals(boxPos2))
+				return true;
+			
+			
 			if(newPos1.equals(pos2))
 				return true;
 			
 			if(newPos1.equals(newPos2))
-				return true;			
+				return true;
+			
+			if(newPos1.equals(boxPos2))
+				return true;
+			
+			
+			if(boxPos1.equals(pos2))
+				return true;
+			
+			if(boxPos1.equals(newPos2))
+				return true;
+			
+			if(boxPos1.equals(boxPos2))
+				return true;
 
 			
 			pos1 = newPos1;
@@ -246,6 +290,13 @@ public class World {
 		Agent a = getAgent(agentId);		
 		Point pos = a.getPosition();	
 		Point newPos = pos.move(plan.get(0).dir1);
+		Point boxPos = pos;
+		if(plan.get(0).actType == type.Push) {
+			boxPos = newPos.move(plan.get(0).dir2);
+		}
+		else if(plan.get(0).actType == type.Pull) {
+			boxPos = pos.move(plan.get(0).dir2);
+		}
 		
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
 			if(agentId != entry.getKey()) {
@@ -257,18 +308,32 @@ public class World {
 					if(newPos.equals(otherPos)) {
 						return false;
 					}
+					if(boxPos.equals(otherPos)) {
+						return false;
+					}
 				}	
 				
 				otherPos = otherAgent.getPosition();				
 				if(newPos.equals(otherPos)) {
 					return false;
 				}
+				if(boxPos.equals(otherPos)) {
+					return false;
+				}
 				
 				LinkedList<Command> otherPlan = planMap.get(entry.getKey());
 
+				Point otherBoxPos = otherPos;
 				boolean conflict = false;
 				for(int i=0;i<otherPlan.size();i++) {						
+					if(otherPlan.get(i).actType == type.Pull) {
+						otherBoxPos = otherPos.move(otherPlan.get(i).dir2);
+					}
 					otherPos = otherPos.move(otherPlan.get(i).dir1);					
+					if(otherPlan.get(i).actType == type.Push) {
+						otherBoxPos = otherPos.move(otherPlan.get(i).dir2);
+					}
+					
 					if(pos.equals(otherPos)) {
 						conflict = true;
 						break;
@@ -278,10 +343,20 @@ public class World {
 						conflict = true;
 						break;
 					}
+					
+					if(pos.equals(otherBoxPos)) {
+						conflict = true;
+						break;
+					}
+					
+					if(newPos.equals(otherBoxPos)) {
+						conflict = true;
+						break;
+					}
 				}	
 				
 				if(conflict) {
-					if(agentId < entry.getKey()) {
+					if(agentId > entry.getKey()) {
 						return false;
 					}
 				}
@@ -308,6 +383,26 @@ public class World {
 		    }
 		}
 		return true;
+	}
+	
+	public boolean isGoalAvailable(Goal goal) {
+		for (Map.Entry<Integer, Intention> entry : intentionMap.entrySet())
+		{
+		    if(entry.getValue().getGoal().equals(goal)) {
+		    	return false;
+		    }
+		}
+		return true;
+	}
+	
+	public Box getIntendedBoxForGoal(Goal goal) {
+		for (Map.Entry<Integer, Intention> entry : intentionMap.entrySet())
+		{
+		    if(entry.getValue().getGoal().equals(goal)) {
+		    	return entry.getValue().getBox();
+		    }
+		}
+		return null;
 	}
 
 	public void printWorld() {
@@ -347,7 +442,7 @@ public class World {
 		}
 		return box.getLetter() == goal.getLetter();
 	}
-
+	
 	public boolean isAgentAt(Point point) {
 		for (Agent agent : agents) {
 			if(agent.getPosition().equals(point)) {
