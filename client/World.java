@@ -28,6 +28,7 @@ public class World {
 	private int height;
 	private Map<Integer,Intention> intentionMap = new HashMap<>();
 	private List<SubIntention> jobList = new ArrayList<>();
+	private Map<Integer,Queue<Command>> planMap=new HashMap<>();
 
 	public World() {}
 
@@ -144,6 +145,16 @@ public class World {
 			return false;
 		
 		intentionMap.put(agentId,new Intention(goal, box));
+		return true;
+	}
+	
+	public boolean putPlan(int agentId,Queue<Command> commandQueue){
+		planMap.put(agentId, commandQueue);
+		return true;
+	}
+	
+	public boolean updatePlan(int agentId){
+		planMap.get(agentId).poll();
 		return true;
 	}
 	
@@ -586,4 +597,6 @@ public class World {
 			}
 		} // while(true)
 	}
+	
+	
 }
