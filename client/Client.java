@@ -98,7 +98,7 @@ public class Client {
 			//execute the plan
 			Command cmd = plan.execute();
 			world.update(this, cmd);
-			//world.updatePlan(this.id);
+			
 			if(plan.isEmpty())
 				world.clearIntention(this.id);
 			
