@@ -59,12 +59,12 @@ public class Client {
 			}
 
 			// BDI Version 2
-			SubIntention subIntention = null;
+			SubIntention delegatedIntention = null;
 			if((plan == null) || (plan.isEmpty())) {
 				//Check first if there is something to do for me
-				subIntention = world.getJob(this);
+				delegatedIntention = world.getJob(this);
 			}
-			if((subIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
+			if((delegatedIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention intention = Intention.deliberate(world, this);
 				if(intention == null)
@@ -73,19 +73,25 @@ public class Client {
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
 			if((plan == null) || (plan.isEmpty())) {						
-				//compute a plan from current beliefs and intentions:
-				if(subIntention == null)
-					subIntention = subIntentions.poll();
+				SubIntention subIntention = null;
+				if(delegatedIntention == null)
+					subIntention = subIntentions.peek();
+				else
+					subIntention = delegatedIntention;
 				
 				// Check if I can do the job
 				if(!subIntention.getBox().getColor().equals(color)) {
+					subIntentions.poll();
 					world.addJob(subIntention);
 					return "NoOp";
 				}
 				
+				// in case the broadcast fails, the intention is still in the queue
 				if(!world.putIntention(this.id, subIntention.getBox(), subIntention.getRootIntention().getGoal())) {
 					return "NoOp";
 				}
+				
+				subIntentions.poll();
 				plan = new Plan(world, subIntention, this);
 			}
 
