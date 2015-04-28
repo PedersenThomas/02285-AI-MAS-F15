@@ -11,6 +11,7 @@ public class Client {
 		private String color = "NoColor";
 		private Beliefs B;
 		private Point position;
+		private Point lastPosition;
 		Plan plan = null;
 		Queue<SubIntention> subIntentions = null;
 
@@ -20,6 +21,7 @@ public class Client {
 			}
 			this.id = id;
 			this.position = position;
+			this.lastPosition = position;
 			
 			if(color != null) {
 				this.color = color;
@@ -36,8 +38,12 @@ public class Client {
 		public Point getPosition() {
 			return position;
 		}
+		
+		public Point getLastPosition() {
+			return lastPosition;
+		}
 
-		public void setPosition(Point position) {
+		public void setPosition(Point position) {			
 			this.position = position;
 		}
 		
@@ -54,6 +60,7 @@ public class Client {
 //			for (Goal goal : world.getGoals()) {
 //				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
 //			}
+			lastPosition = this.position;
 			if(world.getNumberOfUncompletedGoals() == 0) {
 				return "NoOp";
 			}
@@ -91,10 +98,16 @@ public class Client {
 					return "NoOp";
 				}
 				
-				subIntentions.poll();
+				if(delegatedIntention == null)
+					subIntentions.poll();
+				
 				plan = new Plan(world, subIntention, this);
 			}
 
+			if(!world.validPlan(this.id))
+			//if(!world.validStep(this.id))
+				return "NoOp";
+			
 			//execute the plan
 			Command cmd = plan.execute();
 			world.update(this, cmd);

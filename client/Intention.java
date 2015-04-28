@@ -14,6 +14,11 @@ public class Intention {
 	private Box box;
 	//private Command.dir agentPos;  //currently not used
 	
+	public Intention(Intention old) {
+		this.goal = new Goal(old.goal);
+		this.box = new Box(old.box);
+	}
+	
 	static class GoalComparator implements Comparator<Goal> {
 		World world;
 		public GoalComparator(World world) {

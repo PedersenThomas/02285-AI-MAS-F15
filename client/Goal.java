@@ -2,6 +2,7 @@ package client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Goal {
 	private Point position;
@@ -15,6 +16,16 @@ public class Goal {
 		priorityScore = -1;
 		totalOrder = new HashMap<>();
 		this.letter = letter;
+	}
+	
+	public Goal(Goal old) {
+		position = new Point(old.position);
+		letter = old.letter;
+		priorityScore = old.priorityScore;
+		this.totalOrder = new HashMap<>();
+		for (Entry<Integer, Integer> entry : old.totalOrder.entrySet()) {
+			this.totalOrder.put(entry.getKey(), entry.getValue());
+		}
 	}
 	
 	public Point getPosition() {

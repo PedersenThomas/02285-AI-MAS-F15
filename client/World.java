@@ -28,7 +28,7 @@ public class World {
 	private int height;
 	private Map<Integer,Intention> intentionMap = new HashMap<>();
 	private List<SubIntention> jobList = new ArrayList<>();
-	private Map<Integer,Queue<Command>> planMap=new HashMap<>();
+	private Map<Integer,LinkedList<Command>> planMap=new HashMap<>();
 
 	public World() {}
 
@@ -45,6 +45,29 @@ public class World {
 		
 		this.width = old.width;
 		this.height = old.height;
+		
+		// No deep-copy! (on purpose)
+		/*this.intentionMap = old.intentionMap;
+		this.jobList = old.jobList;
+		this.planMap = old.planMap;
+		
+		
+		
+		/*/for (Map.Entry<Integer, Intention> entry : old.intentionMap.entrySet()) {
+			this.intentionMap.put(entry.getKey(), new Intention(entry.getValue()));
+		}
+		
+		for (SubIntention job : old.jobList) {
+			this.jobList.add(new SubIntention(job));
+		}
+		
+		for (Map.Entry<Integer, LinkedList<Command>> entry : old.planMap.entrySet()) {
+			LinkedList<Command> cmds = new LinkedList<>();
+			for (Command cmd : entry.getValue()) {
+				cmds.add(cmd);
+			}
+			this.planMap.put(entry.getKey(), cmds);
+		}
 	}
 	
 	public int getWidth() {
@@ -148,9 +171,114 @@ public class World {
 		return true;
 	}
 	
-	public boolean putPlan(int agentId,Queue<Command> commandQueue){
-		planMap.put(agentId, commandQueue);
+	public boolean putPlan(int agentId,Queue<Command> commandQueue){		
+		planMap.put(agentId, (LinkedList<Command>)commandQueue);
 		return true;
+	}
+	
+	public boolean validPlan(int agentId){		
+		LinkedList<Command> plan = planMap.get(agentId);
+		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
+			if(agentId != entry.getKey()) {
+				boolean conflict = checkPlans(agentId, plan, entry.getKey(),entry.getValue());
+				
+				if(conflict) {
+					if(agentId < entry.getKey())
+						return false;
+				}
+			}
+		}
+		return true;		
+	}
+	
+	public boolean validStep(int agentId){		
+		LinkedList<Command> plan = planMap.get(agentId);
+		Agent a = getAgent(agentId);		
+		Point pos = a.getPosition();	
+		Point newPos = pos.move(plan.get(0).dir1);
+		
+		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
+			if(agentId != entry.getKey()) {
+				Agent otherAgent = getAgent(entry.getKey());
+				
+				Point otherPos = otherAgent.getPosition();
+				if(newPos.equals(otherPos)) {
+					return false;
+				}
+				
+				LinkedList<Command> otherPlan = planMap.get(entry.getKey());
+
+				boolean conflict = false;
+				for(int i=0;i<otherPlan.size();i++) {			
+					otherPos = otherPos.move(otherPlan.get(i).dir1);
+					
+					if(pos.equals(otherPos)) {
+						conflict = true;
+						break;
+					}
+					
+					if(newPos.equals(otherPos)) {
+						conflict = true;
+						break;
+					}
+				}	
+				
+				if(conflict) {
+					if(agentId > entry.getKey()) {
+						return false;
+					}
+				}
+				
+			}
+		}
+		return true;		
+	}
+	
+	public boolean checkPlans(int agentId1, LinkedList<Command> plan1, int agentId2, LinkedList<Command> plan2) {
+		Agent a1 = getAgent(agentId1);
+		Agent a2 = getAgent(agentId2);
+		
+		Point pos1 = a1.getPosition();		
+		Point pos2 = a2.getPosition();	
+		
+		if(agentId1 > agentId2) {
+			pos2 = a2.getLastPosition();
+		}
+		
+		
+		for(int i=0;i<Math.max(plan1.size(), plan2.size());i++) {			
+			Point newPos1 = pos1;
+			if(i<plan1.size())
+				newPos1 = pos1.move(plan1.get(i).dir1);
+			
+			Point newPos2 = pos2;
+			if(agentId1 > agentId2) {
+				if(i==0)
+					newPos2 = a2.getPosition();
+				else if(i-1<plan2.size())
+					newPos2 = pos2.move(plan2.get(i-1).dir1);
+			}
+			else if(i<plan2.size())
+				newPos2 = pos2.move(plan2.get(i).dir1);
+			
+			if(pos1.equals(pos2))
+				return true;
+			
+			if(pos1.equals(newPos2))
+				return true;
+			
+			if(newPos1.equals(pos2))
+				return true;
+			
+			if(newPos1.equals(newPos2))
+				return true;			
+
+			
+			pos1 = newPos1;
+			pos2 = newPos2;
+		}		
+		
+		return false;
 	}
 	
 	public boolean updatePlan(int agentId){

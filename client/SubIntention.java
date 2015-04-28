@@ -11,6 +11,12 @@ public class SubIntention {
 		this.rootIntention = rootIntention;
 	}
 	
+	public SubIntention(SubIntention old) {
+		this.box = new Box(old.box);
+		this.endPosition = new Point(old.endPosition);
+		this.rootIntention = new Intention(old.rootIntention);
+	}
+	
 	public Box getBox() {
 		return box;
 	}
