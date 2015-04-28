@@ -20,16 +20,16 @@ public class Plan {
 		if(i == null) {
 			throw new RuntimeException("Intention is null");
 		}
+		if(!i.getBox().getColor().equals(agent.getColor())) {
+			throw new RuntimeException("Planning for a invalid move: Agent and only move boxes of same color: " + i.getBox() + " " + agent);
+		}
+		
 		System.err.println("Planing for Intention: " + i);
 		Heuristic h = new AStar(new HeuristicPlannerFunction(i, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
 		System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
-		
-		if(!i.getBox().getColor().equals(agent.getColor())) {
-			
-		}
 
 		int iterations = 0;
 		List<Goal> completedGoals = world.getCompletedGoals();
