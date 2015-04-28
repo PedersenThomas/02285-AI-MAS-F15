@@ -21,9 +21,10 @@ public class IntentionDecomposer {
 		Point goalPosition = intention.getGoal().getPosition();
 
 		World currentWorld = world;
+		Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);
+		
 		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
 			//SubIntention to clear path from Agent to Box.
-			Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention);
 
 			//TODO Debug information
@@ -38,15 +39,17 @@ public class IntentionDecomposer {
 			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention);
 
-			//TODO Debug Infor
+			//TODO Debug Info
 			System.err.println("----------- Path ----------");
 			for (Point point : pathFromBoxToGoal) {
 				System.err.println("" + point);
 			}
 		}
-
+		
 		//SubIntention for moving box to goal.
+		//subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
 		subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
+		
 
 		System.err.println("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
