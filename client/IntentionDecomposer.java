@@ -47,7 +47,7 @@ public class IntentionDecomposer {
 		}
 		
 		//SubIntention for moving box to goal.
-		//subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
+		subIntentions.add(new TravelSubIntention(intention.getBox().getPosition(),intention));
 		subIntentions.add(new MoveBoxSubIntention(intention.getBox(), goalPosition,intention));
 		
 
