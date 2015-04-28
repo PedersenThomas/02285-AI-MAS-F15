@@ -2,15 +2,16 @@ package client.Heuristic;
 
 import client.Box;
 import client.Client.Agent;
+import client.MoveBoxSubIntention;
 import client.Point;
 import client.SubIntention;
 import client.Search.SearchNode;
 
 public class HeuristicPlannerFunction implements IHeuristicFunction {
-	private SubIntention intention;
+	private MoveBoxSubIntention intention;
 	private int agentId;
 	
-	public HeuristicPlannerFunction(SubIntention intention, int agentId) {
+	public HeuristicPlannerFunction(MoveBoxSubIntention intention, int agentId) {
 		this.intention = intention;
 		this.agentId = agentId;
 	}	

@@ -48,12 +48,12 @@ public class IntentionDecomposer {
 		
 		//SubIntention for moving box to goal.
 		//subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
-		subIntentions.add(new SubIntention(intention.getBox(), goalPosition,intention));
+		subIntentions.add(new MoveBoxSubIntention(intention.getBox(), goalPosition,intention));
 		
 
 		System.err.println("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
-			System.err.println("" + subIntention.getBox() + " -> " + subIntention.getEndPosition());
+			System.err.println(subIntention);
 		}
 		System.err.println("-- Agent info --");
 		System.err.println(world.getAgent(agentId));
@@ -83,7 +83,7 @@ public class IntentionDecomposer {
 					}
 				}
 				//Point savePosition = safeSpots.poll();
-				subIntentions.add(new SubIntention(box, safePosition,intention));
+				subIntentions.add(new MoveBoxSubIntention(box, safePosition,intention));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}
