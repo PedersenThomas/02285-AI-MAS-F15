@@ -30,7 +30,8 @@ public class World {
 	private List<SubIntention> jobList = new ArrayList<>();
 	private Map<Integer,LinkedList<Command>> planMap=new HashMap<>();
 
-	public World() {}
+	public World() {
+	}
 
 	public World(World old) {
 		for (Box box : old.boxes) {
@@ -79,7 +80,7 @@ public class World {
 	}
 	
 	public int getLevelSize() {
-		return width*height;
+		return width * height;
 	}
 	
 	public List<Point> getRechableCells() {
@@ -693,8 +694,11 @@ public class World {
 	
 	public SubIntention getJob(Agent agent) {
 		for(SubIntention i:jobList) {
-			if(i.getBox().getColor().equals(agent.getColor()))
-				return i;
+			if(i instanceof MoveBoxSubIntention) {
+				if(((MoveBoxSubIntention)i).getBox().getColor().equals(agent.getColor()))
+					return i;
+			}
+			
 		}
 		return null;
 	}

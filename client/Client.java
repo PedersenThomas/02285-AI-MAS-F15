@@ -87,15 +87,18 @@ public class Client {
 					subIntention = delegatedIntention;
 				
 				// Check if I can do the job
-				if(!subIntention.getBox().getColor().equals(color)) {
-					subIntentions.poll();
-					world.addJob(subIntention);
-					return "NoOp";
-				}
-				
-				// in case the broadcast fails, the intention is still in the queue
-				if(!world.putIntention(this.id, subIntention.getBox(), subIntention.getRootIntention().getGoal())) {
-					return "NoOp";
+				if (subIntention instanceof MoveBoxSubIntention) {
+					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)subIntention;
+					if(!moveSubIntention.getBox().getColor().equals(color)) {
+						subIntentions.poll();
+						world.addJob(subIntention);
+						return "NoOp";
+					}
+					
+					// in case the broadcast fails, the intention is still in the queue
+					if(!world.putIntention(this.id, moveSubIntention.getBox(), subIntention.getRootIntention().getGoal())) {
+						return "NoOp";
+					}
 				}
 				
 				if(delegatedIntention == null)

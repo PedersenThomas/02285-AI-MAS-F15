@@ -18,27 +18,4 @@ public class SafeSpotDetector {
 		}
 		return safeSpots;
 	}
-	
-	private static boolean isSafePoint(SafePoint spoint, World world) {
-		for(Command.dir dir: Command.dir.values()) {
-			Point p = spoint.move(dir);
-			if (world.isWallAt(p)) {
-				spoint.increaseNumberOfWalls();
-			}
-			if (world.isBoxAt(p)) {
-				spoint.increaseNumberOfBoxes();
-			}
-		}
-		if (spoint.getNumberOfSurrandedObjects() == 3 || spoint.getNumberOfSurrandedObjects() == 1) {
-			return true;
-		}
-		return false;
-	}
-	
-	private static List<SafePoint> detectPatterns(World world) {
-		for(Point point : world.getRechableCells()) {
-			
-		}
-		return null;
-	}
 }

@@ -52,6 +52,17 @@ public class PathNode extends SearchNode {
 		return queue;
 	}
 	
+	public Queue<Command> extractListOfCommands() {
+		LinkedList<Command> queue = new LinkedList<Command>();
+
+		PathNode node = this;
+		while(node != null && node.command != null) {
+			queue.add(0, node.command);
+			node = (PathNode)node.previousNode;
+		}
+		return queue;
+	}
+	
 	public Point getPosition() {
 		return position;
 	}
