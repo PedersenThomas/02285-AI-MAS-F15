@@ -60,7 +60,8 @@ public class Client {
 //			for (Goal goal : world.getGoals()) {
 //				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
 //			}
-			lastPosition = this.position;
+			this.lastPosition = this.position;
+			
 			if(world.getNumberOfUncompletedGoals() == 0) {
 				return "NoOp";
 			}
@@ -107,8 +108,8 @@ public class Client {
 				plan = new Plan(world, subIntention, this);
 			}
 
-			if(!world.validPlan(this.id))
-			//if(!world.validStep(this.id))
+			//if(!world.validPlan(this.id))
+			if(!world.validStep(this.id))
 				return "NoOp";
 			
 			//execute the plan
