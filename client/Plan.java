@@ -45,9 +45,10 @@ public class Plan {
 
 			if ( leafNode.getWorld().getBoxById(i.getBox().getId()).getPosition().equals(i.getEndPosition())) {
 			    commandQueue = leafNode.extractListOfCommands();
+			    world.putPlan(agent.getId(), commandQueue);
 				break;
 			}
-
+			
 			strategy.addToExplored( leafNode );
 			for ( SearchNode n : leafNode.getExpandedNodes() ) {
 				if ( !strategy.isExplored( n ) && !strategy.inFrontier( n ) ) {
