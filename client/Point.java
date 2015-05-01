@@ -34,6 +34,14 @@ public class Point {
 		}
 		return p;
 	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
 	
 	/**
 	 * Manhatten distance
@@ -62,13 +70,5 @@ public class Point {
 	public int hashCode() {
 		final int prime = 127;
 		return this.x * prime + this.y;
-	}
-
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
 	}
 }

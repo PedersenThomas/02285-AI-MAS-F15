@@ -53,14 +53,14 @@ public class World {
 		this.jobList = old.jobList;
 		this.planMap = old.planMap;
 		
+		/*/
 		
-		
-		/*/for (Map.Entry<Integer, Intention> entry : old.intentionMap.entrySet()) {
+		for (Map.Entry<Integer, Intention> entry : old.intentionMap.entrySet()) {
 			this.intentionMap.put(entry.getKey(), new Intention(entry.getValue()));
 		}
 		
 		for (SubIntention job : old.jobList) {
-			this.jobList.add(new SubIntention(job));
+			this.jobList.add(job.deepCopy());
 		}
 		
 		for (Map.Entry<Integer, LinkedList<Command>> entry : old.planMap.entrySet()) {

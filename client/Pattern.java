@@ -1,7 +1,6 @@
 package client;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Pattern {
 	private static HashMap<String, Integer> validPatterns = new HashMap<String, Integer>();

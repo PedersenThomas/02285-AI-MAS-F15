@@ -1,6 +1,6 @@
 package client;
 
-public class SubIntention {
+public abstract class SubIntention {
 	private Intention rootIntention;
 	
 	public SubIntention(Intention rootIntention) {
@@ -10,13 +10,15 @@ public class SubIntention {
 	public SubIntention(SubIntention old) {
 		this.rootIntention = new Intention(old.rootIntention);
 	}
+
+	public Intention getRootIntention() {
+		return rootIntention;
+	}
+	
+	public abstract SubIntention deepCopy();
 		
 	@Override
 	public String toString() {
 		return "SubIntention: " + rootIntention;
-	}
-
-	public Intention getRootIntention() {
-		return rootIntention;
 	}
 }

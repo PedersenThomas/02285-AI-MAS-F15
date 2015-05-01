@@ -9,7 +9,6 @@ public class Client {
 	public class Agent {
 		private int id;
 		private String color = "NoColor";
-		private Beliefs B;
 		private Point position;
 		private Point lastPosition;
 		Plan plan = null;
@@ -26,9 +25,6 @@ public class Client {
 			if(color != null) {
 				this.color = color;
 			}
-
-			// Initial Beliefs
-			this.B = new Beliefs();
 		}
 
 		public Agent CloneAgent() {
