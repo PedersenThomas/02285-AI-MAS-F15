@@ -35,7 +35,8 @@ public class Plan {
 		strategy = new BestFirstSearch(h);
 		
 		System.err.format( "Search starting with strategy %s\n", strategy );
-		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), true) );
+		boolean ignoreBoxes = false;
+		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
 		
 		while ( true ) {
