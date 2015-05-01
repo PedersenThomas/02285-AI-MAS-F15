@@ -42,7 +42,7 @@ public class World {
 			this.agents.add(agent.CloneAgent());
 		}
 		for (Point wall : old.walls) {
-			this.walls.add(new Point(wall));
+			this.walls.add(wall);
 		}
 		
 		this.width = old.width;
@@ -726,7 +726,7 @@ public class World {
 			return Collections.emptyList();
 		}
 		
-		Point initialAgentPos = new Point(getAgent(agentId).getPosition());
+		Point initialAgentPos = getAgent(agentId).getPosition();
 		World initialCopyOfWorld = new World(this);
 		
 		/*for(Box b:boxes) {

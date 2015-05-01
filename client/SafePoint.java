@@ -12,7 +12,7 @@ public class SafePoint extends Point implements Comparable<SafePoint> {
 	//private int numberofAgents;
 
 	public SafePoint(Point p) {
-		super(p);
+		super(p.getX(), p.getY());
 	}
 
 	public SafePoint(int x, int y) {

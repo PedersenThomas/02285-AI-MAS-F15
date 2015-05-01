@@ -10,7 +10,7 @@ public class Box {
 		this.id = old.id;
 		this.letter = old.letter;
 		this.color = old.color;
-		this.position = new Point(old.position);
+		this.position = old.position;
 	}
 	
 	public Box(int x, int y, char letter, String color, int id) {
@@ -41,7 +41,7 @@ public class Box {
 	}
 
 	public void setPosition(Point position) {
-		this.position = new Point(position);
+		this.position = position;
 	}
 	
 	public int getId() {
