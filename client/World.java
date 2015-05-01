@@ -4,10 +4,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
+
+import javax.print.attribute.UnmodifiableSetException;
 
 import client.Client.Agent;
 import client.Command.type;
@@ -23,7 +27,8 @@ public class World {
 	private List<Box> boxes = new ArrayList<Box>();
 	private static List<Goal> goals = new ArrayList<Goal>();
 	private List<Agent> agents = new ArrayList<Agent>();
-	private List<Point> walls = new ArrayList<Point>();
+	private static HashSet<Point> walls = new HashSet<Point>();
+	private HashSet<Point> madeUpWalls = new HashSet<Point>();
 	private static List<Point> rechableCells = new ArrayList<Point>();
 	private int width;
 	private int height;
@@ -41,8 +46,8 @@ public class World {
 		for (Agent agent : old.agents) {
 			this.agents.add(agent.CloneAgent());
 		}
-		for (Point wall : old.walls) {
-			this.walls.add(wall);
+		for (Point wall : old.madeUpWalls) {
+			this.madeUpWalls.add(wall);
 		}
 		
 		this.width = old.width;
@@ -132,8 +137,8 @@ public class World {
 		return Collections.unmodifiableList(agents);
 	}
 
-	public List<Point> getWalls() {
-		return Collections.unmodifiableList(walls);
+	public Set<Point> getWalls() {		
+		return Collections.unmodifiableSet(walls);
 	}
 
 	public int getNumberOfAgents() {
@@ -155,6 +160,10 @@ public class World {
 
 	public void addWall(int x, int y) {
 		walls.add(new Point(x, y));
+	}
+	
+	public void addMadeUpWall(Point point) {
+		madeUpWalls.add(point);
 	}
 
 	public void addGoal(Goal g) {
@@ -462,10 +471,12 @@ public class World {
 	}
 
 	public boolean isWallAt(Point point) {
-		for (Point wall : walls) {
-			if(wall.equals(point)) {
-				return true;
-			}
+		if(walls.contains(point)) {
+			return true;
+		}
+		
+		if(madeUpWalls.contains(point)) {
+			return true;
 		}
 
 		return false;
@@ -762,7 +773,7 @@ public class World {
 				
 				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
 				if(pathExists) {
-					copyOfWorld.addWall(g.getPosition().getX(), g.getPosition().getY());
+					copyOfWorld.addMadeUpWall(g.getPosition());
 					agentPos = g.getPosition();
 					if(i==orderedGoals.size()-1) {
 						allChecked = true;
