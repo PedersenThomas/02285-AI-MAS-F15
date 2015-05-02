@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Random;
 import java.util.Set;
 
 import client.Client.Agent;
@@ -736,7 +737,7 @@ public class World {
 			World copyOfWorld = new World(initialCopyOfWorld);
 			Point agentPos = initialAgentPos;
 			List<Box> boxes = copyOfWorld.getBoxes(getAgent(agentId).getColor());
-			Collections.shuffle(boxes); // could be done in a better way
+			Collections.shuffle(boxes, new Random(System.currentTimeMillis()));
 			for (int i = 0; i < orderedGoals.size(); i++) {
 				Goal g = orderedGoals.get(i);
 				boolean reachableBoxFound = false;
@@ -750,8 +751,12 @@ public class World {
 						}
 					}
 				}
-				// if(!reachableBoxFound)
-				// break;
+				
+				if(!reachableBoxFound) {
+					orderedGoals.remove(i);
+					orderedGoals.add(0, g);
+					break;
+				}				
 
 				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
 				if (pathExists) {
@@ -762,9 +767,9 @@ public class World {
 					}
 				} else {
 					// Collections.swap(goals, i, i-1);
-					if (i == 0) {
+					/*if (i == 0) {
 						return Collections.emptyList();
-					}
+					}*/
 
 					orderedGoals.remove(i);
 					orderedGoals.add(0, g);
