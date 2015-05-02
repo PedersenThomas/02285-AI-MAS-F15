@@ -195,9 +195,13 @@ public class World {
 
 				if (conflict) {
 					if (agentId > entry.getKey()) {
-						if(entry.getValue().isEmpty() && (getJob(getAgent(entry.getKey())) == null)) {
+						if(entry.getValue().isEmpty() && (getJob(getAgent(entry.getKey())) == null) && 
+								(getAgent(entry.getKey()).getPosition().equals(getAgent(entry.getKey()).getLastPosition()))) {
 							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
-							this.addJob(new TravelSubIntention(safePoints.poll(), entry.getKey(), null));
+							Point movePos = safePoints.poll();
+							while(getAgent(entry.getKey()).equals(movePos))
+								movePos = safePoints.poll();
+							this.addJob(new TravelSubIntention(movePos, entry.getKey(), null));
 							
 						}
 						return false;
