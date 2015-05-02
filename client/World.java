@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
@@ -193,8 +194,14 @@ public class World {
 				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
 
 				if (conflict) {
-					if (agentId > entry.getKey())
+					if (agentId > entry.getKey()) {
+						if(entry.getValue().isEmpty() && (getJob(getAgent(entry.getKey())) == null)) {
+							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
+							this.addJob(new TravelSubIntention(safePoints.poll(), entry.getKey(), null));
+							
+						}
 						return false;
+					}
 				}
 			}
 		}
@@ -204,7 +211,7 @@ public class World {
 	public boolean checkPlans(int agentId1, LinkedList<Command> plan1, int agentId2, LinkedList<Command> plan2) {
 		Agent a1 = getAgent(agentId1);
 		Agent a2 = getAgent(agentId2);
-
+		
 		Point pos1 = a1.getPosition();
 		Point pos2 = a2.getPosition();
 
@@ -799,9 +806,17 @@ public class World {
 				if (((MoveBoxSubIntention) i).getBox().getColor().equals(agent.getColor()))
 					return i;
 			}
+			else if (i instanceof TravelSubIntention) {
+				if (((TravelSubIntention) i).getAgentId() == agent.getId())
+					return i;
+			}
 
 		}
 		return null;
+	}
+	
+	public void removeJob(SubIntention job) {
+		jobList.remove(job);
 	}
 
 	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {

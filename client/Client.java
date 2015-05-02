@@ -68,8 +68,10 @@ public class Client {
 				//Check first if there is something to do for me
 				delegatedIntention = world.getJob(this);
 				
-				if(delegatedIntention != null)
-					System.err.println(this.id + ": I do it! >>" + delegatedIntention);
+				if(delegatedIntention != null) {
+					System.err.println(this.id + ": I do it! >> " + delegatedIntention);
+					world.removeJob(delegatedIntention);
+				}
 			}
 			if((delegatedIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
 				//deliberate by choosing a set of intentions based on current beliefs
@@ -94,9 +96,8 @@ public class Client {
 						world.addJob(subIntention);
 						System.err.println(this.id + ": Please do it! >> " + subIntention);
 						return "NoOp";
-					}
-					
-					// in case the broadcast fails, the intention is still in the queue
+					}					
+		
 					if(!world.putIntention(this.id, moveSubIntention.getBox(), subIntention.getRootIntention().getGoal())) {
 						return "NoOp";
 					}
@@ -108,9 +109,10 @@ public class Client {
 				plan = new Plan(world, subIntention, this);
 			}
 
-			if(!world.validPlan(this.id))
+			if(!world.validPlan(this.id)) {
 			//if(!world.validStep(this.id))
 				return "NoOp";
+			}
 			
 			//execute the plan
 			Command cmd = plan.execute();
