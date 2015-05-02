@@ -4,7 +4,6 @@ import client.Box;
 import client.Client.Agent;
 import client.MoveBoxSubIntention;
 import client.Point;
-import client.SubIntention;
 import client.Search.SearchNode;
 
 public class HeuristicPlannerFunction implements IHeuristicFunction {

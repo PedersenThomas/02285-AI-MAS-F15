@@ -12,8 +12,12 @@ public class TravelSubIntention extends SubIntention {
 		return endPosition;
 	}
 	
+	public TravelSubIntention deepCopy() {
+		return new TravelSubIntention(this.endPosition, this.getRootIntention());
+	}
+	
 	@Override
 	public String toString() {
-		return "SubIntention: " + " -> " + endPosition;
+		return "TravelSubIntention: " + " -> " + endPosition;
 	}	
 }

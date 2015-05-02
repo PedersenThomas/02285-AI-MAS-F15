@@ -10,12 +10,6 @@ public class MoveBoxSubIntention extends SubIntention{
 		this.endPosition = endPosition;
 	}
 	
-	public MoveBoxSubIntention(MoveBoxSubIntention old) {
-		super(old);
-		this.box = new Box(old.box);
-		this.endPosition = new Point(old.endPosition);
-	}
-	
 	public Box getBox() {
 		return box;
 	}
@@ -24,8 +18,12 @@ public class MoveBoxSubIntention extends SubIntention{
 		return endPosition;
 	}
 	
+	public MoveBoxSubIntention deepCopy() {
+		return new MoveBoxSubIntention(new Box(this.box), this.endPosition, this.getRootIntention());
+	}
+	
 	@Override
 	public String toString() {
-		return "SubIntention: " + box + " -> " + endPosition;
+		return "MoveBoxSubIntention: " + box + " -> " + endPosition;
 	}	
 }

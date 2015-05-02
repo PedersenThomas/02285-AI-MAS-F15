@@ -19,7 +19,7 @@ public class Goal {
 	}
 	
 	public Goal(Goal old) {
-		position = new Point(old.position);
+		position = old.position;
 		letter = old.letter;
 		priorityScore = old.priorityScore;
 		this.totalOrder = new HashMap<>();

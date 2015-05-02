@@ -1,22 +1,24 @@
 package client;
 
+/**
+ * Immutable point class for specifying location in world.
+ */
 public class Point {
 	private int x;
 	private int y;
 	
-	public Point(Point src) {
-		this.x = src.x;
-		this.y = src.y;
-	}
+//	public Point(Point src) {
+//		this.x = src.x;
+//		this.y = src.y;
+//	}
 	
 	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
-		
 
 	public Point move(Command.dir dir) {
-		Point p = new Point(this);
+		Point p = new Point(this.getX(), this.getY());
 		
 		switch (dir) {
 		case E:
@@ -33,6 +35,14 @@ public class Point {
 			break;
 		}
 		return p;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
 	}
 	
 	/**
@@ -62,13 +72,5 @@ public class Point {
 	public int hashCode() {
 		final int prime = 127;
 		return this.x * prime + this.y;
-	}
-
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
 	}
 }
