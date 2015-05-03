@@ -3,9 +3,9 @@ package client;
 import java.util.PriorityQueue;
 
 public class SafeSpotDetector {
-	public static PriorityQueue<SafePoint> detectSafeSpots(World world) {
+	public static PriorityQueue<SafePoint> detectSafeSpots(World world, int agentId) {
 		PriorityQueue<SafePoint> safeSpots = new PriorityQueue<SafePoint>();
-		for(Point point : world.getRechableCells()) {
+		for(Point point : world.getRechableCells(agentId)) {
 			if(world.isGoalAt(point) || world.isBoxAt(point)) {
 				continue;
 			}

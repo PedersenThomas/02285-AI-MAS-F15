@@ -29,7 +29,10 @@ public class World {
 	private List<Agent> agents = new ArrayList<Agent>();
 	private static HashSet<Point> walls = new HashSet<Point>();
 	private HashSet<Point> madeUpWalls = new HashSet<Point>();
-	private static List<Point> rechableCells = new ArrayList<Point>();
+	//private static List<Point> rechableCells = new ArrayList<Point>();
+	
+	private static Map<Integer, List<Point>> reachableCells = new HashMap<>();
+	
 	private int width;
 	private int height;
 	private Map<Integer, Intention> intentionMap = new HashMap<>();
@@ -89,12 +92,12 @@ public class World {
 		return width * height;
 	}
 
-	public List<Point> getRechableCells() {
-		return rechableCells;
+	public List<Point> getRechableCells(int agentId) {
+		return reachableCells.get(agentId);
 	}
 
-	public static void setRechableCells(List<Point> rechableCells) {
-		World.rechableCells = Collections.unmodifiableList(rechableCells);
+	public static void setRechableCells(List<Point> rechableCells, int agentId) {
+		World.reachableCells.put(agentId, Collections.unmodifiableList(rechableCells));
 	}
 
 	public List<Box> getBoxes() {
@@ -158,6 +161,15 @@ public class World {
 		
 		return null;
 	}
+	
+	public Agent getAgentToMoveBox(Box box) {
+		for(Agent agent:agents) {
+			if(agent.getColor().equals(box.getColor()))
+				return agent;
+		}
+		
+		return null;
+	}
 
 	public void addBox(Box b) {
 		boxes.add(b);
@@ -196,7 +208,7 @@ public class World {
 		// Check if the planned actions of the agent cause a conflict with one of the other agents' plans
 		LinkedList<Command> plan = planMap.get(agentId);
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
-			if (agentId != entry.getKey()) {
+			if ((agentId != entry.getKey()) && (entry.getValue() != null)) {
 				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
 
 				if (conflict) {

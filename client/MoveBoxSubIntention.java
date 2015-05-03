@@ -4,8 +4,8 @@ public class MoveBoxSubIntention extends SubIntention{
 	private Point endPosition;
 	private Box box;
 
-	public MoveBoxSubIntention(Box box, Point endPosition, Intention rootIntention) {
-		super(rootIntention);
+	public MoveBoxSubIntention(Box box, Point endPosition, Intention rootIntention, int owner) {
+		super(rootIntention, owner);
 		this.box = box;
 		this.endPosition = endPosition;
 	}
@@ -19,7 +19,7 @@ public class MoveBoxSubIntention extends SubIntention{
 	}
 	
 	public MoveBoxSubIntention deepCopy() {
-		return new MoveBoxSubIntention(new Box(this.box), this.endPosition, this.getRootIntention());
+		return new MoveBoxSubIntention(new Box(this.box), this.endPosition, this.getRootIntention(), this.getOwner());
 	}
 	
 	@Override

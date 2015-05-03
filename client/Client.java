@@ -107,7 +107,7 @@ public class Client {
 					subIntentions.poll();
 				
 				plan = new Plan(world, subIntention, this);
-			}
+			}			
 
 			if(!world.validPlan(this.id)) {
 			//if(!world.validStep(this.id)) {
@@ -204,7 +204,11 @@ public class Client {
 		
 		//Find all the reachable cells.
 		ConnectedComponent cc = new ConnectedComponent(world);
-		World.setRechableCells(cc.findPointsInConnectedComponent(world.getAgents().get(0).getPosition()));
+		for ( int i = 0; i < world.getNumberOfAgents(); i++ ) {
+			Agent a = world.getAgents().get(i);
+			World.setRechableCells(cc.findPointsInConnectedComponent(a.getPosition()),a.getId());
+		}
+		
 	}
 
 	public boolean update() throws IOException {

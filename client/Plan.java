@@ -64,6 +64,8 @@ public class Plan {
 				}
 			}
 		}
+		//if(commandQueue == null)
+		//	throw new RuntimeException("No plan found for Intention: " + subIntention + " ("+ iterations + " iterations)");
 	}
 	
 	private void MoveBoxPlanner(World world, MoveBoxSubIntention subIntention, Agent agent) {
@@ -118,6 +120,8 @@ public class Plan {
 				}
 			}
 		}
+		//if(commandQueue == null)
+		//	throw new RuntimeException("No plan found for Intention: " + subIntention + " ("+ iterations + " iterations)");
 	}
 
 	public Command execute() {
@@ -129,6 +133,9 @@ public class Plan {
 	}
 
 	public boolean isEmpty() {
+		if(commandQueue == null)
+			return true;
+		
 		return commandQueue.isEmpty();
 	}
 }
