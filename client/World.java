@@ -151,7 +151,12 @@ public class World {
 	}
 
 	public Agent getAgent(int id) {
-		return agents.get(id);
+		for(Agent agent:agents) {
+			if(agent.getId() == id)
+				return agent;
+		}
+		
+		return null;
 	}
 
 	public void addBox(Box b) {
@@ -199,8 +204,11 @@ public class World {
 								(getAgent(entry.getKey()).getPosition().equals(getAgent(entry.getKey()).getLastPosition()))) {
 							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
 							Point movePos = safePoints.poll();
-							while(getAgent(entry.getKey()).equals(movePos))
+							while(getAgent(entry.getKey()).equals(movePos)) {
 								movePos = safePoints.poll();
+								if(movePos == null)
+									return false;
+							}
 							this.addJob(new TravelSubIntention(movePos, entry.getKey(), null));
 							
 						}
@@ -699,7 +707,7 @@ public class World {
 	private Map<Integer, List<Goal>> agentGoalOrder;
 
 	public List<Goal> getGoalOrderForAgent(int agentId) {
-
+		
 		if (agentGoalOrder == null)
 			agentGoalOrder = new HashMap<Integer, List<Goal>>();
 
@@ -781,7 +789,6 @@ public class World {
 					/*if (i == 0) {
 						return Collections.emptyList();
 					}*/
-
 					orderedGoals.remove(i);
 					orderedGoals.add(0, g);
 					break;
@@ -789,7 +796,8 @@ public class World {
 			} // for(int i=0;i<goals.size();i++)
 		} // while(!allChecked)
 
-		System.err.println("=== ORDERED GOALS ===");
+		System.err.println("getGoalOrderForAgent: " + getAgent(agentId));
+		System.err.println("=== ORDERED GOALS ===" + agentId);
 		for (int i = 0; i < orderedGoals.size(); i++) {
 			orderedGoals.get(i).setTotalOrder(agentId, i);
 			System.err.println(orderedGoals.get(i));
