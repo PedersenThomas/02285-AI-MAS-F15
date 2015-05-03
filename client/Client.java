@@ -110,7 +110,7 @@ public class Client {
 			}
 
 			if(!world.validPlan(this.id)) {
-			//if(!world.validStep(this.id))
+			//if(!world.validStep(this.id)) {
 				return "NoOp";
 			}
 			

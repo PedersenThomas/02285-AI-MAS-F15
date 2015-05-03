@@ -193,6 +193,7 @@ public class World {
 	}
 
 	public boolean validPlan(int agentId) {
+		// Check if the planned actions of the agent cause a conflict with one of the other agents' plans
 		LinkedList<Command> plan = planMap.get(agentId);
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
 			if (agentId != entry.getKey()) {
@@ -200,18 +201,18 @@ public class World {
 
 				if (conflict) {
 					if (agentId > entry.getKey()) {
-						if(entry.getValue().isEmpty() && (getJob(getAgent(entry.getKey())) == null) && 
-								(getAgent(entry.getKey()).getPosition().equals(getAgent(entry.getKey()).getLastPosition()))) {
+						Agent otherAgent = getAgent(entry.getKey());
+						LinkedList<Command> otherPlan = entry.getValue();
+						
+						/* There is a conflict but the other agent has no intention to move
+						if(otherPlan.isEmpty() && (getJob(otherAgent) == null) && 
+								(otherAgent.getPosition().equals(otherAgent.getLastPosition()))) {
 							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
 							Point movePos = safePoints.poll();
-							while(getAgent(entry.getKey()).equals(movePos)) {
-								movePos = safePoints.poll();
-								if(movePos == null)
-									return false;
-							}
-							this.addJob(new TravelSubIntention(movePos, entry.getKey(), null));
+							this.addJob(new TravelSubIntention(movePos, otherAgent.getId(), null));
 							
 						}
+						*/
 						return false;
 					}
 				}
@@ -303,83 +304,24 @@ public class World {
 	}
 
 	public boolean validStep(int agentId) {
+		// Check if the next step of the agent causes a conflict with one of the other agents' plans
 		LinkedList<Command> plan = planMap.get(agentId);
 		if (plan.isEmpty())
 			return true;
-
-		Agent a = getAgent(agentId);
-		Point pos = a.getPosition();
-		Point newPos = pos.move(plan.get(0).dir1);
-		Point boxPos = pos;
-		if (plan.get(0).actType == type.Push) {
-			boxPos = newPos.move(plan.get(0).dir2);
-		} else if (plan.get(0).actType == type.Pull) {
-			boxPos = pos.move(plan.get(0).dir2);
-		}
+		
+		LinkedList<Command> nextStepPlan = new LinkedList<>();
+		nextStepPlan.add(plan.get(0));
 
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
 			if (agentId != entry.getKey()) {
 				Agent otherAgent = getAgent(entry.getKey());
-				Point otherPos;
-
-				if (agentId > entry.getKey()) {
-					otherPos = otherAgent.getLastPosition();
-					if (newPos.equals(otherPos)) {
+				LinkedList<Command> otherPlan = planMap.get(otherAgent.getId());
+	
+				boolean conflict = checkPlans(agentId, nextStepPlan, otherAgent.getId(), otherPlan);
+				if(conflict) {
+					if(agentId > otherAgent.getId())
 						return false;
-					}
-					if (boxPos.equals(otherPos)) {
-						return false;
-					}
 				}
-
-				otherPos = otherAgent.getPosition();
-				if (newPos.equals(otherPos)) {
-					return false;
-				}
-				if (boxPos.equals(otherPos)) {
-					return false;
-				}
-
-				LinkedList<Command> otherPlan = planMap.get(entry.getKey());
-
-				Point otherBoxPos = otherPos;
-				boolean conflict = false;
-				for (int i = 0; i < otherPlan.size(); i++) {
-					if (otherPlan.get(i).actType == type.Pull) {
-						otherBoxPos = otherPos.move(otherPlan.get(i).dir2);
-					}
-					otherPos = otherPos.move(otherPlan.get(i).dir1);
-					if (otherPlan.get(i).actType == type.Push) {
-						otherBoxPos = otherPos.move(otherPlan.get(i).dir2);
-					}
-
-					if (pos.equals(otherPos)) {
-						conflict = true;
-						break;
-					}
-
-					if (newPos.equals(otherPos)) {
-						conflict = true;
-						break;
-					}
-
-					if (pos.equals(otherBoxPos)) {
-						conflict = true;
-						break;
-					}
-
-					if (newPos.equals(otherBoxPos)) {
-						conflict = true;
-						break;
-					}
-				}
-
-				if (conflict) {
-					if (agentId > entry.getKey()) {
-						return false;
-					}
-				}
-
 			}
 		}
 		return true;
