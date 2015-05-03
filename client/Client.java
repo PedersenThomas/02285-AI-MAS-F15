@@ -5,12 +5,18 @@ import java.util.*;
 
 public class Client {
 	public World world = new World();
+	
+	enum AgentStatus {
+		ACTIVE,
+		WAITING
+	};
 
 	public class Agent {
 		private int id;
 		private String color = "NoColor";
 		private Point position;
 		private Point lastPosition;
+		private AgentStatus status;
 		Plan plan = null;
 		Queue<SubIntention> subIntentions = null;
 
@@ -21,6 +27,7 @@ public class Client {
 			this.id = id;
 			this.position = position;
 			this.lastPosition = position;
+			this.status = AgentStatus.ACTIVE;
 			
 			if(color != null) {
 				this.color = color;
@@ -28,7 +35,9 @@ public class Client {
 		}
 
 		public Agent CloneAgent() {
-			return new Agent(this.id, this.color, this.position);
+			Agent clone = new Agent(this.id, this.color, this.position);
+			clone.status = this.status;
+			return clone;
 		}
 
 		public Point getPosition() {
@@ -50,6 +59,19 @@ public class Client {
 		public int getId() {
 			return id;
 		}
+		
+		public AgentStatus getStatus() {
+			return status;
+		}
+		
+		public void setStatus(AgentStatus status) {
+			if((status == AgentStatus.ACTIVE) && 
+					(this.status == AgentStatus.WAITING)) {
+				//The world has changed -> find new intentions
+				subIntentions.clear();
+			}
+			this.status = status;
+		}
 
 		public String act() {
 //			System.err.println("No Operation for agent " + this);
@@ -59,6 +81,10 @@ public class Client {
 			this.lastPosition = this.position;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
+				return "NoOp";
+			}
+			
+			if(this.status == AgentStatus.WAITING) {
 				return "NoOp";
 			}
 
@@ -95,6 +121,7 @@ public class Client {
 						subIntentions.poll();
 						world.addJob(subIntention);
 						System.err.println(this.id + ": Please do it! >> " + subIntention);
+						this.status = AgentStatus.WAITING;
 						return "NoOp";
 					}					
 		
@@ -107,7 +134,7 @@ public class Client {
 					subIntentions.poll();
 				
 				plan = new Plan(world, subIntention, this);
-			}			
+			}
 
 			if(!world.validPlan(this.id)) {
 			//if(!world.validStep(this.id)) {
@@ -118,8 +145,9 @@ public class Client {
 			Command cmd = plan.execute();
 			world.update(this, cmd);
 			
-			if(plan.isEmpty())
+			if(plan.isEmpty()) {
 				world.clearIntention(this.id);
+			}
 			
 			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();

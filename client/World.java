@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Set;
 
 import client.Client.Agent;
+import client.Client.AgentStatus;
 import client.Command.type;
 import client.Intention.GoalComparator;
 import client.Heuristic.AStar;
@@ -501,7 +502,15 @@ public class World {
 	 * @return boolean value which tells whether there is made a change.
 	 */
 	public boolean update(Agent agent, Command command) {
-
+		
+		if(command instanceof NotifyAgentCommand) {			
+			Agent a = this.getAgent(((NotifyAgentCommand)command).getAgentId());
+			a.setStatus(AgentStatus.ACTIVE);
+			System.err.println(agent.getId() + ": Notify agent " + a.getId());
+			return true;
+		}
+		
+		
 		switch (command.actType) {
 		case Move: {
 			Point agentDestPosition = agent.getPosition().move(command.dir1);
@@ -786,7 +795,7 @@ public class World {
 	}
 
 	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {
-		IHeuristicFunction function = new HeuristicPathFunction(pos);
+		IHeuristicFunction function = new HeuristicPathFunction(this, pos);
 		AStar heuristic = new AStar(function);
 		BestFirstSearch pathSearch = new BestFirstSearch(heuristic);
 		pathSearch.addToFrontier(new PathNode(this, agentPos, pos, ignoreBoxes));

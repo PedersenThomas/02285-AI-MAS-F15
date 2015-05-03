@@ -31,7 +31,7 @@ public class Plan {
 			throw new RuntimeException("Intention is null");
 		}
 		System.err.println("Planing for Intention: " + subIntention);
-		Heuristic h = new AStar(new HeuristicPathFunction(subIntention.getEndPosition()));
+		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);
 		
 		System.err.format( "Search starting with strategy %s\n", strategy );
@@ -53,6 +53,9 @@ public class Plan {
 				//TODO: might be used
 				//removeLastFromQueue(path);
 				commandQueue = leafNode.extractListOfCommands();
+				if(subIntention.getOwner() != agent.getId()) {
+					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
+				}
 			    world.putPlan(agent.getId(), commandQueue);
 			    break;
 			}
@@ -97,6 +100,9 @@ public class Plan {
 
 			if ( leafNode.getWorld().getBoxById(subIntention.getBox().getId()).getPosition().equals(subIntention.getEndPosition())) {
 			    commandQueue = leafNode.extractListOfCommands();
+			    if(subIntention.getOwner() != agent.getId()) {
+					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
+				}
 			    world.putPlan(agent.getId(), commandQueue);
 				break;
 			}

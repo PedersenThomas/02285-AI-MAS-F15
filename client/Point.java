@@ -20,6 +20,8 @@ public class Point {
 	public Point move(Command.dir dir) {
 		Point p = new Point(this.getX(), this.getY());
 		
+		if(dir == null) return p;
+		
 		switch (dir) {
 		case E:
 			p.x++;

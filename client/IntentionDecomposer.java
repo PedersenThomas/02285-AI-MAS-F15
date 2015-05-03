@@ -121,7 +121,7 @@ public class IntentionDecomposer {
 	};
 
 	private static Queue<Point> findPath(World world, Point sourcePosition, Point targetPosition) {
-		HeuristicPathFunction pathFunction = new HeuristicPathFunction(targetPosition);
+		HeuristicPathFunction pathFunction = new HeuristicPathFunction(world,targetPosition);
 		AStar heuristic = new AStar(pathFunction);
 		BestFirstSearch search = new BestFirstSearch(heuristic);
 
