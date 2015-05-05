@@ -68,6 +68,7 @@ public class Client {
 			if((status == AgentStatus.ACTIVE) && 
 					(this.status == AgentStatus.WAITING)) {
 				//The world has changed -> find new intentions
+				world.clearIntention(this.id);
 				subIntentions.clear();
 			}
 			this.status = status;
@@ -88,7 +89,7 @@ public class Client {
 				return NoOp;
 			}
 			
-			if(this.status == AgentStatus.WAITING) {
+			if(this.status == AgentStatus.WAITING) {				
 				return NoOp;
 			}
 
@@ -113,7 +114,7 @@ public class Client {
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
 			
-			System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
+			//System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
 			if(plan == null || plan.isEmpty()) {
 				
 				//Make sure that we have an subIntention to plan for.
@@ -122,7 +123,8 @@ public class Client {
 					subIntention = subIntentions.peek();
 				} else {
 					subIntention = delegatedSubIntention;
-				}
+				}				
+				
 				
 				// Check if this agent can do the job
 				if (subIntention instanceof MoveBoxSubIntention) {
@@ -141,20 +143,21 @@ public class Client {
 				
 				plan = new Plan(world, subIntention, this);
 				if(plan.isEmpty()) {
+					world.clearIntention(this.id);
 					subIntentions.clear();
-					return "NoOp";
+					return NoOp;
 				}
 			}
 
 			if(!world.validPlan(this.id)) {
-				System.err.println("No Valid Plan");
+				//System.err.println("No Valid Plan");
 				return NoOp;
 			}
 			
 			//execute the plan
 			Command cmd = plan.execute();
 			boolean validUpdate = world.update(this, cmd);
-			if(validUpdate) {
+			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
 				System.err.println("Invalid command: " + cmd + " " + this);
 			}
@@ -163,7 +166,7 @@ public class Client {
 				world.clearIntention(this.id);
 			}
 			
-			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
+			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}
 
@@ -287,7 +290,7 @@ public class Client {
 			return false;
 		
 
-		System.err.println("   jointAction:" + jointAction);
+		//System.err.println("   jointAction:" + jointAction);
 		if(percepts.contains("false")) {
 			System.err.println("******************************************************************************************************");
 			System.err.println("************************************We made an Invalide action****************************************");

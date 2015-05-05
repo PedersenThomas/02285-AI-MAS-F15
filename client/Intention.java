@@ -47,9 +47,9 @@ public class Intention {
 				boolean checkReachability = true;
 				while(intentenionsMap.get(goal) == null) {
 					for(Box box:boxes) {	
-						// Check if agent can move box
+						// Check if agent can move box						
 						if(!agent.getColor().equals(box.getColor()) || !world.isIntentionAvailable(box, goal)) {
-							System.err.println("++++++++++++++++++++++++++Intention is not available. " + box + "" + goal);
+							//System.err.println("++++++++++++++++++++++++++Intention is not available. " + box + "" + goal);
 							continue;
 						}
 						
@@ -59,7 +59,7 @@ public class Intention {
 						
 						if(box.getLetter() == goal.getLetter())	{
 							if(checkReachability) {
-								boolean isBoxReachable = world.isPositionReachable(world.getAgent(0).getPosition(), 
+								boolean isBoxReachable = world.isPositionReachable(agent.getPosition(), 
 										                                           box.getPosition(), false);								
 								if(!isBoxReachable)
 									continue;
@@ -92,8 +92,6 @@ public class Intention {
 					takenBoxes.add(world.getIntendedBoxForGoal(goal));	
 			}
 		}	
-		
-		
 		
 		for(int i=0;i<goals.size();i++) {			
 			Goal intendedGoal = goals.get(i);

@@ -1,5 +1,8 @@
 package client;
 
+import client.Search.PlannerNode;
+import client.Search.SearchNode;
+
 public class MoveBoxSubIntention extends SubIntention{
 	private Point endPosition;
 	private Box box;
@@ -25,5 +28,14 @@ public class MoveBoxSubIntention extends SubIntention{
 	@Override
 	public String toString() {
 		return "MoveBoxSubIntention: " + box + " -> " + endPosition;
+	}
+
+	@Override
+	public boolean isCompleted(SearchNode node) {
+		PlannerNode plannerNode = (PlannerNode) node;		
+		 if(plannerNode.getWorld().getBoxById(this.getBox().getId()).getPosition().equals(this.getEndPosition())) {
+			 return true;
+		 }
+		return false;
 	}	
 }

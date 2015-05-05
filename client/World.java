@@ -509,8 +509,9 @@ public class World {
 			a.setStatus(AgentStatus.ACTIVE);
 			System.err.println(agent.getId() + ": Notify agent " + a.getId());
 			return true;
-		}
-		
+		} else if(command instanceof NoOpCommand) {			
+			return true;
+		} 
 		
 		switch (command.actType) {
 		case Move: {
@@ -800,7 +801,7 @@ public class World {
 		if(job != null) {
 			removeJob(job);
 		}
-		return null;
+		return job;
 	}
 	
 	public void removeJob(SubIntention job) {

@@ -1,5 +1,8 @@
 package client;
 
+import client.Search.PathNode;
+import client.Search.SearchNode;
+
 public class TravelSubIntention extends SubIntention {
 	private Point endPosition;
 	private int agentId;
@@ -24,5 +27,15 @@ public class TravelSubIntention extends SubIntention {
 	@Override
 	public String toString() {
 		return "TravelSubIntention: Agent [" + agentId + "] -> " + endPosition;
+	}
+
+	@Override
+	public boolean isCompleted(SearchNode node) {
+		PathNode pathNode = (PathNode) node;
+		if (pathNode.getPosition().equals(this.getEndPosition())) {
+			return true;
+		}
+		
+		return false;
 	}	
 }

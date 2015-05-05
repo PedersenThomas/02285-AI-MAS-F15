@@ -49,14 +49,19 @@ public class Plan {
 			  System.err.println( iterations + "..." );
 
 			PathNode leafNode = (PathNode)strategy.getAndRemoveLeaf();
-			
-			if (leafNode.getPosition().equals(subIntention.getEndPosition())) {
+
+			if (subIntention.isCompleted(leafNode)) {
 				commandQueue = leafNode.extractListOfCommands();
 			    removeLastFromQueue(commandQueue);
 				if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
-				}
+				}		
+				
 			    world.putPlan(agent.getId(), commandQueue);
+			    
+			    if(commandQueue.isEmpty())
+			    	commandQueue.add(new NoOpCommand());
+			    
 			    break;
 			}
 
@@ -98,7 +103,8 @@ public class Plan {
 
 			PlannerNode leafNode = (PlannerNode)strategy.getAndRemoveLeaf();
 
-			if ( leafNode.getWorld().getBoxById(subIntention.getBox().getId()).getPosition().equals(subIntention.getEndPosition())) {
+			
+			if ( subIntention.isCompleted(leafNode)) {
 			    commandQueue = leafNode.extractListOfCommands();
 			    if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
