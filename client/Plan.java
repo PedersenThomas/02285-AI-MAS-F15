@@ -1,5 +1,6 @@
 package client;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -34,7 +35,7 @@ public class Plan {
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);
 		
-		System.err.format( "Search starting with strategy %s\n", strategy );
+		//System.err.format( "Search starting with strategy %s\n", strategy );
 		boolean ignoreBoxes = false;
 		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
@@ -50,9 +51,8 @@ public class Plan {
 			PathNode leafNode = (PathNode)strategy.getAndRemoveLeaf();
 			
 			if (leafNode.getPosition().equals(subIntention.getEndPosition())) {
-				//TODO: might be used
-				//removeLastFromQueue(path);
 				commandQueue = leafNode.extractListOfCommands();
+			    removeLastFromQueue(commandQueue);
 				if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
 				}
@@ -83,7 +83,7 @@ public class Plan {
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
-		System.err.format( "Search starting with strategy %s\n", strategy );
+		//System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
 
 		int iterations = 0;
@@ -143,5 +143,12 @@ public class Plan {
 			return true;
 		
 		return commandQueue.isEmpty();
+	}
+	
+	public void removeLastFromQueue(Queue<Command> queue) {
+		if(queue instanceof LinkedList<?>) {
+			LinkedList<Command> list = (LinkedList<Command>)queue;
+			list.removeLast();
+		}
 	}
 }
