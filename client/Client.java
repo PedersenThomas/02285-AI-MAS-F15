@@ -95,7 +95,6 @@ public class Client {
 				delegatedIntention = world.getJob(this);
 				
 				if(delegatedIntention != null) {
-					System.err.println(this.id + ": I do it! >> " + delegatedIntention);
 					world.removeJob(delegatedIntention);
 				}
 			}
@@ -134,6 +133,10 @@ public class Client {
 					subIntentions.poll();
 				
 				plan = new Plan(world, subIntention, this);
+				if(plan.isEmpty()) {
+					subIntentions.clear();
+					return "NoOp";
+				}
 			}
 
 			if(!world.validPlan(this.id)) {
@@ -239,13 +242,29 @@ public class Client {
 		
 	}
 
+	private static int deadlockCount = 0;
+	
 	public boolean update() throws IOException {
+		
 		String jointAction = "[";
 
 		for ( int i = 0; i < world.getNumberOfAgents() - 1; i++ )
 			jointAction += world.getAgent( i ).act() + ",";
 
 		jointAction += world.getAgent( world.getNumberOfAgents() - 1 ).act() + "]";
+		
+		if(countSubstring(jointAction, "NoOp") == world.getNumberOfAgents()) {
+			deadlockCount++;
+			
+			if(deadlockCount > 10) 
+				throw new RuntimeException("Deadlock: No agent is moving");		
+		}
+		else {
+			deadlockCount = 0;
+		}
+			
+		
+		
 		// Place message in buffer
 		System.out.println( jointAction );
 
@@ -272,5 +291,14 @@ public class Client {
 		} catch ( IOException e ) {
 			// Got nowhere to write to probably
 		}
+	}
+	
+
+	public static int countSubstring(String str, String subStr){
+		int count = 0;
+		for (int loc = str.indexOf(subStr); loc != -1;
+		     loc = str.indexOf(subStr, loc + subStr.length()))
+			count++;
+		return count;
 	}
 }
