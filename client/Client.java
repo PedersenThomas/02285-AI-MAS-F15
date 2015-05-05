@@ -144,8 +144,7 @@ public class Client {
 				
 				plan = new Plan(world, subIntention, this);
 				if(plan.isEmpty()) {
-					world.clearIntention(this.id);
-					subIntentions.clear();
+					replan();
 					System.err.println("["+id+"] No plan -> find new intentions");
 					return NoOp;
 				}
@@ -155,13 +154,9 @@ public class Client {
 				//System.err.println("No Valid Plan");
 				inactivityCounter++;
 				
-				if(inactivityCounter > 25) {
+				if(inactivityCounter > 50) {
 					System.err.println("["+id+"] Timout -> replan");
-					world.clearIntention(this.id);
-					subIntentions.clear();
-					world.clearPlan(id);
-					plan = null;
-					inactivityCounter = 0;
+					replan();
 				}
 				
 				return NoOp;
@@ -173,6 +168,10 @@ public class Client {
 			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
 				System.err.println("Invalid command: " + cmd + " " + this);
+				
+				// The world has changed since we have created this plan. Our plan is outdated!
+				replan();
+				return NoOp;
 			}
 			
 			if(plan.isEmpty()) {
@@ -181,6 +180,23 @@ public class Client {
 			inactivityCounter = 0;
 			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
+		}
+		
+		public void replan() {
+			world.clearIntention(this.id);
+			subIntentions.clear();
+			world.clearPlan(id);
+			
+			if(plan != null) {
+				while(!plan.isEmpty()) {
+					Command cmd = plan.execute();
+					if(cmd instanceof NotifyAgentCommand) {
+						int agentId = ((NotifyAgentCommand)cmd).getAgentId();
+						world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
+					}
+				}
+			}
+			inactivityCounter = 0;		
 		}
 
 		@Override
