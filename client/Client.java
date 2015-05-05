@@ -17,8 +17,9 @@ public class Client {
 		private Point position;
 		private Point lastPosition;
 		private AgentStatus status;
-		Plan plan = null;
-		Queue<SubIntention> subIntentions = null;
+		private Plan plan = null;
+		private Queue<SubIntention> subIntentions = null;
+		private int inactivityCounter = 0;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -145,12 +146,24 @@ public class Client {
 				if(plan.isEmpty()) {
 					world.clearIntention(this.id);
 					subIntentions.clear();
+					System.err.println("["+id+"] No plan -> find new intentions");
 					return NoOp;
 				}
 			}
 
 			if(!world.validPlan(this.id)) {
 				//System.err.println("No Valid Plan");
+				inactivityCounter++;
+				
+				if(inactivityCounter > 25) {
+					System.err.println("["+id+"] Timout -> replan");
+					world.clearIntention(this.id);
+					subIntentions.clear();
+					world.clearPlan(id);
+					plan = null;
+					inactivityCounter = 0;
+				}
+				
 				return NoOp;
 			}
 			
@@ -165,7 +178,7 @@ public class Client {
 			if(plan.isEmpty()) {
 				world.clearIntention(this.id);
 			}
-			
+			inactivityCounter = 0;
 			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}
@@ -269,7 +282,7 @@ public class Client {
 		if(countSubstring(jointAction, Agent.NoOp) == world.getNumberOfAgents()) {
 			deadlockCount++;
 			
-			if(deadlockCount > 10) 
+			if(deadlockCount > 1000) 
 				throw new RuntimeException("Deadlock: No agent is moving");		
 		}
 		else {
