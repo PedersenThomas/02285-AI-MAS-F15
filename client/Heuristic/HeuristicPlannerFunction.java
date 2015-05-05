@@ -23,6 +23,6 @@ public class HeuristicPlannerFunction implements IHeuristicFunction {
 		int distanceFromAgentToBox = (agent.getPosition().distance(box.getPosition()));
 		int distanceFromBoxToGoal = box.getPosition().distance(targetPosition); 
 		int goalCount = node.getWorld().getNumberOfUncompletedGoals();
-		return distanceFromAgentToBox + distanceFromBoxToGoal + goalCount;
+		return distanceFromAgentToBox*8 + distanceFromBoxToGoal + goalCount;
 	}
 }
