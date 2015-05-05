@@ -73,6 +73,10 @@ public class Client {
 			this.status = status;
 		}
 
+		public final static String NoOp = "NoOp";
+		/**
+		 * Compute the next command for the agent.
+		 */
 		public String act() {
 //			System.err.println("No Operation for agent " + this);
 //			for (Goal goal : world.getGoals()) {
@@ -81,40 +85,46 @@ public class Client {
 			this.lastPosition = this.position;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
-				return "NoOp";
+				return NoOp;
 			}
 			
 			if(this.status == AgentStatus.WAITING) {
-				return "NoOp";
+				return NoOp;
 			}
 
 			// BDI Version 2
-			SubIntention delegatedIntention = null;
-			if((plan == null) || (plan.isEmpty())) {
-				//Check first if there is something to do for me
-				delegatedIntention = world.getJob(this);
-				
-				if(delegatedIntention != null) {
-					System.err.println(this.id + ": I do it! >> " + delegatedIntention);
-					world.removeJob(delegatedIntention);
-				}
+			SubIntention delegatedSubIntention = null;
+			//Is there some job in the world, which this agent can solve.
+			if(plan == null || plan.isEmpty()) {
+				//TODO Jobs should be an Intention an not SubIntention
+				delegatedSubIntention = world.popJob(this);
 			}
-			if((delegatedIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
+			
+			//Make sure an agent have an intention.
+			if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
 				//deliberate by choosing a set of intentions based on current beliefs
 				Intention intention = Intention.deliberate(world, this);
-				if(intention == null)
-					return "NoOp";
-				
+				if(intention == null) {
+					return NoOp;
+				}
+				if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
+					return NoOp;
+				}
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
-			if((plan == null) || (plan.isEmpty())) {						
-				SubIntention subIntention = null;
-				if(delegatedIntention == null)
-					subIntention = subIntentions.peek();
-				else
-					subIntention = delegatedIntention;
+			
+			System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
+			if(plan == null || plan.isEmpty()) {
 				
-				// Check if I can do the job
+				//Make sure that we have an subIntention to plan for.
+				SubIntention subIntention = null;
+				if(delegatedSubIntention == null) {
+					subIntention = subIntentions.peek();
+				} else {
+					subIntention = delegatedSubIntention;
+				}
+				
+				// Check if this agent can do the job
 				if (subIntention instanceof MoveBoxSubIntention) {
 					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)subIntention;
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
@@ -122,23 +132,19 @@ public class Client {
 						world.addJob(subIntention);
 						System.err.println(this.id + ": Please do it! >> " + subIntention);
 						this.status = AgentStatus.WAITING;
-						return "NoOp";
-					}					
-		
-					if(!world.putIntention(this.id, moveSubIntention.getBox(), subIntention.getRootIntention().getGoal())) {
-						return "NoOp";
+						return NoOp;
 					}
 				}
 				
-				if(delegatedIntention == null)
+				if(delegatedSubIntention == null)
 					subIntentions.poll();
 				
 				plan = new Plan(world, subIntention, this);
 			}
 
 			if(!world.validPlan(this.id)) {
-			//if(!world.validStep(this.id)) {
-				return "NoOp";
+				System.err.println("No Valid Plan");
+				return NoOp;
 			}
 			
 			//execute the plan
@@ -256,7 +262,17 @@ public class Client {
 		String percepts = in.readLine();
 		if ( percepts == null )
 			return false;
+		
 
+		System.err.println("   jointAction:" + jointAction);
+		if(percepts.contains("false")) {
+			System.err.println("******************************************************************************************************");
+			System.err.println("************************************We made an Invalide action****************************************");
+			System.err.println(percepts);
+			System.err.println(jointAction);
+			System.err.println("******************************************************************************************************");
+		}
+		
 		return true;
 	}
 

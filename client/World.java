@@ -193,8 +193,9 @@ public class World {
 	}
 
 	public boolean putIntention(int agentId, Box box, Goal goal) {
-		if (!isIntentionAvailable(box, goal))
-			return false;
+		if (!isIntentionAvailable(box, goal)) {
+			return false;	
+		}
 
 		intentionMap.put(agentId, new Intention(goal, box));
 		return true;
@@ -759,12 +760,12 @@ public class World {
 			} // for(int i=0;i<goals.size();i++)
 		} // while(!allChecked)
 
-		System.err.println("getGoalOrderForAgent: " + getAgent(agentId));
-		System.err.println("=== ORDERED GOALS ===" + agentId);
-		for (int i = 0; i < orderedGoals.size(); i++) {
-			orderedGoals.get(i).setTotalOrder(agentId, i);
-			System.err.println(orderedGoals.get(i));
-		}
+//		System.err.println("getGoalOrderForAgent: " + getAgent(agentId));
+//		System.err.println("=== ORDERED GOALS ===" + agentId);
+//		for (int i = 0; i < orderedGoals.size(); i++) {
+//			orderedGoals.get(i).setTotalOrder(agentId, i);
+//			System.err.println(orderedGoals.get(i));
+//		}
 
 		agentGoalOrder.put(agentId, orderedGoals);
 
@@ -778,14 +779,26 @@ public class World {
 	public SubIntention getJob(Agent agent) {
 		for (SubIntention i : jobList) {
 			if (i instanceof MoveBoxSubIntention) {
-				if (((MoveBoxSubIntention) i).getBox().getColor().equals(agent.getColor()))
+				if (((MoveBoxSubIntention) i).getBox().getColor().equals(agent.getColor())) {
 					return i;
+				}
 			}
 			else if (i instanceof TravelSubIntention) {
-				if (((TravelSubIntention) i).getAgentId() == agent.getId())
+				if (((TravelSubIntention) i).getAgentId() == agent.getId()) {
 					return i;
+				}
 			}
-
+		}
+		return null;
+	}
+	
+	/**
+	 * Gets the job for the agent and if one is found, is it removed from the world.
+	 */
+	public SubIntention popJob(Agent agent) {
+		SubIntention job = getJob(agent);
+		if(job != null) {
+			removeJob(job);
 		}
 		return null;
 	}
