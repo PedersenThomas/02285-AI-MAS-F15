@@ -149,7 +149,11 @@ public class Client {
 			
 			//execute the plan
 			Command cmd = plan.execute();
-			world.update(this, cmd);
+			boolean validUpdate = world.update(this, cmd);
+			if(validUpdate) {
+				//TODO We have here an invalid command. What to do now?
+				System.err.println("Invalid command: " + cmd + " " + this);
+			}
 			
 			if(plan.isEmpty()) {
 				world.clearIntention(this.id);
