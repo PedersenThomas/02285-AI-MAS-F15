@@ -49,7 +49,6 @@ public class Intention {
 					for(Box box:boxes) {	
 						// Check if agent can move box						
 						if(!agent.getColor().equals(box.getColor()) || !world.isIntentionAvailable(box, goal)) {
-							//System.err.println("++++++++++++++++++++++++++Intention is not available. " + box + "" + goal);
 							continue;
 						}
 						

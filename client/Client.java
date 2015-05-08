@@ -80,10 +80,6 @@ public class Client {
 		 * Compute the next command for the agent.
 		 */
 		public String act() {
-//			System.err.println("No Operation for agent " + this);
-//			for (Goal goal : world.getGoals()) {
-//				System.err.println(goal + " IsComplete:" + world.isGoalCompleted(goal));
-//			}
 			this.lastPosition = this.position;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
@@ -115,7 +111,6 @@ public class Client {
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
 			
-			//System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
 			if(plan == null || plan.isEmpty()) {
 				
 				//Make sure that we have an subIntention to plan for.
@@ -133,7 +128,7 @@ public class Client {
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
 						subIntentions.poll();
 						world.addJob(subIntention);
-						System.err.println(this.id + ": Please do it! >> " + subIntention);
+						Logger.debug(this.id + ": Please do it! >> " + subIntention);
 						this.status = AgentStatus.WAITING;
 						return NoOp;
 					}
@@ -145,17 +140,16 @@ public class Client {
 				plan = new Plan(world, subIntention, this);
 				if(plan.isEmpty()) {
 					replan();
-					System.err.println("["+id+"] No plan -> find new intentions");
+					Logger.debug("["+id+"] No plan -> find new intentions");
 					return NoOp;
 				}
 			}
 
 			if(!world.validPlan(this.id)) {
-				//System.err.println("No Valid Plan");
 				inactivityCounter++;
 				
 				if(inactivityCounter > 50) {
-					System.err.println("["+id+"] Timout -> replan");
+					Logger.debug("["+id+"] Timout -> replan");
 					replan();
 				}
 				
@@ -167,7 +161,7 @@ public class Client {
 			boolean validUpdate = world.update(this, cmd);
 			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
-				System.err.println("Invalid command: " + cmd + " " + this);
+				Logger.error("Invalid command: " + cmd + " " + this);
 				
 				// The world has changed since we have created this plan. Our plan is outdated!
 				replan();
@@ -178,7 +172,7 @@ public class Client {
 				world.clearIntention(this.id);
 			}
 			inactivityCounter = 0;
-			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
+			Logger.debug("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}
 		
@@ -318,14 +312,12 @@ public class Client {
 		if ( percepts == null )
 			return false;
 		
-
-		//System.err.println("   jointAction:" + jointAction);
 		if(percepts.contains("false")) {
-			System.err.println("******************************************************************************************************");
-			System.err.println("************************************We made an Invalide action****************************************");
-			System.err.println(percepts);
-			System.err.println(jointAction);
-			System.err.println("******************************************************************************************************");
+			Logger.error("*****************************************************************************************************************");
+			Logger.error("************************************We made an Invalide action***************************************************");
+			Logger.error(percepts);
+			Logger.error(jointAction);
+			Logger.error("*****************************************************************************************************************");
 		}
 		
 		return true;
@@ -334,7 +326,7 @@ public class Client {
 	public static void main( String[] args ) {
 
 		// Use stderr to print to console
-		System.err.println( "Hello from RandomWalkClient. I am sending this using the error outputstream" );
+		Logger.debug( "Hello from Client. I am sending this using the error outputstream" );
 		try {
 			Client client = new Client();
 			while ( client.update() )
