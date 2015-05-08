@@ -1,5 +1,7 @@
 package client;
 
+import client.Search.SearchNode;
+
 public abstract class SubIntention {
 	private Intention rootIntention;
 	private int owner;
@@ -23,6 +25,8 @@ public abstract class SubIntention {
 	}
 	
 	public abstract SubIntention deepCopy();
+	
+	public abstract boolean isCompleted(SearchNode node);
 		
 	@Override
 	public String toString() {

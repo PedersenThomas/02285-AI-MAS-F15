@@ -18,6 +18,11 @@ import client.Search.PlannerNode;
 public class Plan {
 	private BestFirstSearch strategy;
 	private Queue<Command> commandQueue;
+	
+	
+	private final int maxItersStart = 1000;
+	private final int maxItersIncrement = 500;
+	private int maxIters = maxItersStart;
 
 	public Plan(World world, SubIntention subIntention, Agent agent) {
 		if(subIntention instanceof MoveBoxSubIntention) {
@@ -45,18 +50,29 @@ public class Plan {
 			if ( strategy.frontierIsEmpty() ) {
 				break;
 			}
-			if(iterations % 10000 == 0)
+			if(iterations % 10000 == 0) {
 			  System.err.println( iterations + "..." );
+			}
+			
+			if(iterations > maxIters) {
+				maxIters += maxItersIncrement;
+				  return;
+				}
 
 			PathNode leafNode = (PathNode)strategy.getAndRemoveLeaf();
-			
-			if (leafNode.getPosition().equals(subIntention.getEndPosition())) {
+
+			if (subIntention.isCompleted(leafNode)) {
 				commandQueue = leafNode.extractListOfCommands();
 			    removeLastFromQueue(commandQueue);
 				if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
-				}
+				}		
+				
 			    world.putPlan(agent.getId(), commandQueue);
+			    
+			    if(commandQueue.isEmpty())
+			    	commandQueue.add(new NoOpCommand());
+			    maxIters = maxItersStart;
 			    break;
 			}
 
@@ -79,7 +95,7 @@ public class Plan {
 			throw new RuntimeException("Planning for a invalid move: Agent and only move boxes of same color: " + subIntention.getBox() + " " + agent);
 		}
 		
-		System.err.println("Planing for Intention: " + subIntention);
+		System.err.println("[" + agent.getId() + "] Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
@@ -93,17 +109,25 @@ public class Plan {
 			if ( strategy.frontierIsEmpty() ) {
 				break;
 			}
-			if(iterations % 10000 == 0)
+			if(iterations % 10000 == 0) {
 			  System.err.println( iterations + "..." );
+			}
+			
+			if(iterations > maxIters) {
+				maxIters += maxItersIncrement;
+				  return;
+				}
 
 			PlannerNode leafNode = (PlannerNode)strategy.getAndRemoveLeaf();
 
-			if ( leafNode.getWorld().getBoxById(subIntention.getBox().getId()).getPosition().equals(subIntention.getEndPosition())) {
+			
+			if ( subIntention.isCompleted(leafNode)) {
 			    commandQueue = leafNode.extractListOfCommands();
 			    if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
 				}
 			    world.putPlan(agent.getId(), commandQueue);
+			    maxIters = maxItersStart;
 				break;
 			}
 

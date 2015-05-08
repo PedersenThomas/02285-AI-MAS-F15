@@ -205,17 +205,26 @@ public class World {
 		planMap.put(agentId, (LinkedList<Command>) commandQueue);
 		return true;
 	}
+	
+	public boolean clearPlan(int agentId) {
+		planMap.remove(agentId);
+		return true;
+	}
 
 	public boolean validPlan(int agentId) {
 		// Check if the planned actions of the agent cause a conflict with one of the other agents' plans
 		LinkedList<Command> plan = planMap.get(agentId);
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
+			Agent otherAgent = getAgent(entry.getKey());
+			
+			if(otherAgent.getStatus() != AgentStatus.ACTIVE)
+				continue;
+			
 			if ((agentId != entry.getKey()) && (entry.getValue() != null)) {
 				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
 
 				if (conflict) {
 					if (agentId > entry.getKey()) {
-						Agent otherAgent = getAgent(entry.getKey());
 						LinkedList<Command> otherPlan = entry.getValue();
 						
 						/* There is a conflict but the other agent has no intention to move
@@ -508,9 +517,20 @@ public class World {
 			Agent a = this.getAgent(((NotifyAgentCommand)command).getAgentId());
 			a.setStatus(AgentStatus.ACTIVE);
 			System.err.println(agent.getId() + ": Notify agent " + a.getId());
+			
+			// Delete all jobs! They might be outdated!
+			while(!jobList.isEmpty()) {
+				SubIntention si = jobList.get(0);
+				a = this.getAgent(si.getOwner());
+				a.setStatus(AgentStatus.ACTIVE);
+				jobList.remove(0);				
+			}
+				
+			
 			return true;
-		}
-		
+		} else if(command instanceof NoOpCommand) {			
+			return true;
+		} 
 		
 		switch (command.actType) {
 		case Move: {
@@ -800,7 +820,7 @@ public class World {
 		if(job != null) {
 			removeJob(job);
 		}
-		return null;
+		return job;
 	}
 	
 	public void removeJob(SubIntention job) {

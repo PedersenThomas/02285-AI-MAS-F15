@@ -17,8 +17,9 @@ public class Client {
 		private Point position;
 		private Point lastPosition;
 		private AgentStatus status;
-		Plan plan = null;
-		Queue<SubIntention> subIntentions = null;
+		private Plan plan = null;
+		private Queue<SubIntention> subIntentions = null;
+		private int inactivityCounter = 0;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -68,6 +69,7 @@ public class Client {
 			if((status == AgentStatus.ACTIVE) && 
 					(this.status == AgentStatus.WAITING)) {
 				//The world has changed -> find new intentions
+				world.clearIntention(this.id);
 				subIntentions.clear();
 			}
 			this.status = status;
@@ -88,7 +90,7 @@ public class Client {
 				return NoOp;
 			}
 			
-			if(this.status == AgentStatus.WAITING) {
+			if(this.status == AgentStatus.WAITING) {				
 				return NoOp;
 			}
 
@@ -113,7 +115,7 @@ public class Client {
 				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 			}
 			
-			System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
+			//System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
 			if(plan == null || plan.isEmpty()) {
 				
 				//Make sure that we have an subIntention to plan for.
@@ -122,7 +124,8 @@ public class Client {
 					subIntention = subIntentions.peek();
 				} else {
 					subIntention = delegatedSubIntention;
-				}
+				}				
+				
 				
 				// Check if this agent can do the job
 				if (subIntention instanceof MoveBoxSubIntention) {
@@ -140,27 +143,60 @@ public class Client {
 					subIntentions.poll();
 				
 				plan = new Plan(world, subIntention, this);
+				if(plan.isEmpty()) {
+					replan();
+					System.err.println("["+id+"] No plan -> find new intentions");
+					return NoOp;
+				}
 			}
 
 			if(!world.validPlan(this.id)) {
-				System.err.println("No Valid Plan");
+				//System.err.println("No Valid Plan");
+				inactivityCounter++;
+				
+				if(inactivityCounter > 50) {
+					System.err.println("["+id+"] Timout -> replan");
+					replan();
+				}
+				
 				return NoOp;
 			}
 			
 			//execute the plan
 			Command cmd = plan.execute();
 			boolean validUpdate = world.update(this, cmd);
-			if(validUpdate) {
+			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
 				System.err.println("Invalid command: " + cmd + " " + this);
+				
+				// The world has changed since we have created this plan. Our plan is outdated!
+				replan();
+				return NoOp;
 			}
 			
 			if(plan.isEmpty()) {
 				world.clearIntention(this.id);
 			}
-			
-			System.err.println(cmd.toString() + "\t-> " + this.position.toString());
+			inactivityCounter = 0;
+			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
+		}
+		
+		public void replan() {
+			world.clearIntention(this.id);
+			subIntentions.clear();
+			world.clearPlan(id);
+			
+			if(plan != null) {
+				while(!plan.isEmpty()) {
+					Command cmd = plan.execute();
+					if(cmd instanceof NotifyAgentCommand) {
+						int agentId = ((NotifyAgentCommand)cmd).getAgentId();
+						world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
+					}
+				}
+			}
+			inactivityCounter = 0;		
 		}
 
 		@Override
@@ -249,6 +285,8 @@ public class Client {
 		
 	}
 
+	private static int deadlockCount = 0;
+	
 	public boolean update() throws IOException {
 		String jointAction = "[";
 
@@ -256,6 +294,19 @@ public class Client {
 			jointAction += world.getAgent( i ).act() + ",";
 
 		jointAction += world.getAgent( world.getNumberOfAgents() - 1 ).act() + "]";
+		
+		if(countSubstring(jointAction, Agent.NoOp) == world.getNumberOfAgents()) {
+			deadlockCount++;
+			
+			if(deadlockCount > 1000) 
+				throw new RuntimeException("Deadlock: No agent is moving");		
+		}
+		else {
+			deadlockCount = 0;
+		}
+			
+		
+		
 		// Place message in buffer
 		System.out.println( jointAction );
 
@@ -268,7 +319,7 @@ public class Client {
 			return false;
 		
 
-		System.err.println("   jointAction:" + jointAction);
+		//System.err.println("   jointAction:" + jointAction);
 		if(percepts.contains("false")) {
 			System.err.println("******************************************************************************************************");
 			System.err.println("************************************We made an Invalide action****************************************");
@@ -292,5 +343,14 @@ public class Client {
 		} catch ( IOException e ) {
 			// Got nowhere to write to probably
 		}
+	}
+	
+
+	public static int countSubstring(String str, String subStr){
+		int count = 0;
+		for (int loc = str.indexOf(subStr); loc != -1;
+		     loc = str.indexOf(subStr, loc + subStr.length()))
+			count++;
+		return count;
 	}
 }

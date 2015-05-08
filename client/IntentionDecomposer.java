@@ -15,7 +15,7 @@ import client.Search.PathNode;
 import client.Search.SearchNode;
 
 public class IntentionDecomposer {
-
+	
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
@@ -25,6 +25,11 @@ public class IntentionDecomposer {
 
 		World currentWorld = world;
 		Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);
+		
+		if(!canGoalBeCompletedByPull(world, goalPosition, agentPosition)) {
+			// do something intelligent :)
+		}	
+		
 		
 		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
 			//SubIntention to clear path from Agent to Box.
@@ -47,7 +52,7 @@ public class IntentionDecomposer {
 			for (Point point : pathFromBoxToGoal) {
 				System.err.println("" + point);
 			}
-		}
+		}	
 		
 		//SubIntention for moving box to goal.
 		subIntentions.add(new TravelSubIntention(intention.getBox().getPosition(), agentId,intention, agentId));
@@ -120,6 +125,19 @@ public class IntentionDecomposer {
 		}
 		return newWorld;
 	};
+	
+	public static boolean canGoalBeCompletedByPull(World world, Point goalPosition, Point agentPosition){
+		//check if goal can be completed by pull
+		int count = 0;
+		for(Command.dir dir: Command.dir.values()) {
+			if(!world.isFreeCell(goalPosition.move(dir))) {
+				if(!agentPosition.equals(goalPosition.move(dir))) {
+					count++;
+				}
+			}
+		}
+		return count != 3;
+	}
 
 	private static Queue<Point> findPath(World world, Point sourcePosition, Point targetPosition) {
 		HeuristicPathFunction pathFunction = new HeuristicPathFunction(world,targetPosition);
