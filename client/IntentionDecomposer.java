@@ -112,7 +112,8 @@ public class IntentionDecomposer {
 				*/				
 				
 				//Point savePosition = safeSpots.poll();
-				subIntentions.add(new MoveBoxSubIntention(box, safePosition,intention,agentId));
+				subIntentions.add(new TravelSubIntention(box.getPosition(), agentId, intention, agentId));
+				subIntentions.add(new MoveBoxSubIntention(box, safePosition, intention, agentId));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}
