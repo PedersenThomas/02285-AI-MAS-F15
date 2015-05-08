@@ -18,6 +18,8 @@ public class Client {
 		private Point lastPosition;
 		private AgentStatus status;
 		private Plan plan = null;
+		private Intention intention;
+		private SubIntention currentSubIntention = null;
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
 
@@ -100,49 +102,39 @@ public class Client {
 			if(plan == null || plan.isEmpty()) {
 				//TODO Jobs should be an Intention an not SubIntention
 				delegatedSubIntention = world.popJob(this);
-			}
 			
-			//Make sure an agent have an intention.
-			if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
-				//deliberate by choosing a set of intentions based on current beliefs
-				Intention intention = Intention.deliberate(world, this);
-				if(intention == null) {
-					return NoOp;
+				//Make sure an agent have an intention.
+				if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty())) {									
+					//deliberate by choosing a set of intentions based on current beliefs
+					intention = Intention.deliberate(world, this);
+					if(intention == null) {
+						return NoOp;
+					}
+					
+					if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
+						return NoOp;
+					}
+					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 				}
-				if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
-					return NoOp;
-				}
-				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
-			}
-			
-			//System.err.println("Plan is null: " + (plan == null) + " Plan is empty: " + (plan != null ? plan.isEmpty() : "null"));
-			if(plan == null || plan.isEmpty()) {
 				
 				//Make sure that we have an subIntention to plan for.
-				SubIntention subIntention = null;
 				if(delegatedSubIntention == null) {
-					subIntention = subIntentions.peek();
+					currentSubIntention = subIntentions.poll();
 				} else {
-					subIntention = delegatedSubIntention;
+					currentSubIntention = delegatedSubIntention;
 				}				
 				
-				
 				// Check if this agent can do the job
-				if (subIntention instanceof MoveBoxSubIntention) {
-					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)subIntention;
+				if (currentSubIntention instanceof MoveBoxSubIntention) {
+					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
-						subIntentions.poll();
-						world.addJob(subIntention);
-						System.err.println(this.id + ": Please do it! >> " + subIntention);
+						world.addJob(currentSubIntention);
 						this.status = AgentStatus.WAITING;
 						return NoOp;
 					}
 				}
 				
-				if(delegatedSubIntention == null)
-					subIntentions.poll();
-				
-				plan = new Plan(world, subIntention, this);
+				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
 					replan();
 					System.err.println("["+id+"] No plan -> find new intentions");
@@ -174,9 +166,11 @@ public class Client {
 				return NoOp;
 			}
 			
-			if(plan.isEmpty()) {
+			//if intention is completed it should be removed from the sequence of active intentions in the world
+			if(plan.isEmpty() && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
 				world.clearIntention(this.id);
 			}
+			
 			inactivityCounter = 0;
 			System.err.println("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
