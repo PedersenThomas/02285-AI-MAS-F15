@@ -10,7 +10,7 @@ public class SafeSpotDetector {
 				continue;
 			}
 			SafePoint spoint = new SafePoint(point);
-			Logger.logLine("------ reachable point " + spoint + "------");
+			Logger.debug("------ reachable point " + spoint + "------");
 			if(Pattern.isSafePoint(spoint, world)) {
 				safeSpots.add(spoint);
 			}
