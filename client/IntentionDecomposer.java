@@ -35,10 +35,9 @@ public class IntentionDecomposer {
 			//SubIntention to clear path from Agent to Box.
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId);
 
-			//TODO Debug information
-			System.err.println("----------- Agent Path ----------");
+			Logger.logLine("----------- Agent Path ----------");
 			for (Point point : pathFromAgentToBox) {
-				System.err.println("" + point);
+				Logger.logLine("" + point);
 			}
 		}		
 
@@ -47,10 +46,9 @@ public class IntentionDecomposer {
 			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId);
 
-			//TODO Debug Info
-			System.err.println("----------- Path ----------");
+			Logger.logLine("----------- Path ----------");
 			for (Point point : pathFromBoxToGoal) {
-				System.err.println("" + point);
+				Logger.logLine("" + point);
 			}
 		}	
 		
@@ -59,13 +57,13 @@ public class IntentionDecomposer {
 		subIntentions.add(new MoveBoxSubIntention(intention.getBox(), goalPosition,intention, agentId));
 		
 
-		System.err.println("----------- Intention Decomposer START----------");
+		Logger.logLine("----------- Intention Decomposer START----------");
 		for (SubIntention subIntention : subIntentions) {
-			System.err.println(subIntention);
+			Logger.logLine(subIntention);
 		}
-		System.err.println("-- Agent info --");
-		System.err.println(world.getAgent(agentId));
-		System.err.println("----------- Intention Decomposer END----------");
+		Logger.logLine("-- Agent info --");
+		Logger.logLine(world.getAgent(agentId));
+		Logger.logLine("----------- Intention Decomposer END----------");
 		return subIntentions;
 	}
 
@@ -79,9 +77,9 @@ public class IntentionDecomposer {
 				Agent agent = world.getAgentToMoveBox(box);
 				PriorityQueue<SafePoint> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld, agent.getId());
 
-				System.err.println("-----------  Safe spots ----------");
+				Logger.logLine("-----------  Safe spots ----------");
 				for (SafePoint safespot : safeSpots) {
-					System.err.println("" + safespot);
+					Logger.logLine("" + safespot);
 				}
 				Point safePosition = null;
 				//Find a safepoint not on the path.

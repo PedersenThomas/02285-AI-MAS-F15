@@ -36,11 +36,10 @@ public class Plan {
 		if(subIntention == null) {
 			throw new RuntimeException("Intention is null");
 		}
-		System.err.println("Planing for Intention: " + subIntention);
+		Logger.logLine("Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);
 		
-		//System.err.format( "Search starting with strategy %s\n", strategy );
 		boolean ignoreBoxes = false;
 		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
@@ -51,7 +50,7 @@ public class Plan {
 				break;
 			}
 			if(iterations % 10000 == 0) {
-			  System.err.println( iterations + "..." );
+				Logger.logLine( iterations + "..." );
 			}
 			
 			if(iterations > maxIters) {
@@ -95,11 +94,10 @@ public class Plan {
 			throw new RuntimeException("Planning for a invalid move: Agent and only move boxes of same color: " + subIntention.getBox() + " " + agent);
 		}
 		
-		System.err.println("[" + agent.getId() + "] Planing for Intention: " + subIntention);
+		Logger.logLine("[" + agent.getId() + "] Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
-		//System.err.format( "Search starting with strategy %s\n", strategy );
 		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
 
 		int iterations = 0;
@@ -110,7 +108,7 @@ public class Plan {
 				break;
 			}
 			if(iterations % 10000 == 0) {
-			  System.err.println( iterations + "..." );
+				Logger.logLine( iterations + "..." );
 			}
 			
 			if(iterations > maxIters) {
