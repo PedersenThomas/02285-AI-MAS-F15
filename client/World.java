@@ -391,31 +391,31 @@ public class World {
 	}
 
 	public void printWorld() {
-		System.err.println("==============================");
+		Logger.logLine("==============================", LoggerLevel.Debug);
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				Point p = new Point(x, y);
 				if (isWallAt(p)) {
-					System.err.print("+");
+					Logger.log("+", LoggerLevel.Debug);
 				} else if (isBoxAt(p)) {
-					System.err.print("A");
+					Logger.log("A", LoggerLevel.Debug);
 				} else {
 					boolean printFlag = false;
 					for (Agent a : agents) {
 						if (a.getPosition().equals(p)) {
-							System.err.print("0");
+							Logger.log("0", LoggerLevel.Debug);
 							printFlag = true;
 							break;
 						}
 					}
 					if (!printFlag) {
-						System.err.print(" ");
+						Logger.log(" ", LoggerLevel.Debug);
 					}
 				}
 			}
-			System.err.print("\n");
+			Logger.log("\n", LoggerLevel.Debug);
 		}
-		System.err.println("==============================");
+		Logger.logLine("==============================", LoggerLevel.Debug);
 	}
 
 	public boolean isGoalCompleted(Goal goal) {
@@ -520,7 +520,7 @@ public class World {
 		if(command instanceof NotifyAgentCommand) {			
 			Agent a = this.getAgent(((NotifyAgentCommand)command).getAgentId());
 			a.setStatus(AgentStatus.ACTIVE);
-			System.err.println(agent.getId() + ": Notify agent " + a.getId());
+			Logger.debug(agent.getId() + ": Notify agent " + a.getId());
 			
 			// Delete all jobs! They might be outdated!
 			while(!jobList.isEmpty()) {
@@ -784,13 +784,6 @@ public class World {
 			} // for(int i=0;i<goals.size();i++)
 		} // while(!allChecked)
 
-//		System.err.println("getGoalOrderForAgent: " + getAgent(agentId));
-//		System.err.println("=== ORDERED GOALS ===" + agentId);
-//		for (int i = 0; i < orderedGoals.size(); i++) {
-//			orderedGoals.get(i).setTotalOrder(agentId, i);
-//			System.err.println(orderedGoals.get(i));
-//		}
-
 		agentGoalOrder.put(agentId, orderedGoals);
 
 		return orderedGoals;
@@ -838,14 +831,12 @@ public class World {
 		pathSearch.addToFrontier(new PathNode(this, agentPos, pos, ignoreBoxes));
 		while (true) {
 			if (pathSearch.frontierIsEmpty()) {
-				// System.err.println(i + "> " + goal + ": No path!" );
 				return false;
 			}
 
 			PathNode leafNode = (PathNode) pathSearch.getAndRemoveLeaf();
 
 			if (leafNode.getPosition().equals(pos)) {
-				// System.err.println(i + "> " + goal + ": path found!" );
 				return true;
 			}
 
@@ -857,5 +848,4 @@ public class World {
 			}
 		} // while(true)
 	}
-
 }

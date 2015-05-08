@@ -140,7 +140,7 @@ public class GuiClient extends JFrame {
 
 	public GuiClient( String[] customs ) throws IOException {
 		super( "02285 Toy Client" );
-		System.err.println("Hello from GuiClient");
+		Logger.debug("Hello from GuiClient");
 		readMap(); // Get agent count
 		receiver = new ServerReceiver( this );
 		transmitter = new ServerTransmitter( this );
