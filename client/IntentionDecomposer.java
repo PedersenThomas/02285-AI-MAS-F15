@@ -88,31 +88,16 @@ public class IntentionDecomposer {
 						safePosition = safespot;
 						break;
 					}
-				}	
-				
-				// Idea: get all connected cells from the safePosition which are not on the path and choose one of it
-				/*ConnectedComponent cc = new ConnectedComponent(world);
-				List<Point> points = cc.findPointsInConnectedComponent(safePosition);
-				List<Point> connectedPoints = new ArrayList<Point>();
-				for(Point p:points) {
-					if(!path.contains(p)) {
-						connectedPoints.add(p);
-					}
 				}
+
+				//clear the path when you are not able to reach boxes, which you want to move to a save spot
+				if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false)) {
+					//SubIntention to clear path from Agent to Box.
+					World currentWorld = world;
+					Queue<Point> pathFromAgentToBox = findPath(world, world.getAgent(agentId).getPosition(), box.getPosition());
+					currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId);
+				}		
 				
-				// Find the spot closest to the path
-				Point closestSafePoint = safePosition;
-				int minDistance = 100;
-				for(Point p:connectedPoints) {
-					for(Point p2:path) {
-						if(p.distance(p2) < minDistance) {
-							closestSafePoint = p;
-							minDistance = p.distance(p2);
-						}
-					}					
-				}
-				safePosition = closestSafePoint;
-				*/				
 				
 				//Point savePosition = safeSpots.poll();
 				subIntentions.add(new TravelSubIntention(box.getPosition(), agentId, intention, agentId));
