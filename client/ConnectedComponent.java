@@ -33,7 +33,7 @@ public class ConnectedComponent {
 					continue;
 				}
 				
-				Logger.debug(startPoint);
+				Logger.logLine(startPoint);
 				numberOfConnectedComponent += 1;
 				
 				BFS(startPoint);

@@ -128,7 +128,7 @@ public class Client {
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
 						subIntentions.poll();
 						world.addJob(subIntention);
-						Logger.debug(this.id + ": Please do it! >> " + subIntention);
+						Logger.logLine(this.id + ": Please do it! >> " + subIntention);
 						this.status = AgentStatus.WAITING;
 						return NoOp;
 					}
@@ -140,7 +140,7 @@ public class Client {
 				plan = new Plan(world, subIntention, this);
 				if(plan.isEmpty()) {
 					replan();
-					Logger.debug("["+id+"] No plan -> find new intentions");
+					Logger.logLine("["+id+"] No plan -> find new intentions");
 					return NoOp;
 				}
 			}
@@ -149,7 +149,7 @@ public class Client {
 				inactivityCounter++;
 				
 				if(inactivityCounter > 50) {
-					Logger.debug("["+id+"] Timout -> replan");
+					Logger.logLine("["+id+"] Timout -> replan");
 					replan();
 				}
 				
@@ -161,7 +161,7 @@ public class Client {
 			boolean validUpdate = world.update(this, cmd);
 			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
-				Logger.error("Invalid command: " + cmd + " " + this);
+				Logger.logLine("Invalid command: " + cmd + " " + this);
 				
 				// The world has changed since we have created this plan. Our plan is outdated!
 				replan();
@@ -172,7 +172,7 @@ public class Client {
 				world.clearIntention(this.id);
 			}
 			inactivityCounter = 0;
-			Logger.debug("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
+			Logger.logLine("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
 		}
 		
@@ -313,11 +313,11 @@ public class Client {
 			return false;
 		
 		if(percepts.contains("false")) {
-			Logger.error("*****************************************************************************************************************");
-			Logger.error("************************************We made an Invalide action***************************************************");
-			Logger.error(percepts);
-			Logger.error(jointAction);
-			Logger.error("*****************************************************************************************************************");
+			Logger.logLine("*****************************************************************************************************************");
+			Logger.logLine("************************************We made an Invalide action***************************************************");
+			Logger.logLine(percepts);
+			Logger.logLine(jointAction);
+			Logger.logLine("*****************************************************************************************************************");
 		}
 		
 		return true;
@@ -326,7 +326,7 @@ public class Client {
 	public static void main( String[] args ) {
 
 		// Use stderr to print to console
-		Logger.debug( "Hello from Client. I am sending this using the error outputstream" );
+		Logger.logLine( "Hello from Client. I am sending this using the error outputstream" );
 		try {
 			Client client = new Client();
 			while ( client.update() )

@@ -387,31 +387,31 @@ public class World {
 	}
 
 	public void printWorld() {
-		Logger.logLine("==============================", LoggerLevel.Debug);
+		Logger.logLine("==============================");
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
 				Point p = new Point(x, y);
 				if (isWallAt(p)) {
-					Logger.log("+", LoggerLevel.Debug);
+					Logger.log("+");
 				} else if (isBoxAt(p)) {
-					Logger.log("A", LoggerLevel.Debug);
+					Logger.log("A");
 				} else {
 					boolean printFlag = false;
 					for (Agent a : agents) {
 						if (a.getPosition().equals(p)) {
-							Logger.log("0", LoggerLevel.Debug);
+							Logger.log("0");
 							printFlag = true;
 							break;
 						}
 					}
 					if (!printFlag) {
-						Logger.log(" ", LoggerLevel.Debug);
+						Logger.log(" ");
 					}
 				}
 			}
-			Logger.log("\n", LoggerLevel.Debug);
+			Logger.log("\n");
 		}
-		Logger.logLine("==============================", LoggerLevel.Debug);
+		Logger.logLine("==============================");
 	}
 
 	public boolean isGoalCompleted(Goal goal) {
@@ -516,7 +516,7 @@ public class World {
 		if(command instanceof NotifyAgentCommand) {			
 			Agent a = this.getAgent(((NotifyAgentCommand)command).getAgentId());
 			a.setStatus(AgentStatus.ACTIVE);
-			Logger.debug(agent.getId() + ": Notify agent " + a.getId());
+			Logger.logLine(agent.getId() + ": Notify agent " + a.getId());
 			
 			// Delete all jobs! They might be outdated!
 			while(!jobList.isEmpty()) {
