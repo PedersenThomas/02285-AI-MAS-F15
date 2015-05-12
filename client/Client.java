@@ -138,6 +138,7 @@ public class Client {
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
+					// Maybe the planner has recognized that it is better to wait
 					if(status != AgentStatus.WAITING) {
 						replan();
 						Logger.logLine("["+id+"] No plan -> find new intentions");
@@ -362,12 +363,6 @@ public class Client {
 			Logger.logLine(percepts);
 			Logger.logLine(jointAction);
 			Logger.logLine("*****************************************************************************************************************");
-			try {
-				this.wait(1000000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 		
 		return true;

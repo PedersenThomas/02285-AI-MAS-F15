@@ -229,7 +229,10 @@ public class World {
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
 			Agent otherAgent = getAgent(entry.getKey());
 			
-			if ((agentId != entry.getKey()) && (entry.getValue() != null)) {
+			if ((agentId != entry.getKey())) {  //
+				if(entry.getValue() == null)
+					entry.setValue(new LinkedList<>());
+				
 				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
 
 				if (conflict) {
