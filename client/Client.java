@@ -103,11 +103,13 @@ public class Client {
 				if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty())) {									
 					//deliberate by choosing a set of intentions based on current beliefs
 					intention = Intention.deliberate(world, this);
+					Logger.debug("Agent[" + this.getId() + "] Got the intention: " + intention);
 					if(intention == null) {
 						return NoOp;
 					}
 					
 					if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
+						Logger.debug("Agent[" + this.getId() + "] Couldn't put the intention in the world.");
 						return NoOp;
 					}
 					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
@@ -115,8 +117,10 @@ public class Client {
 				
 				//Make sure that we have an subIntention to plan for.
 				if(delegatedSubIntention == null) {
+					Logger.debug("Agent[" + this.getId() + "] No Delegated subIntention");
 					currentSubIntention = subIntentions.poll();
 				} else {
+					Logger.debug("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
 					currentSubIntention = delegatedSubIntention;
 				}				
 				
@@ -124,8 +128,8 @@ public class Client {
 				if (currentSubIntention instanceof MoveBoxSubIntention) {
 					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
-						world.addJob(currentSubIntention);
 						Logger.debug(this.id + ": Please do it! >> " + currentSubIntention);
+						world.addJob(currentSubIntention);
 						this.status = AgentStatus.WAITING;
 						return NoOp;
 					}
@@ -133,8 +137,8 @@ public class Client {
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
-					replan();
 					Logger.debug("["+id+"] No plan -> find new intentions");
+					replan();
 					return NoOp;
 				}
 			}
