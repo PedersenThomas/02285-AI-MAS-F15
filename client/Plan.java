@@ -20,11 +20,12 @@ public class Plan {
 	private Queue<Command> commandQueue;
 	
 	
-	private final int maxItersStart = 1000;
-	private final int maxItersIncrement = 500;
-	private int maxIters = maxItersStart;
+	private static final int maxItersStart = 1000;
+	private static final int maxItersIncrement = 1500;
+	private static int maxIters = maxItersStart;
 
 	public Plan(World world, SubIntention subIntention, Agent agent) {
+		//Logger.debug("Plan iterations limit: " + maxIters);
 		if(subIntention instanceof MoveBoxSubIntention) {
 			MoveBoxPlanner(world, (MoveBoxSubIntention)subIntention, agent);
 		} else if (subIntention instanceof TravelSubIntention) {
@@ -55,8 +56,8 @@ public class Plan {
 			
 			if(iterations > maxIters) {
 				maxIters += maxItersIncrement;
-				  return;
-				}
+				return;
+			}
 
 			PathNode leafNode = (PathNode)strategy.getAndRemoveLeaf();
 
@@ -71,7 +72,7 @@ public class Plan {
 			    
 			    if(commandQueue.isEmpty())
 			    	commandQueue.add(new NoOpCommand());
-			    maxIters = maxItersStart;
+			    //maxIters = maxItersStart;
 			    break;
 			}
 
@@ -113,8 +114,8 @@ public class Plan {
 			
 			if(iterations > maxIters) {
 				maxIters += maxItersIncrement;
-				  return;
-				}
+			  return;
+			}
 
 			PlannerNode leafNode = (PlannerNode)strategy.getAndRemoveLeaf();
 

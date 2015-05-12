@@ -40,6 +40,10 @@ public class World {
 	private List<SubIntention> jobList = new ArrayList<>();
 	private Map<Integer, LinkedList<Command>> planMap = new HashMap<>();
 
+	public Map<Integer, Intention> getIntentionMap() {
+		return intentionMap;
+	}
+	
 	public World() {
 	}
 

@@ -33,7 +33,7 @@ public class IntentionDecomposer {
 		
 		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
 			//SubIntention to clear path from Agent to Box.
-			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId);
+			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId, false);
 
 			Logger.logLine("----------- Agent Path ----------");
 			for (Point point : pathFromAgentToBox) {
@@ -44,7 +44,7 @@ public class IntentionDecomposer {
 		if(!world.isPositionReachable(boxPosition, goalPosition, false)) {
 			//SubIntention to clear path from Box to Goal.
 			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
-			moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId);
+			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId, true);
 
 			Logger.logLine("----------- Path ----------");
 			for (Point point : pathFromBoxToGoal) {
@@ -53,8 +53,8 @@ public class IntentionDecomposer {
 		}	
 		
 		//SubIntention for moving box to goal.
-		subIntentions.add(new TravelSubIntention(intention.getBox().getPosition(), agentId,intention, agentId));
-		subIntentions.add(new MoveBoxSubIntention(intention.getBox(), goalPosition,intention, agentId));
+		subIntentions.add(new TravelSubIntention(currentWorld.getBoxById(intention.getBox().getId()).getPosition(), agentId,intention, agentId));
+		subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getBox().getId()), goalPosition,intention, agentId));
 		
 
 		Logger.logLine("----------- Intention Decomposer START----------");
@@ -68,55 +68,44 @@ public class IntentionDecomposer {
 	}
 
 	private static World moveBoxesOnPathToSafePlaces(World world, Queue<Point> path, 
-			                                         ArrayList<SubIntention> subIntentions, Intention intention, int agentId) {
+			                                         ArrayList<SubIntention> subIntentions, Intention intention, int agentId, boolean moveBoxToGoal) {
+		boolean foundSpecialBoxToMove = false;
 		World newWorld = world;
-
+		
 		for(Point point : path) {
 			Box box = world.getBoxAt(point);
 			if (box != null) {
 				Agent agent = world.getAgentToMoveBox(box);
+				
+				if(moveBoxToGoal && !foundSpecialBoxToMove) {
+					//clear the path when you are not able to reach boxes, which you want to move to a save spot
+					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false)) {
+						//SubIntention to clear path from Agent to Box.
+						Queue<Point> pathFromAgentToBox = findPath(world, world.getAgent(agentId).getPosition(), box.getPosition());
+						newWorld = moveBoxesOnPathToSafePlaces(newWorld, pathFromAgentToBox, subIntentions, intention, agentId, false);
+					}
+				}
+				
 				PriorityQueue<SafePoint> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld, agent.getId());
 
 				Logger.logLine("-----------  Safe spots ----------");
+
 				for (SafePoint safespot : safeSpots) {
 					Logger.logLine("" + safespot);
 				}
+				
 				Point safePosition = null;
 				//Find a safepoint not on the path.
 				for (SafePoint safespot : safeSpots) {
-					if(!path.contains(safespot)) {
+					if(!path.contains(safespot) && newWorld.isFreeCell(safespot)) {
 						safePosition = safespot;
 						break;
 					}
-				}	
-				
-				// Idea: get all connected cells from the safePosition which are not on the path and choose one of it
-				/*ConnectedComponent cc = new ConnectedComponent(world);
-				List<Point> points = cc.findPointsInConnectedComponent(safePosition);
-				List<Point> connectedPoints = new ArrayList<Point>();
-				for(Point p:points) {
-					if(!path.contains(p)) {
-						connectedPoints.add(p);
-					}
 				}
-				
-				// Find the spot closest to the path
-				Point closestSafePoint = safePosition;
-				int minDistance = 100;
-				for(Point p:connectedPoints) {
-					for(Point p2:path) {
-						if(p.distance(p2) < minDistance) {
-							closestSafePoint = p;
-							minDistance = p.distance(p2);
-						}
-					}					
-				}
-				safePosition = closestSafePoint;
-				*/				
 				
 				//Point savePosition = safeSpots.poll();
-				subIntentions.add(new TravelSubIntention(box.getPosition(), agentId, intention, agentId));
-				subIntentions.add(new MoveBoxSubIntention(box, safePosition, intention, agentId));
+				subIntentions.add(new TravelSubIntention(newWorld.getBoxById(box.getId()).getPosition(), agentId, intention, agentId));
+				subIntentions.add(new MoveBoxSubIntention(newWorld.getBoxById(box.getId()), safePosition, intention, agentId));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}

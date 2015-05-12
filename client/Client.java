@@ -18,6 +18,8 @@ public class Client {
 		private Point lastPosition;
 		private AgentStatus status;
 		private Plan plan = null;
+		private Intention intention;
+		private SubIntention currentSubIntention = null;
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
 
@@ -96,51 +98,49 @@ public class Client {
 			if(plan == null || plan.isEmpty()) {
 				//TODO Jobs should be an Intention an not SubIntention
 				delegatedSubIntention = world.popJob(this);
-			}
 			
-			//Make sure an agent have an intention.
-			if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty()) && ((plan == null) || (plan.isEmpty())) ) {									
-				//deliberate by choosing a set of intentions based on current beliefs
-				Intention intention = Intention.deliberate(world, this);
-				if(intention == null) {
-					return NoOp;
+				//Make sure an agent have an intention.
+				if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty())) {									
+					//deliberate by choosing a set of intentions based on current beliefs
+					intention = Intention.deliberate(world, this);
+					Logger.logLine("Agent[" + this.getId() + "] Got the intention: " + intention);
+					if(intention == null) {
+						return NoOp;
+					}
+					
+					if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
+						Logger.logLine("Agent[" + this.getId() + "] Couldn't put the intention in the world.");
+						return NoOp;
+					}
+					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
 				}
-				if(!world.putIntention(this.id, intention.getBox(), intention.getGoal())) {
-					return NoOp;
-				}
-				subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
-			}
-			
-			if(plan == null || plan.isEmpty()) {
 				
 				//Make sure that we have an subIntention to plan for.
-				SubIntention subIntention = null;
 				if(delegatedSubIntention == null) {
-					subIntention = subIntentions.peek();
+					Logger.logLine("Agent[" + this.getId() + "] No Delegated subIntention");
+					currentSubIntention = subIntentions.poll();
 				} else {
-					subIntention = delegatedSubIntention;
+					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
+					currentSubIntention = delegatedSubIntention;
 				}				
 				
-				
 				// Check if this agent can do the job
-				if (subIntention instanceof MoveBoxSubIntention) {
-					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)subIntention;
+				if (currentSubIntention instanceof MoveBoxSubIntention) {
+					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
 					if(!moveSubIntention.getBox().getColor().equals(color)) {
 						subIntentions.poll();
-						world.addJob(subIntention);
-						Logger.logLine(this.id + ": Please do it! >> " + subIntention);
+						world.addJob(moveSubIntention);
+						Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
 						this.status = AgentStatus.WAITING;
 						return NoOp;
 					}
 				}
 				
-				if(delegatedSubIntention == null)
-					subIntentions.poll();
-				
-				plan = new Plan(world, subIntention, this);
+				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
 					replan();
 					Logger.logLine("["+id+"] No plan -> find new intentions");
+
 					return NoOp;
 				}
 			}
@@ -168,9 +168,11 @@ public class Client {
 				return NoOp;
 			}
 			
-			if(plan.isEmpty()) {
+			//if intention is completed it should be removed from the sequence of active intentions in the world
+			if(plan.isEmpty() && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
 				world.clearIntention(this.id);
 			}
+			
 			inactivityCounter = 0;
 			Logger.logLine("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd.toString();
