@@ -46,6 +46,14 @@ public class World {
 	
 	public World() {
 	}
+	
+	public World getSimplifiedCopy(int agentId) {
+		World copy = new World(this);
+		Agent a = copy.getAgent(agentId);
+		copy.agents.clear();
+		copy.addAgent(a);
+		return copy;
+	}
 
 	public World(World old) {
 		for (Box box : old.boxes) {
@@ -221,16 +229,20 @@ public class World {
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
 			Agent otherAgent = getAgent(entry.getKey());
 			
-			if(otherAgent.getStatus() != AgentStatus.ACTIVE)
-				continue;
-			
 			if ((agentId != entry.getKey()) && (entry.getValue() != null)) {
 				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
 
 				if (conflict) {
-					if (agentId > entry.getKey()) {
-						LinkedList<Command> otherPlan = entry.getValue();
-						
+					if(otherAgent.getStatus() != AgentStatus.ACTIVE) {
+						Logger.logLine("["+agentId+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
+						Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, otherAgent.getId(), 
+								Command.CommandsToPath(getAgent(agentId).getPosition(), plan));
+						otherAgent.setStatus(AgentStatus.ACTIVE);
+						addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agentId));
+						return false;
+					}
+					else if (agentId > entry.getKey()) {						
+						//LinkedList<Command> otherPlan = entry.getValue();					
 						/* There is a conflict but the other agent has no intention to move
 						if(otherPlan.isEmpty() && (getJob(otherAgent) == null) && 
 								(otherAgent.getPosition().equals(otherAgent.getLastPosition()))) {

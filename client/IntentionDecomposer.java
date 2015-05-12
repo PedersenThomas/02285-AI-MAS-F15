@@ -75,7 +75,9 @@ public class IntentionDecomposer {
 		for(Point point : path) {
 			Box box = world.getBoxAt(point);
 			if (box != null) {
-				Agent agent = world.getAgentToMoveBox(box);
+				Agent agent = world.getAgent(agentId);
+				if(!box.getColor().equals(agent.getColor()))
+					agent = world.getAgentToMoveBox(box);
 				
 				if(moveBoxToGoal && !foundSpecialBoxToMove) {
 					//clear the path when you are not able to reach boxes, which you want to move to a save spot
@@ -86,26 +88,13 @@ public class IntentionDecomposer {
 					}
 				}
 				
-				PriorityQueue<SafePoint> safeSpots = SafeSpotDetector.detectSafeSpots(newWorld, agent.getId());
-
-				Logger.logLine("-----------  Safe spots ----------");
-
-				for (SafePoint safespot : safeSpots) {
-					Logger.logLine("" + safespot);
-				}
-				
-				Point safePosition = null;
-				//Find a safepoint not on the path.
-				for (SafePoint safespot : safeSpots) {
-					if(!path.contains(safespot) && newWorld.isFreeCell(safespot)) {
-						safePosition = safespot;
-						break;
-					}
-				}
+				Point safePosition = SafeSpotDetector.getSafeSpotForAgent(newWorld, agent.getId(), path);
 				
 				//Point savePosition = safeSpots.poll();
-				subIntentions.add(new TravelSubIntention(newWorld.getBoxById(box.getId()).getPosition(), agentId, intention, agentId));
-				subIntentions.add(new MoveBoxSubIntention(newWorld.getBoxById(box.getId()), safePosition, intention, agentId));
+				Box newWorldBox = newWorld.getBoxById(box.getId());
+				if(newWorldBox.getColor().equals(world.getAgent(agentId).getColor()))
+					subIntentions.add(new TravelSubIntention(newWorldBox.getPosition(), agentId, intention, agentId));
+				subIntentions.add(new MoveBoxSubIntention(newWorldBox, safePosition, intention, agentId));
 				newWorld = new World(newWorld);
 				newWorld.getBoxById(box.getId()).setPosition(safePosition);
 			}

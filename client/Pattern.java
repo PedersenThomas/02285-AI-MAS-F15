@@ -171,10 +171,10 @@ public class Pattern {
 	
 	public static boolean isSafePoint(SafePoint spoint, World world) {
 		String pointStringPattern = translatePointIntoPattern(spoint, world);
-		Logger.logLine("point" + spoint + "("+pointStringPattern+")");
+		//Logger.logLine("point" + spoint + "("+pointStringPattern+")");
 		
 		if (validPatterns.containsKey(pointStringPattern)) {
-			Logger.logLine(" is safe spot");
+			//Logger.logLine(" is safe spot");
 			spoint.setPriority(validPatterns.get(pointStringPattern));
 			return true;
 		}

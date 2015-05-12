@@ -1,11 +1,13 @@
 package client;
 
+import java.sql.Savepoint;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import client.Goal;
 import client.Client.Agent;
+import client.Client.AgentStatus;
 import client.Heuristic.AStar;
 import client.Heuristic.Heuristic;
 import client.Heuristic.HeuristicPathFunction;
@@ -37,12 +39,15 @@ public class Plan {
 		if(subIntention == null) {
 			throw new RuntimeException("Intention is null");
 		}
+		
+		
 		Logger.logLine("Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);
 		
 		boolean ignoreBoxes = false;
-		strategy.addToFrontier( new PathNode( world, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
+		World simpleWorld = world.getSimplifiedCopy(agent.getId());
+		strategy.addToFrontier( new PathNode( simpleWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
 		
 		while ( true ) {
@@ -95,11 +100,24 @@ public class Plan {
 			throw new RuntimeException("Planning for a invalid move: Agent and only move boxes of same color: " + subIntention.getBox() + " " + agent);
 		}
 		
+		if(!world.isFreeCell(subIntention.getEndPosition())) {
+			Box box = world.getBoxAt(subIntention.getEndPosition());
+			if(box != null) {
+				
+				world.addJob(new MoveBoxSubIntention(box, SafeSpotDetector.getSafeSpotForBox(world, box), 
+						subIntention.getRootIntention(), agent.getId()));
+				agent.setStatus(AgentStatus.WAITING);
+				return;
+			}
+		}
+		
+		
 		Logger.logLine("[" + agent.getId() + "] Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
-		strategy.addToFrontier( new PlannerNode( world, agent.getId() ) );
+		World simpleWorld = world.getSimplifiedCopy(agent.getId());
+		strategy.addToFrontier( new PlannerNode( simpleWorld, agent.getId() ) );
 
 		int iterations = 0;
 		List<Goal> completedGoals = world.getCompletedGoals();

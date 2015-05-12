@@ -1,6 +1,7 @@
 package client;
 
 import java.util.LinkedList;
+import java.util.Queue;
 
 public class Command {
 	static {
@@ -68,6 +69,18 @@ public class Command {
 
 	public String toActionString() {
 		return "[" + this.toString() + "]";
+	}
+	
+	public static Queue<Point> CommandsToPath(Point startPosition, LinkedList<Command> commands) {
+		Queue<Point> path = new LinkedList<Point>();
+		Point p = startPosition;
+		for(Command cmd:commands ) {
+			p = p.move(cmd.dir1);
+			path.add(p);
+		}
+		
+		
+		return path;		
 	}
 
 }

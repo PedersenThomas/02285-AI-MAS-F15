@@ -71,8 +71,7 @@ public class Client {
 			if((status == AgentStatus.ACTIVE) && 
 					(this.status == AgentStatus.WAITING)) {
 				//The world has changed -> find new intentions
-				world.clearIntention(this.id);
-				subIntentions.clear();
+				replan();
 			}
 			this.status = status;
 		}
@@ -138,8 +137,10 @@ public class Client {
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
-					replan();
-					Logger.logLine("["+id+"] No plan -> find new intentions");
+					if(status != AgentStatus.WAITING) {
+						replan();
+						Logger.logLine("["+id+"] No plan -> find new intentions");
+					}
 
 					return NoOp;
 				}
@@ -169,7 +170,7 @@ public class Client {
 			}
 			
 			//if intention is completed it should be removed from the sequence of active intentions in the world
-			if(plan.isEmpty() && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
+			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
 				world.clearIntention(this.id);
 			}
 			
@@ -180,7 +181,8 @@ public class Client {
 		
 		public void replan() {
 			world.clearIntention(this.id);
-			subIntentions.clear();
+			if(subIntentions != null)
+				subIntentions.clear();
 			world.clearPlan(id);
 			
 			if(plan != null) {
@@ -320,6 +322,12 @@ public class Client {
 			Logger.logLine(percepts);
 			Logger.logLine(jointAction);
 			Logger.logLine("*****************************************************************************************************************");
+			try {
+				this.wait(1000000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		return true;
