@@ -5,6 +5,8 @@ import java.util.*;
 
 public class Client {
 	public World world = new World();
+
+	public static final Command NoOp = NoOpCommand.instance;
 	
 	enum AgentStatus {
 		ACTIVE,
@@ -77,11 +79,10 @@ public class Client {
 			this.status = status;
 		}
 
-		public final static String NoOp = "NoOp";
 		/**
 		 * Compute the next command for the agent.
 		 */
-		public String act() {
+		public Command act() {
 			this.lastPosition = this.position;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
@@ -158,7 +159,8 @@ public class Client {
 			
 			//execute the plan
 			Command cmd = plan.execute();
-			boolean validUpdate = world.update(this, cmd);
+			World tempWorld = new World(world);
+			boolean validUpdate = tempWorld.update(tempWorld.getAgent(this.getId()), cmd);
 			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
 				Logger.logLine("Invalid command: " + cmd + " " + this);
@@ -175,7 +177,7 @@ public class Client {
 			
 			inactivityCounter = 0;
 			Logger.logLine("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
-			return cmd.toString();
+			return cmd;
 		}
 		
 		public void replan() {
@@ -285,13 +287,43 @@ public class Client {
 	
 	public boolean update() throws IOException {
 		String jointAction = "[";
-
-		for ( int i = 0; i < world.getNumberOfAgents() - 1; i++ )
-			jointAction += world.getAgent( i ).act() + ",";
-
-		jointAction += world.getAgent( world.getNumberOfAgents() - 1 ).act() + "]";
+		List<Command> commands = new ArrayList<Command>();
+		for ( int i = 0; i < world.getNumberOfAgents(); i++ ) {
+			commands.add(world.getAgent( i ).act());
+		}
 		
-		if(countSubstring(jointAction, Agent.NoOp) == world.getNumberOfAgents()) {
+		World tempWorld = new World(world);
+		World reversedTempWorld = new World(world);
+
+		
+		for (int index = 0; index<commands.size() ; index++) {
+			boolean isUpdateSuccessed = tempWorld.update(tempWorld.getAgent(index), commands.get(index));
+			if(!isUpdateSuccessed) {
+				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
+			}
+		} 
+		
+		for (int index = commands.size()-1; index>=0 ; index--) {
+			boolean isUpdateSuccessed = reversedTempWorld.update(reversedTempWorld.getAgent(index), commands.get(index));
+			if(!isUpdateSuccessed) {
+				Logger.logLine("Invalid command in reversed order: " + commands.get(index) + " agent " + index);
+			}
+		}
+		
+		for (int index = 0; index<commands.size() ; index++) {
+			boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
+			if(!isUpdateSuccessed) {
+				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
+			}
+		}
+		
+		for (Command cmd : commands) {
+			jointAction += cmd + ",";
+		}
+		
+		jointAction = jointAction.substring(0, jointAction.length()-1) + "]";
+		
+		if(countSubstring(jointAction, NoOp.toString()) == world.getNumberOfAgents()) {
 			deadlockCount++;
 			
 			if(deadlockCount > 1000) 
