@@ -288,37 +288,45 @@ public class Client {
 	public boolean update() throws IOException {
 		String jointAction = "[";
 		List<Command> commands = new ArrayList<Command>();
+		List<Boolean> validCommands = new ArrayList<Boolean>();
 		for ( int i = 0; i < world.getNumberOfAgents(); i++ ) {
 			commands.add(world.getAgent( i ).act());
 		}
 		
 		World tempWorld = new World(world);
 		World reversedTempWorld = new World(world);
-
+		
+		boolean invalodActionsDetected = false;
 		
 		for (int index = 0; index<commands.size() ; index++) {
-			boolean isUpdateSuccessed = tempWorld.update(tempWorld.getAgent(index), commands.get(index));
-			if(!isUpdateSuccessed) {
+			boolean isValidCommand = tempWorld.update(tempWorld.getAgent(index), commands.get(index));
+			validCommands.add(index, isValidCommand);
+			if(!isValidCommand) {
 				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
 			}
 		} 
 		
 		for (int index = commands.size()-1; index>=0 ; index--) {
 			boolean isUpdateSuccessed = reversedTempWorld.update(reversedTempWorld.getAgent(index), commands.get(index));
+			validCommands.set(index, (validCommands.get(index) && isUpdateSuccessed));
 			if(!isUpdateSuccessed) {
 				Logger.logLine("Invalid command in reversed order: " + commands.get(index) + " agent " + index);
 			}
 		}
 		
 		for (int index = 0; index<commands.size() ; index++) {
+			
 			boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
 			if(!isUpdateSuccessed) {
 				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
 			}
-		}
-		
-		for (Command cmd : commands) {
-			jointAction += cmd + ",";
+			
+			if (validCommands.get(index)) {
+				jointAction += commands.get(index) + ",";
+			} else {
+				jointAction += NoOp + ",";
+				world.getAgent(index).replan();
+			}
 		}
 		
 		jointAction = jointAction.substring(0, jointAction.length()-1) + "]";
