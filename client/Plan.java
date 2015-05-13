@@ -47,6 +47,7 @@ public class Plan {
 		
 		boolean ignoreBoxes = false;
 		World simpleWorld = world.getSimplifiedCopy(agent.getId());
+		
 		strategy.addToFrontier( new PathNode( simpleWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
 		
@@ -67,6 +68,7 @@ public class Plan {
 			PathNode leafNode = (PathNode)strategy.getAndRemoveLeaf();
 
 			if (subIntention.isCompleted(leafNode)) {
+				
 				commandQueue = leafNode.extractListOfCommands();
 			    removeLastFromQueue(commandQueue);
 				if(subIntention.getOwner() != agent.getId()) {

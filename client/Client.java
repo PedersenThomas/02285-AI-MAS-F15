@@ -5,6 +5,7 @@ import java.util.*;
 
 public class Client {
 	public World world = new World();
+	public World worldBeforUpdate;
 
 	public static final Command NoOp = NoOpCommand.instance;
 	
@@ -105,6 +106,9 @@ public class Client {
 					intention = Intention.deliberate(world, this);
 					Logger.logLine("Agent[" + this.getId() + "] Got the intention: " + intention);
 					if(intention == null) {
+						if(world.getNumberOfUncompletedGoals(this.color) > 0)
+							inactivityCounter++;
+						
 						return NoOp;
 					}
 					
@@ -138,12 +142,12 @@ public class Client {
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
-					// Maybe the planner has recognized that it is better to wait
+					// Maybe the planner has recognized that it is better to wait					
 					if(status != AgentStatus.WAITING) {
 						replan();
 						Logger.logLine("["+id+"] No plan -> find new intentions");
 					}
-
+					
 					return NoOp;
 				}
 			}
@@ -161,8 +165,12 @@ public class Client {
 			
 			//execute the plan
 			Command cmd = plan.execute();
-			World tempWorld = new World(world);
-			boolean validUpdate = tempWorld.update(tempWorld.getAgent(this.getId()), cmd);
+			//World tempWorld = new World(world);
+			//boolean validUpdate = tempWorld.update(tempWorld.getAgent(this.getId()), cmd);
+			boolean validUpdate = worldBeforUpdate.update(worldBeforUpdate.getAgent(id),cmd);
+			if(validUpdate) {
+				validUpdate = world.update(this, cmd);
+			}
 			if(!validUpdate) {
 				//TODO We have here an invalid command. What to do now?
 				Logger.logLine("Invalid command: " + cmd + " " + this);
@@ -170,7 +178,8 @@ public class Client {
 				// The world has changed since we have created this plan. Our plan is outdated!
 				replan();
 				return NoOp;
-			}
+			}	
+			
 			
 			//if intention is completed it should be removed from the sequence of active intentions in the world
 			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
@@ -229,6 +238,10 @@ public class Client {
 				return false;
 			}
 			return true;
+		}
+
+		public int getInactivityCounter() {
+			return inactivityCounter;
 		}
 	}
 
@@ -292,11 +305,15 @@ public class Client {
 		String jointAction = "[";
 		List<Command> commands = new ArrayList<Command>();
 		List<Boolean> validCommands = new ArrayList<Boolean>();
+		
+		World snapshot = new World(world);
+		worldBeforUpdate = new World(world);
 		for ( int i = 0; i < world.getNumberOfAgents(); i++ ) {
+			worldBeforUpdate = new World(snapshot);
 			commands.add(world.getAgent( i ).act());
 		}
 		
-		World tempWorld = new World(world);
+		/*World tempWorld = new World(world);
 		World reversedTempWorld = new World(world);
 		
 		boolean invalodActionsDetected = false;
@@ -315,11 +332,12 @@ public class Client {
 			if(!isUpdateSuccessed) {
 				Logger.logLine("Invalid command in reversed order: " + commands.get(index) + " agent " + index);
 			}
-		}
+		}*/
 		
 		for (int index = 0; index<commands.size() ; index++) {
+			jointAction += commands.get(index) + ",";
 			
-			boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
+			/*boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
 			if(!isUpdateSuccessed) {
 				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
 			}
@@ -329,7 +347,7 @@ public class Client {
 			} else {
 				jointAction += NoOp + ",";
 				world.getAgent(index).replan();
-			}
+			}*/
 		}
 		
 		jointAction = jointAction.substring(0, jointAction.length()-1) + "]";
