@@ -19,13 +19,14 @@ public class Client {
 		private int id;
 		private String color = "NoColor";
 		private Point position;
-		private Point lastPosition;
+		private Point newPosition;
 		private AgentStatus status;
 		private Plan plan = null;
 		private Intention intention;
 		private SubIntention currentSubIntention = null;
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
+		public Command lastCommand = NoOpCommand.instance;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -33,7 +34,7 @@ public class Client {
 			}
 			this.id = id;
 			this.position = position;
-			this.lastPosition = position;
+			this.newPosition = position;
 			this.status = AgentStatus.ACTIVE;
 			
 			if(color != null) {
@@ -51,8 +52,8 @@ public class Client {
 			return position;
 		}
 		
-		public Point getLastPosition() {
-			return lastPosition;
+		public Point getNewPosition() {
+			return newPosition;
 		}
 
 		public void setPosition(Point position) {			
@@ -83,8 +84,8 @@ public class Client {
 		/**
 		 * Compute the next command for the agent.
 		 */
-		public Command act() {
-			this.lastPosition = this.position;
+		public Command act() {		
+			lastCommand = NoOpCommand.instance;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
 				return NoOp;
@@ -173,9 +174,11 @@ public class Client {
 				replan();
 				return NoOp;
 			}
+			newPosition = tempWorld.getAgent(this.getId()).getPosition();
+			lastCommand = cmd;
 			
 			//if intention is completed it should be removed from the sequence of active intentions in the world
-			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(world.getBoxById(intention.getBox().getId()).getPosition())) {
+			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(tempWorld.getBoxById(intention.getBox().getId()).getPosition())) {
 				world.clearIntention(this.id);
 			}
 			
@@ -366,7 +369,7 @@ public class Client {
 		}
 		
 		for (int i = 0; i < commands.size(); i++) {
-			if(commands.get(i) instanceof NoOpCommand) {
+			if((commands.get(i) instanceof NoOpCommand) || (commands.get(i) instanceof NotifyAgentCommand)){
 				continue;
 			}
 			

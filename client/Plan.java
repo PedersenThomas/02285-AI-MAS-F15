@@ -68,7 +68,11 @@ public class Plan {
 
 			if (subIntention.isCompleted(leafNode)) {
 				commandQueue = leafNode.extractListOfCommands();
-			    removeLastFromQueue(commandQueue);
+			    
+				if(subIntention.getRootIntention() != null) {
+					removeLastFromQueue(commandQueue);
+				}
+				
 				if(subIntention.getOwner() != agent.getId()) {
 					commandQueue.add(new NotifyAgentCommand(subIntention.getOwner()));
 				}		

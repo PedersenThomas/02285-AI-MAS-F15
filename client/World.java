@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
@@ -148,6 +149,30 @@ public class World {
 		}
 		return result;
 	}
+	
+	public int getNumberOfUncompletedAndUnintendedGoals(int agentId) {
+		int result = 0;
+		String color = getAgent(agentId).getColor();
+		
+		if(intentionMap.get(agentId) != null)
+			result++;
+		
+		for (Goal g : goals) {
+			
+			if (!isGoalCompleted(g) && isGoalAvailable(g)) {
+				for(Box b: boxes) {
+					if(b.getLetter() == g.getLetter()) {
+						if(b.getColor().equals(color)) {
+							result++;
+						}
+						break;
+					}
+				}				
+			}
+		}
+		
+		return result;
+	}
 
 	public List<Agent> getAgents() {
 		return Collections.unmodifiableList(agents);
@@ -227,24 +252,28 @@ public class World {
 		// Check if the planned actions of the agent cause a conflict with one of the other agents' plans
 		LinkedList<Command> plan = planMap.get(agentId);
 		for (Map.Entry<Integer, LinkedList<Command>> entry : planMap.entrySet()) {
+		//for (Agent otherAgent : agents) {
 			Agent otherAgent = getAgent(entry.getKey());
 			
-			if ((agentId != entry.getKey())) {  //
-				if(entry.getValue() == null)
-					entry.setValue(new LinkedList<>());
+			if ((agentId != otherAgent.getId())) {
+				LinkedList<Command> otherPlan = planMap.get(otherAgent.getId());
+				if(otherPlan == null)
+					otherPlan = new LinkedList<Command>();
 				
-				boolean conflict = checkPlans(agentId, plan, entry.getKey(), entry.getValue());
+				boolean conflict = checkPlans(agentId, plan, otherAgent.getId(), otherPlan);
 
 				if (conflict) {
-					if(otherAgent.getStatus() != AgentStatus.ACTIVE) {
+					if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
+							(getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId())) == 0) {
 						Logger.logLine("["+agentId+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
 						Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, otherAgent.getId(), 
 								Command.CommandsToPath(getAgent(agentId).getPosition(), plan));
 						otherAgent.setStatus(AgentStatus.ACTIVE);
+						getAgent(agentId).setStatus(AgentStatus.WAITING);
 						addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agentId));
 						return false;
 					}
-					else if (agentId > entry.getKey()) {						
+					else if (agentId > otherAgent.getId()) {						
 						//LinkedList<Command> otherPlan = entry.getValue();					
 						/* There is a conflict but the other agent has no intention to move
 						if(otherPlan.isEmpty() && (getJob(otherAgent) == null) && 
@@ -268,30 +297,26 @@ public class World {
 		Agent a2 = getAgent(agentId2);
 		
 		Point pos1 = a1.getPosition();
-		Point pos2 = a2.getPosition();
+		Point pos2 = a2.getPosition();		
 
-		if (agentId1 > agentId2) {
-			pos2 = a2.getLastPosition();
-		}
-
-		for (int i = 0; i < Math.max(plan1.size(), plan2.size()); i++) {
+		for (int i = 0; i < plan1.size(); i++) {
 			Point newPos1 = pos1;
-			Point boxPos1 = pos1;
-			if (i < plan1.size()) {
-				newPos1 = pos1.move(plan1.get(i).dir1);
+			Point boxPos1 = pos1;			
+			newPos1 = pos1.move(plan1.get(i).dir1);
 
-				if (plan1.get(i).actType == type.Push) {
-					boxPos1 = newPos1.move(plan1.get(i).dir2);
-				} else if (plan1.get(i).actType == type.Pull) {
-					boxPos1 = pos1.move(plan1.get(i).dir2);
-				}
+			if (plan1.get(i).actType == type.Push) {
+				boxPos1 = newPos1.move(plan1.get(i).dir2);
+			} else if (plan1.get(i).actType == type.Pull) {
+				boxPos1 = pos1.move(plan1.get(i).dir2);
 			}
+			
 
 			Point newPos2 = pos2;
 			Point boxPos2 = pos2;
 			if (agentId1 > agentId2) {
-				if (i == 0)
-					newPos2 = a2.getPosition();
+				if (i == 0) {
+					newPos2 = a2.getNewPosition();
+				}
 				else if (i - 1 < plan2.size()) {
 					newPos2 = pos2.move(plan2.get(i - 1).dir1);
 
@@ -361,8 +386,29 @@ public class World {
 	
 				boolean conflict = checkPlans(agentId, nextStepPlan, otherAgent.getId(), otherPlan);
 				if(conflict) {
-					if(agentId > otherAgent.getId())
+					if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
+							(getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId()) == 0)) {
+						Logger.logLine("["+agentId+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
+						Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, otherAgent.getId(), 
+								Command.CommandsToPath(getAgent(agentId).getPosition(), plan));
+						otherAgent.setStatus(AgentStatus.ACTIVE);
+						getAgent(agentId).setStatus(AgentStatus.WAITING);
+						addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agentId));
 						return false;
+					}
+					else if (agentId > entry.getKey()) {						
+						//LinkedList<Command> otherPlan = entry.getValue();					
+						/* There is a conflict but the other agent has no intention to move
+						if(otherPlan.isEmpty() && (getJob(otherAgent) == null) && 
+								(otherAgent.getPosition().equals(otherAgent.getLastPosition()))) {
+							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
+							Point movePos = safePoints.poll();
+							this.addJob(new TravelSubIntention(movePos, otherAgent.getId(), null));
+							
+						}
+						*/
+						return false;
+					}
 				}
 			}
 		}
@@ -530,22 +576,26 @@ public class World {
 	 * 
 	 * @return boolean value which tells whether there is made a change.
 	 */
+	private void notifyAgent(int agentId) {
+		Agent a = this.getAgent(agentId);
+		a.setStatus(AgentStatus.ACTIVE);		
+		
+		// Delete all jobs! They might be outdated!
+		while(!jobList.isEmpty()) {
+			SubIntention si = jobList.get(0);
+			a = this.getAgent(si.getOwner());
+			a.setStatus(AgentStatus.ACTIVE);
+			jobList.remove(0);				
+		}
+	}
+	
+	
 	public boolean update(Agent agent, Command command) {
 		
-		if(command instanceof NotifyAgentCommand) {			
-			Agent a = this.getAgent(((NotifyAgentCommand)command).getAgentId());
-			a.setStatus(AgentStatus.ACTIVE);
-			Logger.logLine(agent.getId() + ": Notify agent " + a.getId());
-			
-			// Delete all jobs! They might be outdated!
-			while(!jobList.isEmpty()) {
-				SubIntention si = jobList.get(0);
-				a = this.getAgent(si.getOwner());
-				a.setStatus(AgentStatus.ACTIVE);
-				jobList.remove(0);				
-			}
-				
-			
+		if(command instanceof NotifyAgentCommand) {	
+			int notifyId = ((NotifyAgentCommand)command).getAgentId();
+			Logger.logLine(agent.getId() + ": Notify agent " + notifyId);
+			notifyAgent(notifyId);		
 			return true;
 		} else if(command instanceof NoOpCommand) {			
 			return true;
