@@ -204,7 +204,7 @@ public class Client {
 
 		@Override
 		public String toString() {
-			return "AGENT " + id + " Color: " + color + " Position: " + position;
+			return "AGENT " + id + " Color: " + color + " Position: " + position + " Status: " + status;
 		}
 
 		@Override
