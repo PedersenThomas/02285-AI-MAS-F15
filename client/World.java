@@ -561,6 +561,15 @@ public class World {
 		}
 		return null;
 	}
+	
+	public Agent getAgentAt(Point position) {
+		for (int i = 0; i < agents.size(); i++) {
+			if (agents.get(i).getPosition().equals(position)) {
+				return agents.get(i);
+			}
+		}
+		return null;
+	}
 
 	public Box getBoxById(int id) {
 		for (Box box : this.getBoxes()) {

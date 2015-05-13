@@ -32,9 +32,11 @@ public class SafeSpotDetector {
 		Point safePosition = null;
 		//Find a safepoint not on the path.
 		for (SafePoint safespot : safeSpots) {
-			if(!path.contains(safespot) && world.isFreeCell(safespot)) {
-				safePosition = safespot;
-				break;
+			if(world.isFreeCell(safespot)) {
+				if(path == null || !path.contains(safespot)) {
+					safePosition = safespot;
+					break;
+				}
 			}
 		}
 		return safePosition;

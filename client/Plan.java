@@ -5,7 +5,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import client.Command;
 import client.Goal;
+import client.Logger;
+import client.Point;
+import client.SafeSpotDetector;
+import client.TravelSubIntention;
 import client.Client.Agent;
 import client.Client.AgentStatus;
 import client.Heuristic.AStar;
@@ -107,13 +112,28 @@ public class Plan {
 		
 		if(!world.isFreeCell(subIntention.getEndPosition())) {
 			Box box = world.getBoxAt(subIntention.getEndPosition());
-			if(box != null) {
-				
+			if(box != null) {				
 				world.addJob(new MoveBoxSubIntention(box, SafeSpotDetector.getSafeSpotForBox(world, box), 
 						subIntention.getRootIntention(), agent.getId()));
 				agent.setStatus(AgentStatus.WAITING);
 				return;
 			}
+
+			Agent otherAgent = world.getAgentAt(subIntention.getEndPosition());
+			if(otherAgent != null && otherAgent.getId() != agent.getId()) {				
+
+				if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
+							(world.getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId())) == 0) {
+					Logger.logLine("["+agent.getId()+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
+					Point safePos = SafeSpotDetector.getSafeSpotForAgent(world, otherAgent.getId(), null);
+					otherAgent.setStatus(AgentStatus.ACTIVE);
+					agent.setStatus(AgentStatus.WAITING);
+					world.addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agent.getId()));
+				}
+				
+				return;
+			}
+			
 		}
 		
 		
