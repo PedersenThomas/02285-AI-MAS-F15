@@ -3,6 +3,8 @@ package client;
 import java.io.*;
 import java.util.*;
 
+import javax.management.RuntimeErrorException;
+
 public class Client {
 	public World world = new World();
 
@@ -291,37 +293,23 @@ public class Client {
 	public boolean update() throws IOException {
 		String jointAction = "[";
 		List<Command> commands = new ArrayList<Command>();
-		List<Boolean> validCommands = new ArrayList<Boolean>();
 		for ( int i = 0; i < world.getNumberOfAgents(); i++ ) {
 			commands.add(world.getAgent( i ).act());
 		}
-		
-		World tempWorld = new World(world);
-		World reversedTempWorld = new World(world);
-		
-		boolean invalodActionsDetected = false;
-		
-		for (int index = 0; index<commands.size() ; index++) {
-			boolean isValidCommand = tempWorld.update(tempWorld.getAgent(index), commands.get(index));
-			validCommands.add(index, isValidCommand);
-			if(!isValidCommand) {
-				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
-			}
-		} 
-		
-		for (int index = commands.size()-1; index>=0 ; index--) {
-			boolean isUpdateSuccessed = reversedTempWorld.update(reversedTempWorld.getAgent(index), commands.get(index));
-			validCommands.set(index, (validCommands.get(index) && isUpdateSuccessed));
-			if(!isUpdateSuccessed) {
-				Logger.logLine("Invalid command in reversed order: " + commands.get(index) + " agent " + index);
-			}
+
+		List<Boolean> validCommands = markValidCommands(commands);
+		Logger.logLine("いいいいいいいいいいいいいいいいいいいいいいいいいいいい");
+		for (int i = 0; i < validCommands.size(); i++) {
+			Logger.logLine("[" + i + "] = " + validCommands.get(i) + " Command: " + commands.get(i));
 		}
 		
 		for (int index = 0; index<commands.size() ; index++) {
-			
-			boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
-			if(!isUpdateSuccessed) {
-				Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
+			if(validCommands.get(index)) {
+				boolean isUpdateSuccessed = world.update(world.getAgent(index), commands.get(index));
+				if(!isUpdateSuccessed) {
+					Logger.logLine("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
+					Logger.logLine("Invalid command: " + commands.get(index) + " agent " + index);
+				}
 			}
 			
 			if (validCommands.get(index)) {
@@ -343,8 +331,6 @@ public class Client {
 		else {
 			deadlockCount = 0;
 		}
-			
-		
 		
 		// Place message in buffer
 		System.out.println( jointAction );
@@ -363,9 +349,63 @@ public class Client {
 			Logger.logLine(percepts);
 			Logger.logLine(jointAction);
 			Logger.logLine("*****************************************************************************************************************");
+			throw new RuntimeException("Invalid move");
 		}
 		
 		return true;
+	}
+	
+	private List<Boolean> markValidCommands(List<Command> commands) {
+		List<Boolean> validCommands = new ArrayList<Boolean>();
+		List<Point> newlyUsedPoints = calculateNewlyUsedPoints(commands);
+		Map<Point, Integer> uniqueCommandPicker = new HashMap<Point, Integer>();
+		
+		//Initialize validCommands with true.
+		for (int i = 0; i < commands.size(); i++) {
+			validCommands.add(true);
+		}
+		
+		for (int i = 0; i < commands.size(); i++) {
+			if(commands.get(i) instanceof NoOpCommand) {
+				continue;
+			}
+			
+			//Check if values are unique
+			if(!uniqueCommandPicker.containsKey(newlyUsedPoints.get(i))) {
+				uniqueCommandPicker.put(newlyUsedPoints.get(i), i);
+			} else {
+				validCommands.set(i, false);
+			}
+			
+			
+			//Check if new points are free. 
+			if(!world.isFreeCell(newlyUsedPoints.get(i))) {
+				validCommands.set(i, false);
+			}
+		}
+		
+		return validCommands;
+	}
+	
+	private List<Point> calculateNewlyUsedPoints(List<Command> commands) {
+		List<Point> newPoints = new ArrayList<Point>();
+		
+		for (int i = 0; i < commands.size(); i++) {
+			Command command = commands.get(i);			
+			Point agentPosition = world.getAgent(i).getPosition();
+			switch(command.actType) {
+			case Move:
+			case Pull:
+				newPoints.add(agentPosition.move(command.dir1));
+				break;
+			case Push:
+				Point boxPosition = agentPosition.move(command.dir1);
+				newPoints.add(boxPosition.move(command.dir2));
+				break;
+			}
+		}
+		
+		return newPoints;
 	}
 
 	public static void main( String[] args ) {
