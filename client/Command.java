@@ -73,6 +73,11 @@ public class Command {
 	
 	public static Queue<Point> CommandsToPath(Point startPosition, LinkedList<Command> commands) {
 		Queue<Point> path = new LinkedList<Point>();
+		
+		if(commands == null) {
+			return path;
+		}
+		
 		Point p = startPosition;
 		for(Command cmd:commands ) {
 			p = p.move(cmd.dir1);

@@ -247,6 +247,20 @@ public class World {
 		planMap.remove(agentId);
 		return true;
 	}
+	
+	public boolean handleBlockingAgentConflict(Agent agent1, Agent agent2, LinkedList<Command> plan) {
+		if((agent2.getStatus() != AgentStatus.ACTIVE) ||
+				(getNumberOfUncompletedAndUnintendedGoals(agent2.getId())) == 0) {
+			Logger.logLine("["+agent1.getId()+"]: Hey [" + agent2.getId() + "], get out of my way!");
+			Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, agent2.getId(), 
+					Command.CommandsToPath(agent1.getPosition(), plan));
+			agent2.setStatus(AgentStatus.ACTIVE);
+			agent1.setStatus(AgentStatus.WAITING);
+			addJob(new TravelSubIntention(safePos, agent2.getId(), null, agent1.getId()));
+			return true;
+		}
+		return false;
+	}
 
 	public boolean validPlan(int agentId) {
 		// Check if the planned actions of the agent cause a conflict with one of the other agents' plans
@@ -263,14 +277,7 @@ public class World {
 				boolean conflict = checkPlans(agentId, plan, otherAgent.getId(), otherPlan);
 
 				if (conflict) {
-					if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
-							(getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId())) == 0) {
-						Logger.logLine("["+agentId+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
-						Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, otherAgent.getId(), 
-								Command.CommandsToPath(getAgent(agentId).getPosition(), plan));
-						otherAgent.setStatus(AgentStatus.ACTIVE);
-						getAgent(agentId).setStatus(AgentStatus.WAITING);
-						addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agentId));
+					if(handleBlockingAgentConflict(getAgent(agentId), otherAgent, plan)) {
 						return false;
 					}
 					else if (agentId > otherAgent.getId()) {						
@@ -386,14 +393,7 @@ public class World {
 	
 				boolean conflict = checkPlans(agentId, nextStepPlan, otherAgent.getId(), otherPlan);
 				if(conflict) {
-					if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
-							(getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId()) == 0)) {
-						Logger.logLine("["+agentId+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
-						Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, otherAgent.getId(), 
-								Command.CommandsToPath(getAgent(agentId).getPosition(), plan));
-						otherAgent.setStatus(AgentStatus.ACTIVE);
-						getAgent(agentId).setStatus(AgentStatus.WAITING);
-						addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agentId));
+					if(handleBlockingAgentConflict(getAgent(agentId), otherAgent, plan)) {
 						return false;
 					}
 					else if (agentId > entry.getKey()) {						

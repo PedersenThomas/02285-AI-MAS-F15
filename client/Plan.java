@@ -120,17 +120,8 @@ public class Plan {
 			}
 
 			Agent otherAgent = world.getAgentAt(subIntention.getEndPosition());
-			if(otherAgent != null && otherAgent.getId() != agent.getId()) {				
-
-				if((otherAgent.getStatus() != AgentStatus.ACTIVE) ||
-							(world.getNumberOfUncompletedAndUnintendedGoals(otherAgent.getId())) == 0) {
-					Logger.logLine("["+agent.getId()+"]: Hey [" + otherAgent.getId() + "], get out of my way!");
-					Point safePos = SafeSpotDetector.getSafeSpotForAgent(world, otherAgent.getId(), null);
-					otherAgent.setStatus(AgentStatus.ACTIVE);
-					agent.setStatus(AgentStatus.WAITING);
-					world.addJob(new TravelSubIntention(safePos, otherAgent.getId(), null, agent.getId()));
-				}
-				
+			if(otherAgent != null && otherAgent.getId() != agent.getId()) {	
+				world.handleBlockingAgentConflict(agent, otherAgent, null);				
 				return;
 			}
 			
