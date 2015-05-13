@@ -192,4 +192,13 @@ public class Plan {
 			list.removeLast();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		if(commandQueue == null) {
+			return "CommandQueue is null";
+		} else {
+			return commandQueue.toString();
+		}
+	}
 }
