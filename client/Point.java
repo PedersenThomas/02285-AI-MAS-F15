@@ -6,12 +6,7 @@ package client;
 public class Point {
 	private int x;
 	private int y;
-	
-//	public Point(Point src) {
-//		this.x = src.x;
-//		this.y = src.y;
-//	}
-	
+		
 	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
