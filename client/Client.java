@@ -98,7 +98,6 @@ public class Client {
 			SubIntention delegatedSubIntention = null;
 			//Is there some job in the world, which this agent can solve.
 			if(plan == null || plan.isEmpty()) {
-				//TODO Jobs should be an Intention an not SubIntention
 				delegatedSubIntention = world.popJob(this);
 			
 				//Make sure an agent have an intention.
@@ -134,6 +133,7 @@ public class Client {
 						world.addJob(moveSubIntention);
 						Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
 						this.status = AgentStatus.WAITING;
+						Logger.logLine(this.id + " I am waiting>> ");
 						return NoOp;
 					}
 				}
@@ -185,6 +185,7 @@ public class Client {
 		}
 		
 		public void replan() {
+			Logger.logLine("replan for " + this);
 			world.clearIntention(this.id);
 			if(subIntentions != null)
 				subIntentions.clear();
@@ -298,10 +299,6 @@ public class Client {
 		}
 
 		List<Boolean> validCommands = markValidCommands(commands);
-		Logger.logLine("いいいいいいいいいいいいいいいいいいいいいいいいいいいい");
-		for (int i = 0; i < validCommands.size(); i++) {
-			Logger.logLine("[" + i + "] = " + validCommands.get(i) + " Command: " + commands.get(i));
-		}
 		
 		for (int index = 0; index<commands.size() ; index++) {
 			if(validCommands.get(index)) {
@@ -366,7 +363,7 @@ public class Client {
 		}
 		
 		for (int i = 0; i < commands.size(); i++) {
-			if(commands.get(i) instanceof NoOpCommand) {
+			if(commands.get(i) instanceof NoOpCommand || commands.get(i) instanceof NotifyAgentCommand) {
 				continue;
 			}
 			
@@ -411,7 +408,7 @@ public class Client {
 	public static void main( String[] args ) {
 
 		// Use stderr to print to console
-		Logger.logLine( "Hello from Client. I am sending this using the error outputstream" );
+		Logger.logLine( "Hello from WatsOn" );
 		try {
 			Client client = new Client();
 			while ( client.update() )
