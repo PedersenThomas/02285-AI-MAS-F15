@@ -152,7 +152,7 @@ public class Client {
 			if(!world.validPlan(this.id)) {
 				inactivityCounter++;
 				
-				if(inactivityCounter > 50) {
+				if(inactivityCounter > 30) {
 					Logger.logLine("["+id+"] Timout -> replan");
 					replan();
 				}

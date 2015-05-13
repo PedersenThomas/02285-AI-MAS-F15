@@ -31,11 +31,21 @@ public class SafeSpotDetector {
 		
 		Point safePosition = null;
 		//Find a safepoint not on the path.
+		int minDist = 0;
+		Point agentPos = world.getAgent(agentId).getPosition();
 		for (SafePoint safespot : safeSpots) {
 			if(world.isFreeCell(safespot)) {
 				if(path == null || !path.contains(safespot)) {
-					safePosition = safespot;
-					break;
+					if(safePosition == null) {
+						minDist =  agentPos.distance(safespot);
+						safePosition = safespot;
+					}
+					else if(minDist > agentPos.distance(safespot)) {
+						minDist = agentPos.distance(safespot);
+						safePosition = safespot;
+						
+					}
+					
 				}
 			}
 		}

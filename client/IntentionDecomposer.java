@@ -41,9 +41,10 @@ public class IntentionDecomposer {
 			}
 		}		
 
+		Queue<Point> pathFromBoxToGoal = null;
 		if(!world.isPositionReachable(boxPosition, goalPosition, false)) {
 			//SubIntention to clear path from Box to Goal.
-			Queue<Point> pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
+			pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId, true);
 
 			Logger.logLine("----------- Path ----------");
@@ -52,9 +53,39 @@ public class IntentionDecomposer {
 			}
 		}	
 		
+		
+		//Decompose very large large paths (>50 points)
+		//SubIntention for moving agent to box.
+	    int cnt = 0;
+	    Point lastPos = agentPosition;
+		for(Point p : pathFromAgentToBox) {
+			cnt++;
+			if((cnt % 50) == 0) {
+				subIntentions.add(new TravelSubIntention(p, agentId,intention, agentId));
+				lastPos = p;
+			}
+		}		
+		if(!lastPos.equals(currentWorld.getBoxById(intention.getBox().getId()).getPosition()) )		
+			subIntentions.add(new TravelSubIntention(currentWorld.getBoxById(intention.getBox().getId()).getPosition(), agentId,intention, agentId));
+		
+		//Decompose very large large paths (>50 points)
 		//SubIntention for moving box to goal.
-		subIntentions.add(new TravelSubIntention(currentWorld.getBoxById(intention.getBox().getId()).getPosition(), agentId,intention, agentId));
-		subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getBox().getId()), goalPosition,intention, agentId));
+		if(pathFromBoxToGoal != null) {
+			cnt = 0;
+		    lastPos = boxPosition;
+			for(Point p : pathFromAgentToBox) {
+				cnt++;
+				if((cnt % 50) == 0) {
+					subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getBox().getId()),p, intention, agentId));
+				}
+			}	
+			if(!lastPos.equals(goalPosition))
+			  subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getBox().getId()), goalPosition,intention, agentId));
+		}
+		else {
+			subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getBox().getId()), goalPosition,intention, agentId));
+		}
+			
 		
 
 		Logger.logLine("----------- Intention Decomposer START----------");
