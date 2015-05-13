@@ -26,7 +26,6 @@ public class Client {
 		private SubIntention currentSubIntention = null;
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
-		public Command lastCommand = NoOpCommand.instance;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -85,7 +84,6 @@ public class Client {
 		 * Compute the next command for the agent.
 		 */
 		public Command act() {		
-			lastCommand = NoOpCommand.instance;
 			
 			if(world.getNumberOfUncompletedGoals() == 0) {
 				return NoOp;
@@ -99,7 +97,6 @@ public class Client {
 			SubIntention delegatedSubIntention = null;
 			//Is there some job in the world, which this agent can solve.
 			if(plan == null || plan.isEmpty()) {
-				//TODO Jobs should be an Intention an not SubIntention
 				delegatedSubIntention = world.popJob(this);
 			
 				//Make sure an agent have an intention.
@@ -135,6 +132,7 @@ public class Client {
 						world.addJob(moveSubIntention);
 						Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
 						this.status = AgentStatus.WAITING;
+						Logger.logLine(this.id + " I am waiting>> ");
 						return NoOp;
 					}
 				}
@@ -175,7 +173,6 @@ public class Client {
 				return NoOp;
 			}
 			newPosition = tempWorld.getAgent(this.getId()).getPosition();
-			lastCommand = cmd;
 			
 			//if intention is completed it should be removed from the sequence of active intentions in the world
 			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(tempWorld.getBoxById(intention.getBox().getId()).getPosition())) {
@@ -188,6 +185,7 @@ public class Client {
 		}
 		
 		public void replan() {
+			Logger.logLine("replan for " + this);
 			world.clearIntention(this.id);
 			if(subIntentions != null)
 				subIntentions.clear();
@@ -207,7 +205,7 @@ public class Client {
 
 		@Override
 		public String toString() {
-			return "AGENT " + id + " Color: " + color + " Position: " + position;
+			return "AGENT " + id + " Color: " + color + " Position: " + position + " Status: " + status;
 		}
 
 		@Override
@@ -301,10 +299,6 @@ public class Client {
 		}
 
 		List<Boolean> validCommands = markValidCommands(commands);
-		Logger.logLine("いいいいいいいいいいいいいいいいいいいいいいいいいいいい");
-		for (int i = 0; i < validCommands.size(); i++) {
-			Logger.logLine("[" + i + "] = " + validCommands.get(i) + " Command: " + commands.get(i));
-		}
 		
 		for (int index = 0; index<commands.size() ; index++) {
 			if(validCommands.get(index)) {
@@ -414,7 +408,7 @@ public class Client {
 	public static void main( String[] args ) {
 
 		// Use stderr to print to console
-		Logger.logLine( "Hello from Client. I am sending this using the error outputstream" );
+		Logger.logLine( "Hello from WatsOn" );
 		try {
 			Client client = new Client();
 			while ( client.update() )

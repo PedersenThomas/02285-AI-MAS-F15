@@ -46,8 +46,9 @@ public class Plan {
 		strategy = new BestFirstSearch(h);
 		
 		boolean ignoreBoxes = false;
-		World simpleWorld = world.getSimplifiedCopy(agent.getId());
-		strategy.addToFrontier( new PathNode( simpleWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
+//		World simpleWorld = world.getSimplifiedCopy(agent.getId());
+		World correctWorld = new World(world);
+		strategy.addToFrontier( new PathNode( correctWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
 		int iterations = 0;
 		
 		while ( true ) {
@@ -120,8 +121,9 @@ public class Plan {
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 
-		World simpleWorld = world.getSimplifiedCopy(agent.getId());
-		strategy.addToFrontier( new PlannerNode( simpleWorld, agent.getId() ) );
+//		World simpleWorld = world.getSimplifiedCopy(agent.getId());
+		World correctWorld = new World(world);
+		strategy.addToFrontier( new PlannerNode( correctWorld, agent.getId() ) );
 
 		int iterations = 0;
 		List<Goal> completedGoals = world.getCompletedGoals();
@@ -171,8 +173,6 @@ public class Plan {
 				}
 			}
 		}
-		//if(commandQueue == null)
-		//	throw new RuntimeException("No plan found for Intention: " + subIntention + " ("+ iterations + " iterations)");
 	}
 
 	public Command execute() {
@@ -194,6 +194,15 @@ public class Plan {
 		if(queue instanceof LinkedList<?>) {
 			LinkedList<Command> list = (LinkedList<Command>)queue;
 			list.removeLast();
+		}
+	}
+	
+	@Override
+	public String toString() {
+		if(commandQueue == null) {
+			return "CommandQueue is null";
+		} else {
+			return commandQueue.toString();
 		}
 	}
 }
