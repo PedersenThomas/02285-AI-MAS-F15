@@ -60,7 +60,13 @@ public class SafeSpotDetector {
 		//for (SafePoint safespot : safeSpots) {
 		//	Logger.logLine("" + safespot);
 		//}
+		Point firstPoint = safeSpots.peek();
+		while(safeSpots.size() > 0) {
+			Point p = safeSpots.poll();
+			if(world.isPositionReachable(box.getPosition(), p, false, false))
+				return p;
+		}
 		
-		return safeSpots.poll();
+		return firstPoint;
 	}
 }

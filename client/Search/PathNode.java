@@ -12,12 +12,14 @@ public class PathNode extends SearchNode {
 	private Point position;
 	private Point targetPosition;
 	private boolean ignoreBoxes;
+	private boolean ignoreAgents;
 	
-	public PathNode(World world, Point position, Point targetPosition, boolean ignoreBoxes) {
+	public PathNode(World world, Point position, Point targetPosition, boolean ignoreBoxes, boolean ignoreAgents) {
 		super(world);
 		this.position = position;
 		this.targetPosition = targetPosition;
 		this.ignoreBoxes = ignoreBoxes;
+		this.ignoreAgents = ignoreAgents;
 	}
 	
 	PathNode(World world, PathNode parentNode, Command command, Point position) {
@@ -26,15 +28,18 @@ public class PathNode extends SearchNode {
 		this.position = position;
 		this.targetPosition = parentNode.targetPosition;
 		this.ignoreBoxes = parentNode.ignoreBoxes;
+		this.ignoreAgents = parentNode.ignoreAgents;
 	}
 		
 	public ArrayList< SearchNode > getExpandedNodes() {
 		ArrayList< SearchNode > expandedNodes = new ArrayList< SearchNode >();
 		for ( Command.dir dir : Command.dir.values() ) {
 			Point newPos = position.move(dir);
-			if(!world.isWallAt(newPos)) {		
-				if(ignoreBoxes || !world.isBoxAt(newPos) || newPos.equals(targetPosition)) {
-				  expandedNodes.add( new PathNode(world, this, new Command(dir), newPos) );
+			if(!world.isWallAt(newPos)) {	
+				if(ignoreAgents || (world.getAgentAt(newPos) == null)) {
+					if(ignoreBoxes || !world.isBoxAt(newPos) || newPos.equals(targetPosition)) {
+					  expandedNodes.add( new PathNode(world, this, new Command(dir), newPos) );
+					}
 				}
 			}
 		}

@@ -824,7 +824,7 @@ public class World {
 				boolean reachableBoxFound = false;
 				for (Box b : boxes) {
 					if (g.getLetter() == b.getLetter()) {
-						if (copyOfWorld.isPositionReachable(agentPos, b.getPosition(), true)) {
+						if (copyOfWorld.isPositionReachable(agentPos, b.getPosition(), true, true)) {
 							agentPos = b.getPosition();
 							boxes.remove(b);
 							reachableBoxFound = true;
@@ -839,7 +839,7 @@ public class World {
 					break;
 				}				
 
-				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true);
+				boolean pathExists = copyOfWorld.isPositionReachable(agentPos, g.getPosition(), true, true);
 				if (pathExists) {
 					copyOfWorld.addMadeUpWall(g.getPosition());
 					agentPos = g.getPosition();
@@ -898,11 +898,11 @@ public class World {
 		jobList.remove(job);
 	}
 
-	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes) {
+	public boolean isPositionReachable(Point agentPos, Point pos, boolean ignoreBoxes, boolean ignoreAgents) {
 		IHeuristicFunction function = new HeuristicPathFunction(this, pos);
 		AStar heuristic = new AStar(function);
 		BestFirstSearch pathSearch = new BestFirstSearch(heuristic);
-		pathSearch.addToFrontier(new PathNode(this, agentPos, pos, ignoreBoxes));
+		pathSearch.addToFrontier(new PathNode(this, agentPos, pos, ignoreBoxes, ignoreAgents));
 		while (true) {
 			if (pathSearch.frontierIsEmpty()) {
 				return false;

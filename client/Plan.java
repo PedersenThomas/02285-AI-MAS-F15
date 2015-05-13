@@ -51,9 +51,10 @@ public class Plan {
 		strategy = new BestFirstSearch(h);
 		
 		boolean ignoreBoxes = false;
+		boolean ignoreAgents = false;
 //		World simpleWorld = world.getSimplifiedCopy(agent.getId());
 		World correctWorld = new World(world);
-		strategy.addToFrontier( new PathNode( correctWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes) );
+		strategy.addToFrontier( new PathNode( correctWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes, ignoreAgents) );
 		int iterations = 0;
 		
 		while ( true ) {

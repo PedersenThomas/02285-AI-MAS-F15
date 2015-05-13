@@ -31,7 +31,7 @@ public class IntentionDecomposer {
 		}	
 		
 		
-		if(!world.isPositionReachable(agentPosition, boxPosition, false)) {
+		if(!world.isPositionReachable(agentPosition, boxPosition, false, true)) {
 			//SubIntention to clear path from Agent to Box.
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId, false);
 
@@ -42,7 +42,7 @@ public class IntentionDecomposer {
 		}		
 
 		Queue<Point> pathFromBoxToGoal = null;
-		if(!world.isPositionReachable(boxPosition, goalPosition, false)) {
+		if(!world.isPositionReachable(boxPosition, goalPosition, false, true)) {
 			//SubIntention to clear path from Box to Goal.
 			pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId, true);
@@ -112,7 +112,7 @@ public class IntentionDecomposer {
 				
 				if(moveBoxToGoal && !foundSpecialBoxToMove) {
 					//clear the path when you are not able to reach boxes, which you want to move to a save spot
-					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false)) {
+					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false, true)) {
 						//SubIntention to clear path from Agent to Box.
 						Queue<Point> pathFromAgentToBox = findPath(world, world.getAgent(agentId).getPosition(), box.getPosition());
 						newWorld = moveBoxesOnPathToSafePlaces(newWorld, pathFromAgentToBox, subIntentions, intention, agentId, false);
@@ -151,7 +151,7 @@ public class IntentionDecomposer {
 		AStar heuristic = new AStar(pathFunction);
 		BestFirstSearch search = new BestFirstSearch(heuristic);
 
-		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true));
+		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true, true));
 		while (true) {
 			if (search.frontierIsEmpty()) {
 				throw new RuntimeException("Unable to reach the target position");

@@ -141,6 +141,10 @@ public class Client {
 				if(plan.isEmpty()) {
 					// Maybe the planner has recognized that it is better to wait
 					if(status != AgentStatus.WAITING) {
+						if(delegatedSubIntention != null) {
+							//Someone is waiting
+							world.getAgent(delegatedSubIntention.getOwner()).setStatus(AgentStatus.ACTIVE);
+						}
 						replan();
 						Logger.logLine("["+id+"] No plan -> find new intentions");
 					}
