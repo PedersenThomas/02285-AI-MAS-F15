@@ -57,10 +57,10 @@ public class SafeSpotDetector {
 		Agent agent = world.getAgentToMoveBox(box);
 		PriorityQueue<SafePoint> safeSpots = detectSafeSpots(world, agent.getId());
 
-		//Logger.logLine("-----------  Safe spots ----------");
-		//for (SafePoint safespot : safeSpots) {
-		//	Logger.logLine("" + safespot);
-		//}
+		Logger.logLine("-----------  Safe spots ----------");
+		for (SafePoint safespot : safeSpots) {
+			Logger.logLine("" + safespot);
+		}
 		
 		Queue<Point> safeSpotsNotOnPath = new LinkedList<Point>();
 		
@@ -75,8 +75,8 @@ public class SafeSpotDetector {
 		
 		Logger.logLine(safeSpotsNotOnPath.size() + " safespots not on path");
 		
-		if(safeSpotsNotOnPath.size() <= 1)
-			return safeSpots.peek();
+		if(safeSpotsNotOnPath.size() == 1) return safeSpotsNotOnPath.poll();
+		else if(safeSpotsNotOnPath.size() == 0) return safeSpots.poll();
 		
 		//Find reachable safespots
 		Queue<Point> safeSpotsReachable = new LinkedList<Point>();
@@ -86,8 +86,9 @@ public class SafeSpotDetector {
 			}
 		}
 		Logger.logLine(safeSpotsReachable.size() + " safespots reachable");
-		if(safeSpotsReachable.size() <= 1)
-			return safeSpotsNotOnPath.peek();
+		
+		if(safeSpotsReachable.size() == 1) return safeSpotsReachable.poll();
+		else if(safeSpotsReachable.size() == 0) return safeSpotsNotOnPath.poll();
 		
 		//Find closest safespot
 		Point safePosition = null;

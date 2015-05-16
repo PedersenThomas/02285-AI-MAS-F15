@@ -76,7 +76,7 @@ public class Plan {
 			if (subIntention.isCompleted(leafNode)) {
 				commandQueue = leafNode.extractListOfCommands();
 			    
-				if(subIntention.getRootIntention() != null) {
+				if(world.getBoxAt(subIntention.getEndPosition()) != null) {
 					removeLastFromQueue(commandQueue);
 				}
 				

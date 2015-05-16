@@ -201,9 +201,10 @@ public class World {
 	}
 	
 	public Agent getAgentToMoveBox(Box box) {
+		// Check if there is a suitable agent who has nothing to do
 		for(Agent agent:agents) {
 			if(agent.getColor().equals(box.getColor())) {
-				if((agent.getStatus() != AgentStatus.ACTIVE) ||
+				if((intentionMap.get(agent.getId()) == null) ||
 					(getNumberOfUncompletedAndUnintendedGoals(agent.getId()) == 0)) {
 						return agent;
 				}
