@@ -54,7 +54,7 @@ public class Plan {
 		boolean ignoreAgents = false;
 //		World simpleWorld = world.getSimplifiedCopy(agent.getId());
 		World correctWorld = new World(world);
-		strategy.addToFrontier( new PathNode( correctWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes, ignoreAgents) );
+		strategy.addToFrontier( new PathNode( correctWorld, world.getAgent(agent.getId()).getPosition(), subIntention.getEndPosition(), ignoreBoxes, ignoreAgents, agent.getId()) );
 		int iterations = 0;
 		
 		while ( true ) {

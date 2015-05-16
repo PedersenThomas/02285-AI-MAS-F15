@@ -31,7 +31,7 @@ public class IntentionDecomposer {
 		}	
 		
 		
-		if(!world.isPositionReachable(agentPosition, boxPosition, false, true)) {
+		if(!world.isPositionReachable(agentPosition, boxPosition, false, true,agentId)) {
 			//SubIntention to clear path from Agent to Box.
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention,agentId, false);
 
@@ -42,7 +42,7 @@ public class IntentionDecomposer {
 		}		
 
 		Queue<Point> pathFromBoxToGoal = null;
-		if(!world.isPositionReachable(boxPosition, goalPosition, false, true)) {
+		if(!world.isPositionReachable(boxPosition, goalPosition, false, true,-1)) {
 			//SubIntention to clear path from Box to Goal.
 			pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention,agentId, true);
@@ -108,7 +108,7 @@ public class IntentionDecomposer {
 			if (box != null) {
 				if(moveBoxToGoal && !foundSpecialBoxToMove) {
 					//clear the path when you are not able to reach boxes, which you want to move to a save spot
-					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false, true)) {
+					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false, true,agentId)) {
 						//SubIntention to clear path from Agent to Box.
 						Queue<Point> pathFromAgentToBox = findPath(world, world.getAgent(agentId).getPosition(), box.getPosition());
 						newWorld = moveBoxesOnPathToSafePlaces(newWorld, pathFromAgentToBox, subIntentions, intention, agentId, false);
@@ -147,7 +147,7 @@ public class IntentionDecomposer {
 		AStar heuristic = new AStar(pathFunction);
 		BestFirstSearch search = new BestFirstSearch(heuristic);
 
-		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true, true));
+		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true, true,-1));
 		while (true) {
 			if (search.frontierIsEmpty()) {
 				throw new RuntimeException("Unable to reach the target position");

@@ -59,7 +59,7 @@ public class Intention {
 						if(box.getLetter() == goal.getLetter())	{
 							if(checkReachability) {
 								boolean isBoxReachable = world.isPositionReachable(agent.getPosition(), 
-										                                           box.getPosition(), false, true);								
+										                                           box.getPosition(), false, true, agent.getId());								
 								if(!isBoxReachable)
 									continue;
 							}
