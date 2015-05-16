@@ -1,5 +1,6 @@
 package client;
 
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -52,7 +53,7 @@ public class SafeSpotDetector {
 		return safePosition;
 	}
 	
-	public static Point getSafeSpotForBox(World world, Box box) {
+	public static Point getSafeSpotForBox(World world, Box box, Queue<Point> path) {
 		Agent agent = world.getAgentToMoveBox(box);
 		PriorityQueue<SafePoint> safeSpots = detectSafeSpots(world, agent.getId());
 
@@ -60,13 +61,49 @@ public class SafeSpotDetector {
 		//for (SafePoint safespot : safeSpots) {
 		//	Logger.logLine("" + safespot);
 		//}
-		Point firstPoint = safeSpots.peek();
-		while(safeSpots.size() > 0) {
-			Point p = safeSpots.poll();
-			if(world.isPositionReachable(box.getPosition(), p, false, false))
-				return p;
+		
+		Queue<Point> safeSpotsNotOnPath = new LinkedList<Point>();
+		
+		//Find safepoints not on the path.
+		for (SafePoint safespot : safeSpots) {
+			if(world.isFreeCell(safespot)) {
+				if(path == null || !path.contains(safespot)) {					
+					safeSpotsNotOnPath.add(safespot);
+				}
+			}
 		}
 		
-		return firstPoint;
+		Logger.logLine(safeSpotsNotOnPath.size() + " safespots not on path");
+		
+		if(safeSpotsNotOnPath.size() <= 1)
+			return safeSpots.peek();
+		
+		//Find reachable safespots
+		Queue<Point> safeSpotsReachable = new LinkedList<Point>();
+		for (Point safespot : safeSpotsNotOnPath) {
+			if(world.isPositionReachable(box.getPosition(), safespot, false, false)) {
+				safeSpotsReachable.add(safespot);
+			}
+		}
+		Logger.logLine(safeSpotsReachable.size() + " safespots reachable");
+		if(safeSpotsReachable.size() <= 1)
+			return safeSpotsNotOnPath.peek();
+		
+		//Find closest safespot
+		Point safePosition = null;
+		int minDist = 0;
+		for (Point safespot : safeSpotsReachable) {			
+			if(safePosition == null) {
+				minDist =  box.getPosition().distance(safespot);
+				safePosition = safespot;
+			}
+			else if(minDist > box.getPosition().distance(safespot)) {
+				minDist = box.getPosition().distance(safespot);
+				safePosition = safespot;				
+			}
+		}
+
+		
+		return safePosition;
 	}
 }

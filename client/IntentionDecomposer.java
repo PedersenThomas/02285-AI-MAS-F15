@@ -54,7 +54,7 @@ public class IntentionDecomposer {
 		}	
 		
 		
-		//Decompose very large large paths (>50 points)
+		//Decompose very large paths (>50 points)
 		//SubIntention for moving agent to box.
 	    int cnt = 0;
 	    Point lastPos = agentPosition;
@@ -68,7 +68,7 @@ public class IntentionDecomposer {
 		if(!lastPos.equals(currentWorld.getBoxById(intention.getBox().getId()).getPosition()) )		
 			subIntentions.add(new TravelSubIntention(currentWorld.getBoxById(intention.getBox().getId()).getPosition(), agentId,intention, agentId));
 		
-		//Decompose very large large paths (>50 points)
+		//Decompose very large paths (>50 points)
 		//SubIntention for moving box to goal.
 		if(pathFromBoxToGoal != null) {
 			cnt = 0;
@@ -106,10 +106,6 @@ public class IntentionDecomposer {
 		for(Point point : path) {
 			Box box = world.getBoxAt(point);
 			if (box != null) {
-				Agent agent = world.getAgent(agentId);
-				if(!box.getColor().equals(agent.getColor()))
-					agent = world.getAgentToMoveBox(box);
-				
 				if(moveBoxToGoal && !foundSpecialBoxToMove) {
 					//clear the path when you are not able to reach boxes, which you want to move to a save spot
 					if(!world.isPositionReachable(world.getAgent(agentId).getPosition(), box.getPosition(), false, true)) {
@@ -119,7 +115,7 @@ public class IntentionDecomposer {
 					}
 				}
 				
-				Point safePosition = SafeSpotDetector.getSafeSpotForAgent(newWorld, agent.getId(), path);
+				Point safePosition = SafeSpotDetector.getSafeSpotForBox(newWorld, box, path);
 				
 				//Point savePosition = safeSpots.poll();
 				Box newWorldBox = newWorld.getBoxById(box.getId());

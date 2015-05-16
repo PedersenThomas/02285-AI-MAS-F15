@@ -202,6 +202,16 @@ public class World {
 	
 	public Agent getAgentToMoveBox(Box box) {
 		for(Agent agent:agents) {
+			if(agent.getColor().equals(box.getColor())) {
+				if((agent.getStatus() != AgentStatus.ACTIVE) ||
+					(getNumberOfUncompletedAndUnintendedGoals(agent.getId()) == 0)) {
+						return agent;
+				}
+			}
+		}
+		
+		
+		for(Agent agent:agents) {
 			if(agent.getColor().equals(box.getColor()))
 				return agent;
 		}
@@ -449,6 +459,15 @@ public class World {
 			}
 		}
 		return null;
+	}
+	
+	public boolean existsIntentionForBox(Box box) {
+		for (Map.Entry<Integer, Intention> entry : intentionMap.entrySet()) {
+			if (entry.getValue().getBox().getId() == box.getId()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public void printWorld() {

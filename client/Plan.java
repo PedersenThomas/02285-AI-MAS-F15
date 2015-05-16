@@ -113,10 +113,13 @@ public class Plan {
 		
 		if(!world.isFreeCell(subIntention.getEndPosition())) {
 			Box box = world.getBoxAt(subIntention.getEndPosition());
-			if(box != null) {				
-				world.addJob(new MoveBoxSubIntention(box, SafeSpotDetector.getSafeSpotForBox(world, box), 
-						subIntention.getRootIntention(), agent.getId()));
-				agent.setStatus(AgentStatus.WAITING);
+			if(box != null) {		
+				//Check if someone is already moving this box
+				if(!world.existsIntentionForBox(box)) {
+					world.addJob(new MoveBoxSubIntention(box, SafeSpotDetector.getSafeSpotForBox(world, box, null), 
+							subIntention.getRootIntention(), agent.getId()));
+					agent.setStatus(AgentStatus.WAITING);
+				}
 				return;
 			}
 

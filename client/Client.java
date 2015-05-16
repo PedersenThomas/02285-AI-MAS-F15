@@ -204,6 +204,7 @@ public class Client {
 					}
 				}
 			}
+			status = AgentStatus.ACTIVE;
 			inactivityCounter = 0;		
 		}
 
