@@ -8,7 +8,7 @@ public class MoveBoxSubIntention extends SubIntention{
 	private Box box;
 
 	public MoveBoxSubIntention(Box box, Point endPosition, Intention rootIntention, int owner) {
-		super(rootIntention, owner);
+		super(rootIntention, owner, box.getPosition());
 		this.box = box;
 		this.endPosition = endPosition;
 	}

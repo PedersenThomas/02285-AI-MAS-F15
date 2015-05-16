@@ -1,6 +1,6 @@
 package client;
 
-import java.sql.Savepoint;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -28,7 +28,7 @@ public class Plan {
 	
 	
 	private static final int maxItersStart = 1000;
-	private static final int maxItersIncrement = 1500;
+	private static final int maxItersIncrement = 500;
 	private static int maxIters = maxItersStart;
 
 	public Plan(World world, SubIntention subIntention, Agent agent) {

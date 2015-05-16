@@ -7,8 +7,8 @@ public class TravelSubIntention extends SubIntention {
 	private Point endPosition;
 	private int agentId;
 	
-	public TravelSubIntention(Point endPosition, int agentId, Intention rootIntention, int owner) {
-		super(rootIntention,owner);
+	public TravelSubIntention(Point startPosition, Point endPosition, int agentId, Intention rootIntention, int owner) {
+		super(rootIntention,owner, startPosition);
 		this.endPosition = endPosition;
 		this.agentId = agentId;
 	}
@@ -21,12 +21,12 @@ public class TravelSubIntention extends SubIntention {
 	}
 	
 	public TravelSubIntention deepCopy() {
-		return new TravelSubIntention(this.endPosition, this.agentId, this.getRootIntention(), this.getOwner());
+		return new TravelSubIntention(this.startPosition,  this.endPosition, this.agentId, this.getRootIntention(), this.getOwner());
 	}
 	
 	@Override
 	public String toString() {
-		return "TravelSubIntention: Agent [" + agentId + "] -> " + endPosition;
+		return "TravelSubIntention: Agent [" + agentId + "] " + startPosition + " -> " + endPosition;
 	}
 
 	@Override

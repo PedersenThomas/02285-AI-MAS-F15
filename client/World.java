@@ -267,7 +267,7 @@ public class World {
 					Command.CommandsToPath(agent1.getPosition(), plan));
 			agent2.setStatus(AgentStatus.ACTIVE);
 			agent1.setStatus(AgentStatus.WAITING);
-			addJob(new TravelSubIntention(safePos, agent2.getId(), null, agent1.getId()));
+			addJob(new TravelSubIntention(agent2.getPosition(), safePos, agent2.getId(), null, agent1.getId()));
 			return true;
 		}
 		return false;
@@ -605,7 +605,7 @@ public class World {
 	 * 
 	 * @return boolean value which tells whether there is made a change.
 	 */
-	private void notifyAgent(int agentId) {
+	public void notifyAgent(int agentId) {
 		Agent a = this.getAgent(agentId);
 		a.setStatus(AgentStatus.ACTIVE);		
 		
@@ -941,5 +941,24 @@ public class World {
 				}
 			}
 		} // while(true)
+	}
+	
+	
+	public boolean validateJob(SubIntention subIntention, Agent agent) {
+		
+		if(subIntention instanceof TravelSubIntention) {
+			TravelSubIntention travelSub = (TravelSubIntention) subIntention;
+			if(travelSub.getStartPosition().equals(agent.getPosition())) {
+				return true;
+			}
+		}
+		else if(subIntention instanceof MoveBoxSubIntention) {
+			MoveBoxSubIntention moveSub = (MoveBoxSubIntention) subIntention;
+			if(moveSub.getStartPosition().equals(getBoxById(moveSub.getBox().getId()).getPosition())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

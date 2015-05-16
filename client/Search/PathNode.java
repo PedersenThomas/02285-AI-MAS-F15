@@ -39,7 +39,7 @@ public class PathNode extends SearchNode {
 		for ( Command.dir dir : Command.dir.values() ) {
 			Point newPos = position.move(dir);
 			if(!world.isWallAt(newPos)) {	
-				if(ignoreAgents || (world.getAgentAt(newPos) == null) || (world.getAgentAt(newPos).getId() == movingAgentId)) {
+				if(stepCount > 10 || ignoreAgents || (world.getAgentAt(newPos) == null) || (world.getAgentAt(newPos).getId() == movingAgentId)) {
 					if(ignoreBoxes || !world.isBoxAt(newPos) || newPos.equals(targetPosition)) {
 					  expandedNodes.add( new PathNode(world, this, new Command(dir), newPos) );
 					}

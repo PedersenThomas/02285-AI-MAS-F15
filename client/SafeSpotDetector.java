@@ -57,10 +57,10 @@ public class SafeSpotDetector {
 		Agent agent = world.getAgentToMoveBox(box);
 		PriorityQueue<SafePoint> safeSpots = detectSafeSpots(world, agent.getId());
 
-		Logger.logLine("-----------  Safe spots ----------");
-		for (SafePoint safespot : safeSpots) {
-			Logger.logLine("" + safespot);
-		}
+		//Logger.logLine("-----------  Safe spots ----------");
+		//for (SafePoint safespot : safeSpots) {
+		//	Logger.logLine("" + safespot);
+		//}
 		
 		Queue<Point> safeSpotsNotOnPath = new LinkedList<Point>();
 		

@@ -99,7 +99,7 @@ public class Client {
 			if(plan == null || plan.isEmpty()) {
 				delegatedSubIntention = world.popJob(this);
 			
-				//Make sure an agent have an intention.
+				//Make sure an agent has an intention.
 				if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty())) {									
 					//deliberate by choosing a set of intentions based on current beliefs
 					intention = Intention.deliberate(world, this);
@@ -118,24 +118,50 @@ public class Client {
 				//Make sure that we have an subIntention to plan for.
 				if(delegatedSubIntention == null) {
 					Logger.logLine("Agent[" + this.getId() + "] No Delegated subIntention");
-					currentSubIntention = subIntentions.poll();
+					
+					currentSubIntention = subIntentions.poll();	
+					while(currentSubIntention != null) {												
+				
+						// Check if this agent can do the job
+						if (currentSubIntention instanceof MoveBoxSubIntention) {
+							MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
+							if(!moveSubIntention.getBox().getColor().equals(color)) {
+								world.addJob(moveSubIntention);
+								Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
+								this.status = AgentStatus.WAITING;
+								Logger.logLine(this.id + " I am waiting>> ");
+								
+							} 
+							else {
+								// I can do it!
+								break;
+							}
+						}
+						else {
+							// I can do it!
+							break;
+						}
+						currentSubIntention = subIntentions.poll();	
+					}
+					
+					if(status == AgentStatus.WAITING)
+						return NoOp;
+					
 				} else {
 					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
-					currentSubIntention = delegatedSubIntention;
-				}				
-				
-				// Check if this agent can do the job
-				if (currentSubIntention instanceof MoveBoxSubIntention) {
-					MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
-					if(!moveSubIntention.getBox().getColor().equals(color)) {
-						subIntentions.poll();
-						world.addJob(moveSubIntention);
-						Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
-						this.status = AgentStatus.WAITING;
-						Logger.logLine(this.id + " I am waiting>> ");
+					
+					if(!world.validateJob(delegatedSubIntention,this)) {
+						Logger.logLine("Agent[" + this.getId() + "] Delegated subIntention is not valid anymore!");
+						world.notifyAgent(delegatedSubIntention.getOwner());
 						return NoOp;
 					}
-				}
+					
+					// Problem with notifying!
+					//subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id));
+					//return NoOp;
+					
+					currentSubIntention = delegatedSubIntention;
+				}	
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
