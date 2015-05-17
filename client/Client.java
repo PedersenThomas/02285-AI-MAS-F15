@@ -119,7 +119,7 @@ public class Client {
 				if(delegatedSubIntention == null) {
 					Logger.logLine("Agent[" + this.getId() + "] No Delegated subIntention");
 					
-					currentSubIntention = subIntentions.poll();	
+					currentSubIntention = subIntentions.peek();	
 					while(currentSubIntention != null) {												
 				
 						// Check if this agent can do the job
@@ -127,6 +127,7 @@ public class Client {
 							MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
 							if(!moveSubIntention.getBox().getColor().equals(color)) {
 								world.addJob(moveSubIntention);
+								subIntentions.poll();
 								Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
 								this.status = AgentStatus.WAITING;
 								Logger.logLine(this.id + " I am waiting>> ");
@@ -141,11 +142,13 @@ public class Client {
 							// I can do it!
 							break;
 						}
-						currentSubIntention = subIntentions.poll();	
+						currentSubIntention = subIntentions.peek();
 					}
 					
 					if(status == AgentStatus.WAITING)
 						return NoOp;
+					else
+						currentSubIntention = subIntentions.poll();
 					
 				} else {
 					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
