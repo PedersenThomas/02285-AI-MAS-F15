@@ -118,6 +118,7 @@ public class Client {
 				//Make sure that we have an subIntention to plan for.
 				if(delegatedSubIntention == null) {
 					Logger.logLine("Agent[" + this.getId() + "] No Delegated subIntention");
+				
 					
 					currentSubIntention = subIntentions.peek();	
 					while(currentSubIntention != null) {												
@@ -149,8 +150,8 @@ public class Client {
 						return NoOp;
 					else
 						currentSubIntention = subIntentions.poll();
-					
-				} else {
+				}			
+				else {
 					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
 					
 					if(!world.validateJob(delegatedSubIntention,this)) {
@@ -165,6 +166,9 @@ public class Client {
 					
 					currentSubIntention = delegatedSubIntention;
 				}	
+					
+				 
+				
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
@@ -221,7 +225,15 @@ public class Client {
 			Logger.logLine("replan for " + this);
 			world.clearIntention(this.id);
 			if(subIntentions != null)
+			{
+				/*while(!subIntentions.isEmpty()) {
+					SubIntention si = subIntentions.poll();
+					if(si.getOwner() != id) {
+						world.notifyAgent(si.getOwner());
+					}					
+				}*/
 				subIntentions.clear();
+			}
 			world.clearPlan(id);
 			
 			if(plan != null) {
@@ -229,7 +241,8 @@ public class Client {
 					Command cmd = plan.execute();
 					if(cmd instanceof NotifyAgentCommand) {
 						int agentId = ((NotifyAgentCommand)cmd).getAgentId();
-						world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
+						//world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
+						world.notifyAgent(agentId);
 					}
 				}
 			}
