@@ -15,10 +15,10 @@ import client.Search.PathNode;
 import client.Search.SearchNode;
 
 public class IntentionDecomposer {
-	public static class WorldWrapper {
+	public static class WorldSubIntentionsWrapper {
 		public World world;
 		ArrayList<SubIntention> subIntentions = new ArrayList<>();
-		public WorldWrapper(World world, ArrayList<SubIntention> subIntentions) {
+		public WorldSubIntentionsWrapper(World world, ArrayList<SubIntention> subIntentions) {
 			super();
 			this.world = world;
 			this.subIntentions = subIntentions;
@@ -28,7 +28,7 @@ public class IntentionDecomposer {
 	}
 	
 	
-	public static WorldWrapper decomposeSubIntention(SubIntention intention, World world, int agentId){
+	public static WorldSubIntentionsWrapper decomposeSubIntention(SubIntention intention, World world, int agentId){
 		if(intention instanceof TravelSubIntention) {
 			return decomposeTavelSubIntention((TravelSubIntention)intention, world, agentId);
 		}
@@ -39,7 +39,7 @@ public class IntentionDecomposer {
 			return null;
 	}
 	
-	public static WorldWrapper decomposeTavelSubIntention(TravelSubIntention intention, World world, int agentId){
+	public static WorldSubIntentionsWrapper decomposeTavelSubIntention(TravelSubIntention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
 		Point agentPosition = world.getAgent(agentId).getPosition();
@@ -61,10 +61,10 @@ public class IntentionDecomposer {
 		
 		subIntentions.add(intention);
 
-		return new WorldWrapper(currentWorld,subIntentions);
+		return new WorldSubIntentionsWrapper(currentWorld,subIntentions);
 	}
 	
-	public static WorldWrapper decomposeMoveBoxSubIntention(MoveBoxSubIntention intention, World world, int agentId){
+	public static WorldSubIntentionsWrapper decomposeMoveBoxSubIntention(MoveBoxSubIntention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
 		Point boxPosition = intention.getBox().getPosition();
@@ -90,7 +90,7 @@ public class IntentionDecomposer {
 		
 		subIntentions.add(intention);
 
-		return new WorldWrapper(currentWorld,subIntentions);
+		return new WorldSubIntentionsWrapper(currentWorld,subIntentions);
 	}
 	
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
@@ -102,7 +102,7 @@ public class IntentionDecomposer {
 
 		World currentWorld = new World(world);
 		
-		WorldWrapper wrapper = decomposeTavelSubIntention(
+		WorldSubIntentionsWrapper wrapper = decomposeTavelSubIntention(
 				new TravelSubIntention(agentPosition, boxPosition, agentId, intention, agentId), 
 				currentWorld, agentId);
 		ArrayList<SubIntention> subIntentionsForTravel = wrapper.subIntentions;

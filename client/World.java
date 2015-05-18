@@ -95,6 +95,14 @@ public class World {
 			}
 			this.planMap.put(entry.getKey(), cmds);
 		}
+		
+		for (Entry<Integer, Integer[]> entry : old.outerWallsX.entrySet()) {
+			this.outerWallsX.put(entry.getKey(), entry.getValue());
+		}
+		
+		for (Entry<Integer, Integer[]> entry : old.outerWallsY.entrySet()) {
+			this.outerWallsY.put(entry.getKey(), entry.getValue());
+		}
 	}
 
 	public int getWidth() {
