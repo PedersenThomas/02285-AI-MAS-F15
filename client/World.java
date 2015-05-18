@@ -855,7 +855,9 @@ public class World {
 				
 				if(!reachableBoxFound) {
 					orderedGoals.remove(i);
-					orderedGoals.add(0, g);
+					if (i != 0) {
+						orderedGoals.add(0, g);
+					}
 					break;
 				}				
 
@@ -868,11 +870,12 @@ public class World {
 					}
 				} else {
 					// Collections.swap(goals, i, i-1);
-					/*if (i == 0) {
-						return Collections.emptyList();
-					}*/
+					
 					orderedGoals.remove(i);
-					orderedGoals.add(0, g);
+					if (i != 0) {
+						orderedGoals.add(0, g);
+					}
+					
 					break;
 				}
 			} // for(int i=0;i<goals.size();i++)
