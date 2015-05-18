@@ -45,7 +45,11 @@ public class Plan {
 			throw new RuntimeException("Intention is null");
 		}
 		
-		if(!world.simplePathCheck(subIntention.getStartPosition(), subIntention.getEndPosition())) {
+		Point blockedCell = world.simplePathCheck(agent,subIntention.getStartPosition(), subIntention.getEndPosition());
+		if(blockedCell != null) {
+			
+			world.clearPath(agent, subIntention.getStartPosition(), subIntention.getEndPosition(), blockedCell);
+			agent.sleep(30);
 			Logger.logLine("TravelPlanner: simplePathCheck failed");
 			return;
 		}
@@ -136,8 +140,19 @@ public class Plan {
 			
 		}
 		
-		if(!world.simplePathCheck(agent.getPosition(), subIntention.getEndPosition())) {
-			Logger.logLine("MoveBoxPlanner: simplePathCheck failed");
+		Point blockedCell = world.simplePathCheck(agent,agent.getPosition(), subIntention.getStartPosition());
+		if(blockedCell != null) {
+			world.clearPath(agent, agent.getPosition(), subIntention.getStartPosition(), blockedCell);
+			Logger.logLine("MoveBoxPlanner agent to box: simplePathCheck failed");
+			agent.sleep(30);
+			return;
+		}
+		
+		blockedCell = world.simplePathCheck(agent,subIntention.getStartPosition(), subIntention.getEndPosition());
+		if(blockedCell != null) {
+			world.clearPath(agent, subIntention.getStartPosition(), subIntention.getEndPosition(), blockedCell);
+			Logger.logLine("MoveBoxPlanner box to goal: simplePathCheck failed");
+			agent.sleep(30);
 			return;
 		}
 		

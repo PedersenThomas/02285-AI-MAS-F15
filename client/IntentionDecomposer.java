@@ -135,7 +135,8 @@ public class IntentionDecomposer {
 		}		
 		if(!lastPos.equals(currentWorld.getBoxById(intention.getBox().getId()).getPosition()) )		
 			subIntentions.add(new TravelSubIntention(currentWorld.getAgent(agentId).getPosition(), currentWorld.getBoxById(intention.getBox().getId()).getPosition(), agentId,intention, agentId));
-		
+		*/
+		/*
 		//Decompose very large paths (>50 points)
 		//SubIntention for moving box to goal.
 		if(pathFromBoxToGoal != null) {

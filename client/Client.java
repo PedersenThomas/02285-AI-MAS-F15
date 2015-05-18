@@ -29,6 +29,8 @@ public class Client {
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
 		private int sleepTime = 0;
+		
+	
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -64,6 +66,10 @@ public class Client {
 		
 		public String getColor() {
 			return color;
+		}
+		
+		public Intention getIntention() {
+			return intention;
 		}
 
 		public int getId() {
@@ -126,7 +132,7 @@ public class Client {
 						Logger.logLine("Agent[" + this.getId() + "] Couldn't put the intention in the world.");
 						return NoOp;
 					}
-					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));			
+					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));
 				}
 				
 				//Make sure that we have an subIntention to plan for.
@@ -143,7 +149,12 @@ public class Client {
 					}
 					
 					// Problem with notifying!
+					Queue<SubIntention> temp = null;
+					if((subIntentions != null && !subIntentions.isEmpty())) 
+						temp = new LinkedList<SubIntention>(subIntentions);
 					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id).subIntentions);
+					if(temp!= null)
+						subIntentions.addAll(temp);
 					//return NoOp;
 				}
 				
@@ -208,7 +219,7 @@ public class Client {
 						}
 						replan();
 						Logger.logLine("["+id+"] No plan -> find new intentions");
-						sleep(5);
+						sleep(10);
 					}
 
 					return NoOp;

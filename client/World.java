@@ -352,16 +352,6 @@ public class World {
 						return false;
 					}
 					else if (agentId > otherAgent.getId()) {						
-						//LinkedList<Command> otherPlan = entry.getValue();					
-						/* There is a conflict but the other agent has no intention to move
-						if(otherPlan.isEmpty() && (getJob(otherAgent) == null) && 
-								(otherAgent.getPosition().equals(otherAgent.getLastPosition()))) {
-							PriorityQueue<SafePoint> safePoints = SafeSpotDetector.detectSafeSpots(this);
-							Point movePos = safePoints.poll();
-							this.addJob(new TravelSubIntention(movePos, otherAgent.getId(), null));
-							
-						}
-						*/
 						return false;
 					}
 				}
@@ -670,12 +660,12 @@ public class World {
 		a.setStatus(AgentStatus.ACTIVE);		
 		
 		// Delete all jobs! They might be outdated!
-		while(!jobList.isEmpty()) {
+		/*while(!jobList.isEmpty()) {
 			SubIntention si = jobList.get(0);
 			a = this.getAgent(si.getOwner());
 			a.setStatus(AgentStatus.ACTIVE);
 			jobList.remove(0);				
-		}
+		}*/
 	}
 	
 	
@@ -1025,29 +1015,152 @@ public class World {
 		return false;
 	}
 	
-	public boolean simplePathCheck(Point startPos, Point endPos) {
+	public void clearPath(Agent agent, Point startPos, Point endPos, Point block) {		
+		if(block.getX() != -1) {
+			int x = block.getX();
+			int firstWall = outerWallsX.get(x)[0];
+			int lastWall = outerWallsX.get(x)[1];
+			
+			int potentialY = 0;
+			int minObstacleCount = 100;
+			for(int y=firstWall+1;y<lastWall;y++) {
+				if(!isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()))
+					continue;
+				
+				int obstacleCount = 0;
+				if(isCellBlocked(agent, new Point(x,y))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x+1,y))) obstacleCount++;			
+				if(isCellBlocked(agent, new Point(x-1,y))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x,y+1))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x,y-1))) obstacleCount++;
+				
+				if(minObstacleCount > obstacleCount) {
+					minObstacleCount = obstacleCount;
+					potentialY = y;
+				}
+				else if(minObstacleCount == obstacleCount) {
+					if(startPos.distance(new Point(x,y)) > startPos.distance(new Point(x,potentialY))) {
+						potentialY = y;
+					}
+				}
+			}
+			
+			if(isCellBlocked(agent, new Point(x,potentialY))) {
+				freeCell(agent, new Point(x,potentialY));				
+			}
+			if(isCellBlocked(agent, new Point(x+1,potentialY))) {
+				freeCell(agent, new Point(x+1,potentialY));				
+			}
+			if(isCellBlocked(agent, new Point(x-1,potentialY))) {
+				freeCell(agent, new Point(x-1,potentialY));				
+			}
+			if(isCellBlocked(agent, new Point(x,potentialY+1))) {
+				freeCell(agent, new Point(x,potentialY+1));				
+			}
+			if(isCellBlocked(agent, new Point(x,potentialY-1))) {
+				freeCell(agent, new Point(x,potentialY-1));				
+			}			
+			
+		}
+		else {
+			int y = block.getY();
+			int firstWall = outerWallsY.get(y)[0];
+			int lastWall = outerWallsY.get(y)[1];
+			
+			int potentialX = 0;
+			int minObstacleCount = 100;
+			for(int x=firstWall+1;x<lastWall;x++) {
+				if(!isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()))
+					continue;
+				
+				int obstacleCount = 0;
+				if(isCellBlocked(agent, new Point(x,y))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x+1,y))) obstacleCount++;			
+				if(isCellBlocked(agent, new Point(x-1,y))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x,y+1))) obstacleCount++;
+				if(isCellBlocked(agent, new Point(x,y-1))) obstacleCount++;
+				
+				if(minObstacleCount > obstacleCount) {
+					minObstacleCount = obstacleCount;
+					potentialX = x;
+				}
+				else if(minObstacleCount == obstacleCount) {
+					if(startPos.distance(new Point(x,y)) > startPos.distance(new Point(potentialX,y))) {
+						potentialX = x;
+					}
+				}
+			}
+			
+			if(isCellBlocked(agent, new Point(potentialX,y))) {
+				freeCell(agent, new Point(potentialX,y));				
+			}
+			if(isCellBlocked(agent, new Point(potentialX+1,y))) {
+				freeCell(agent, new Point(potentialX+1,y));				
+			}
+			if(isCellBlocked(agent, new Point(potentialX-1,y))) {
+				freeCell(agent, new Point(potentialX-1,y));				
+			}
+			if(isCellBlocked(agent, new Point(potentialX,y+1))) {
+				freeCell(agent, new Point(potentialX,y+1));				
+			}
+			if(isCellBlocked(agent, new Point(potentialX,y-1))) {
+				freeCell(agent, new Point(potentialX,y-1));				
+			}
+		}
+		
+	}
+	
+	public void freeCell(Agent agent, Point cell) {
+		Agent a = getAgentAt(cell);
+		if(a != null && a.getId() != agent.getId()) {
+			handleBlockingAgentConflict(agent, a, null);
+			return;
+		}
+		
+		Box b = getBoxAt(cell);
+		if(b != null && (!b.getColor().equals(agent.getColor()))) {
+			Point p = SafeSpotDetector.getSafeSpotForBox(this, b, null);
+			MoveBoxSubIntention mbsi = new MoveBoxSubIntention(b, p, null, agent.getId());
+			addJob(mbsi);
+		}
+	}
+	
+	public boolean isCellBlocked(Agent agent, Point cell) {
+		Agent a = getAgentAt(cell);
+		if(a != null && a.getId() != agent.getId())
+			return true;
+		
+		Box b = getBoxAt(cell);
+		if(b != null && (!b.getColor().equals(agent.getColor())))
+				return true;
+		
+		return false;
+	}
+	
+	public Point simplePathCheck(Agent agent, Point startPos, Point endPos) {
 		int minX = Math.min(startPos.getX(), endPos.getX());
 		int maxX = Math.max(startPos.getX(), endPos.getX());		
 		int minY = Math.min(startPos.getY(), endPos.getY());
 		int maxY = Math.max(startPos.getY(), endPos.getY());
 		
-		Logger.logLine("simplePathCheck: " + minX + ", "+ minY + ", "+ maxX + ", "+ maxY);
 		for(int x= minX+1; x< maxX;x++) {
 			int firstWall = outerWallsX.get(x)[0];
 			int lastWall = outerWallsX.get(x)[1];
 			
 			boolean freeCellFound = false;
 			for(int y=firstWall+1;y<lastWall;y++) {
-				if(isFreeCell(new Point(x,y)) && checkPoint(new Point(x+1,y), startPos, endPos) &&
-						(checkPoint(new Point(x-1,y), startPos, endPos) || 
-						checkPoint(new Point(x,y+1), startPos, endPos) || 
-						checkPoint(new Point(x,y-1), startPos, endPos))) {
+				if(checkPoint(new Point(x,y), startPos, endPos,agent) && 
+					checkPoint(new Point(x+1,y), startPos, endPos,agent) &&
+						isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()) &&
+						(checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
+						checkPoint(new Point(x,y+1), startPos, endPos,agent) || 
+						checkPoint(new Point(x,y-1), startPos, endPos,agent))) {
 					freeCellFound = true;
 					break;						
 				}
 			}
 			if(!freeCellFound) {
-				return false;
+				return new Point(x,-1);
 			}
 		}
 		
@@ -1057,24 +1170,31 @@ public class World {
 			
 			boolean freeCellFound = false;
 			for(int x=firstWall+1;x<lastWall;x++) {
-				if(isFreeCell(new Point(x,y)) && checkPoint(new Point(x,y+1), startPos, endPos) &&
-						(checkPoint(new Point(x-1,y), startPos, endPos) || 
-						checkPoint(new Point(x+1,y), startPos, endPos) || 
-						checkPoint(new Point(x,y-1), startPos, endPos))) {
+				if(checkPoint(new Point(x,y), startPos, endPos,agent) && 
+					checkPoint(new Point(x,y+1), startPos, endPos,agent) &&
+					isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()) &&
+						(checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
+						checkPoint(new Point(x+1,y), startPos, endPos,agent) || 
+						checkPoint(new Point(x,y-1), startPos, endPos,agent))) {
 					freeCellFound = true;
 					break;						
 				}
 			}
 			if(!freeCellFound) {
-				return false;
+				return new Point(-1,y);
 			}
 		}
 		
-		return true;
+		return null;
 	}
 	
-	private boolean checkPoint(Point p, Point startPos, Point endPos) {
-		if(isFreeCell(p) || p.equals(startPos) || p.equals(endPos))
+	private boolean checkPoint(Point p, Point startPos, Point endPos,Agent agent) {
+		Box b = getBoxAt(p);
+		if(		isFreeCell(p) || 
+				p.equals(agent.getPosition()) || 
+				p.equals(startPos) || 
+				p.equals(endPos) || 
+				(b!=null && b.getColor().equals(agent.getColor())))
 			return true;
 		
 		return false;
