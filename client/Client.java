@@ -5,6 +5,8 @@ import java.util.*;
 
 import javax.management.RuntimeErrorException;
 
+import client.Search.PlannerNode;
+
 public class Client {
 	public World world = new World();
 
@@ -26,6 +28,7 @@ public class Client {
 		private SubIntention currentSubIntention = null;
 		private Queue<SubIntention> subIntentions = null;
 		private int inactivityCounter = 0;
+		private int sleepTime = 0;
 
 		Agent( int id, String color, Point position ) {
 			if(id > 9) {
@@ -79,6 +82,11 @@ public class Client {
 			}
 			this.status = status;
 		}
+		
+		public void sleep(int time) {
+			this.status = AgentStatus.WAITING;
+			sleepTime = time;
+		}
 
 		/**
 		 * Compute the next command for the agent.
@@ -89,8 +97,14 @@ public class Client {
 				return NoOp;
 			}
 			
-			if(this.status == AgentStatus.WAITING) {				
-				return NoOp;
+			if(this.status == AgentStatus.WAITING) {	
+				sleepTime--;
+				
+				if(sleepTime <= 0) {
+					this.status = AgentStatus.ACTIVE;
+				}
+				else				
+					return NoOp;
 			}
 
 			// BDI Version 2
@@ -118,6 +132,20 @@ public class Client {
 				//Make sure that we have an subIntention to plan for.
 				if(delegatedSubIntention == null) {
 					Logger.logLine("Agent[" + this.getId() + "] No Delegated subIntention");
+				}
+				else {
+					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
+					
+					if(!world.validateJob(delegatedSubIntention,this)) {
+						Logger.logLine("Agent[" + this.getId() + "] Delegated subIntention is not valid anymore!");
+						world.notifyAgent(delegatedSubIntention.getOwner());
+						return NoOp;
+					}
+					
+					// Problem with notifying!
+					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id).subIntentions);
+					//return NoOp;
+				}
 				
 					
 					currentSubIntention = subIntentions.peek();	
@@ -130,7 +158,7 @@ public class Client {
 								world.addJob(moveSubIntention);
 								subIntentions.poll();
 								Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
-								this.status = AgentStatus.WAITING;
+								this.sleep(30);
 								Logger.logLine(this.id + " I am waiting>> ");
 								
 							} 
@@ -150,7 +178,7 @@ public class Client {
 						return NoOp;
 					else
 						currentSubIntention = subIntentions.poll();
-				}			
+				/*}			
 				else {
 					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
 					
@@ -165,7 +193,7 @@ public class Client {
 					//return NoOp;
 					
 					currentSubIntention = delegatedSubIntention;
-				}	
+				}*/	
 					
 				 
 				
@@ -180,6 +208,7 @@ public class Client {
 						}
 						replan();
 						Logger.logLine("["+id+"] No plan -> find new intentions");
+						sleep(5);
 					}
 
 					return NoOp;
@@ -241,8 +270,8 @@ public class Client {
 					Command cmd = plan.execute();
 					if(cmd instanceof NotifyAgentCommand) {
 						int agentId = ((NotifyAgentCommand)cmd).getAgentId();
-						//world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
-						world.notifyAgent(agentId);
+						world.getAgent(agentId).setStatus(AgentStatus.ACTIVE);
+						//world.notifyAgent(agentId);
 					}
 				}
 			}
@@ -369,8 +398,7 @@ public class Client {
 		if(countSubstring(jointAction, NoOp.toString()) == world.getNumberOfAgents()) {
 			deadlockCount++;
 			
-			if(deadlockCount > 1000) 
-				throw new RuntimeException("Deadlock: No agent is moving");		
+			jointAction = preventDeadlock(deadlockCount, jointAction);	
 		}
 		else {
 			deadlockCount = 0;
@@ -397,6 +425,30 @@ public class Client {
 		}
 		
 		return true;
+	}
+	
+	private String preventDeadlock(int deadlockCount, String jointAction) {
+		Random rand = new Random(System.currentTimeMillis());
+		if(deadlockCount > 50) {
+			List<Agent> sleepingAgents = new ArrayList<Client.Agent>();;
+			for(Agent a: world.getAgents()) {
+				if(a.getStatus() != AgentStatus.ACTIVE) {
+					sleepingAgents.add(a);
+				}
+			}
+			
+			if(sleepingAgents.size() > 0) {
+				Agent a = sleepingAgents.get(rand.nextInt(sleepingAgents.size()));
+				a.setStatus(AgentStatus.ACTIVE);
+				a.replan();
+			}			
+		}
+		
+		
+		if(deadlockCount > 1000) 
+			throw new RuntimeException("Deadlock: No agent is moving");	
+		
+		return jointAction;
 	}
 	
 	private List<Boolean> markValidCommands(List<Command> commands) {

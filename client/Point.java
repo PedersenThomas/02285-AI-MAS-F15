@@ -11,6 +11,11 @@ public class Point {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public Point(Point old) {
+		this.x = old.x;
+		this.y = old.y;
+	}
 
 	public Point move(Command.dir dir) {
 		Point p = new Point(this.getX(), this.getY());

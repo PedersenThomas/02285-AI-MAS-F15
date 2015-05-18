@@ -15,8 +15,20 @@ import client.Search.PathNode;
 import client.Search.SearchNode;
 
 public class IntentionDecomposer {
+	public static class WorldWrapper {
+		public World world;
+		ArrayList<SubIntention> subIntentions = new ArrayList<>();
+		public WorldWrapper(World world, ArrayList<SubIntention> subIntentions) {
+			super();
+			this.world = world;
+			this.subIntentions = subIntentions;
+		}
+		
+		
+	}
 	
-	public static ArrayList<SubIntention> decomposeSubIntention(SubIntention intention, World world, int agentId){
+	
+	public static WorldWrapper decomposeSubIntention(SubIntention intention, World world, int agentId){
 		if(intention instanceof TravelSubIntention) {
 			return decomposeTavelSubIntention((TravelSubIntention)intention, world, agentId);
 		}
@@ -27,17 +39,17 @@ public class IntentionDecomposer {
 			return null;
 	}
 	
-	public static ArrayList<SubIntention> decomposeTavelSubIntention(TravelSubIntention intention, World world, int agentId){
+	public static WorldWrapper decomposeTavelSubIntention(TravelSubIntention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
 		Point agentPosition = world.getAgent(agentId).getPosition();
-		Point boxPosition = intention.getRootIntention().getBox().getPosition();
+		Point endPosition = intention.getEndPosition();
 
 		World currentWorld = world;
-		Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, boxPosition);	
+		Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, endPosition);	
 				
 		
-		if(!world.isPositionReachable(agentPosition, boxPosition, false, true,agentId)) {
+		if(!currentWorld.isPositionReachable(agentPosition, endPosition, false, true,agentId)) {
 			//SubIntention to clear path from Agent to Box.
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromAgentToBox, subIntentions, intention.getRootIntention(),agentId, false, intention.getOwner());
 
@@ -47,26 +59,25 @@ public class IntentionDecomposer {
 			}
 		}
 		
-		subIntentions.add(new TravelSubIntention(currentWorld.getAgent(agentId).getPosition(), currentWorld.getBoxById(intention.getRootIntention().getBox().getId()).getPosition(), agentId,intention.getRootIntention(), agentId));
-		
-		return subIntentions;
+		subIntentions.add(intention);
+
+		return new WorldWrapper(currentWorld,subIntentions);
 	}
 	
-	public static ArrayList<SubIntention> decomposeMoveBoxSubIntention(MoveBoxSubIntention intention, World world, int agentId){
+	public static WorldWrapper decomposeMoveBoxSubIntention(MoveBoxSubIntention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
-		Point agentPosition = world.getAgent(agentId).getPosition();
-		Point boxPosition = intention.getRootIntention().getBox().getPosition();
-		Point goalPosition = intention.getRootIntention().getGoal().getPosition();
+		Point boxPosition = intention.getBox().getPosition();
+		Point goalPosition = intention.getEndPosition();
 		
-		if(!canGoalBeCompletedByPull(world, goalPosition, agentPosition)) {
-			// do something intelligent :)
-		}	
+		//if(!canGoalBeCompletedByPull(world, goalPosition, agentPosition)) {
+		//	// do something intelligent :)
+		//}	
 
 		World currentWorld = world;
 		
 		Queue<Point> pathFromBoxToGoal = null;
-		if(!world.isPositionReachable(boxPosition, goalPosition, false, true,-1)) {
+		if(!currentWorld.isPositionReachable(boxPosition, goalPosition, false, true,-1)) {
 			//SubIntention to clear path from Box to Goal.
 			pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention.getRootIntention(),agentId, true, intention.getOwner());
@@ -77,9 +88,9 @@ public class IntentionDecomposer {
 			}
 		}	
 		
-		subIntentions.add(new MoveBoxSubIntention(currentWorld.getBoxById(intention.getRootIntention().getBox().getId()), goalPosition,intention.getRootIntention(), agentId));
-			
-		return subIntentions;
+		subIntentions.add(intention);
+
+		return new WorldWrapper(currentWorld,subIntentions);
 	}
 	
 	public static ArrayList<SubIntention> decomposeIntention(Intention intention, World world, int agentId){
@@ -89,16 +100,18 @@ public class IntentionDecomposer {
 		Point boxPosition = intention.getBox().getPosition();
 		Point goalPosition = intention.getGoal().getPosition();
 
-		World currentWorld = world;
+		World currentWorld = new World(world);
 		
-		
-		ArrayList<SubIntention> subIntentionsForTravel = decomposeTavelSubIntention(
+		WorldWrapper wrapper = decomposeTavelSubIntention(
 				new TravelSubIntention(agentPosition, boxPosition, agentId, intention, agentId), 
 				currentWorld, agentId);
+		ArrayList<SubIntention> subIntentionsForTravel = wrapper.subIntentions;
 		
-		ArrayList<SubIntention> subIntentionsForMoveBox = decomposeMoveBoxSubIntention(
+				 
+		wrapper = decomposeMoveBoxSubIntention(
 				new MoveBoxSubIntention(intention.getBox(), goalPosition, intention, agentId), 
-				currentWorld, agentId);
+				wrapper.world, agentId);
+		ArrayList<SubIntention> subIntentionsForMoveBox = wrapper.subIntentions;
 		
 		SubIntention agentToBoxSubIntention = subIntentionsForTravel.remove(subIntentionsForTravel.size()-1);		
 		SubIntention boxToGoalSubIntention = subIntentionsForMoveBox.remove(subIntentionsForMoveBox.size()-1);		
@@ -171,6 +184,7 @@ public class IntentionDecomposer {
 				}
 				
 				Point safePosition = SafeSpotDetector.getSafeSpotForBox(newWorld, box, path);
+				Logger.logLine("Safespot for " + box +": " +  safePosition);
 				
 				//Point savePosition = safeSpots.poll();
 				Box newWorldBox = newWorld.getBoxById(box.getId());

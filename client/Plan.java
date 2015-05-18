@@ -45,6 +45,11 @@ public class Plan {
 			throw new RuntimeException("Intention is null");
 		}
 		
+		if(!world.simplePathCheck(subIntention.getStartPosition(), subIntention.getEndPosition())) {
+			Logger.logLine("TravelPlanner: simplePathCheck failed");
+			return;
+		}
+		
 		
 		Logger.logLine("Planing for Intention: " + subIntention);
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
@@ -118,7 +123,7 @@ public class Plan {
 				if(!world.existsIntentionForBox(box)) {
 					world.addJob(new MoveBoxSubIntention(box, SafeSpotDetector.getSafeSpotForBox(world, box, null), 
 							subIntention.getRootIntention(), agent.getId()));
-					agent.setStatus(AgentStatus.WAITING);
+					agent.sleep(30);
 				}
 				return;
 			}
@@ -129,6 +134,11 @@ public class Plan {
 				return;
 			}
 			
+		}
+		
+		if(!world.simplePathCheck(agent.getPosition(), subIntention.getEndPosition())) {
+			Logger.logLine("MoveBoxPlanner: simplePathCheck failed");
+			return;
 		}
 		
 		

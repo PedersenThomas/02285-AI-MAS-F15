@@ -40,6 +40,9 @@ public class World {
 	private Map<Integer, Intention> intentionMap = new HashMap<>();
 	private List<SubIntention> jobList = new ArrayList<>();
 	private Map<Integer, LinkedList<Command>> planMap = new HashMap<>();
+	
+	private Map<Integer, Integer[]> outerWallsX =  new HashMap<>();
+	private Map<Integer, Integer[]> outerWallsY =  new HashMap<>();
 
 	public Map<Integer, Intention> getIntentionMap() {
 		return intentionMap;
@@ -189,6 +192,53 @@ public class World {
 	public void setLevelSize(int width, int height) {
 		this.width = width;
 		this.height = height;
+		
+		for(int x= 0; x< width;x++) {
+			int firstWall = 0;
+			
+			for(int y=0;y<height;y++) {
+				if(walls.contains(new Point(x,y))) {
+					firstWall = y;
+					break;
+				}
+			}
+			
+			int lastWall = firstWall;
+			for(int y=height-1;y>firstWall;y--) {
+				if(walls.contains(new Point(x,y))) {
+					lastWall = y;
+					break;
+				}
+			}
+			
+			Integer[] values = new Integer[2];
+			values[0] = firstWall;
+			values[1] = lastWall;
+			outerWallsX.put(x,values);
+		}
+		
+		for(int y= 0; y< height;y++) {
+			int firstWall = 0;
+			
+			for(int x=0;x<width;x++) {
+				if(walls.contains(new Point(x,y))) {
+					firstWall = x;
+					break;
+				}
+			}
+			int lastWall = firstWall;
+			for(int x=width-1;x>firstWall;x--) {
+				if(walls.contains(new Point(x,y))) {
+					lastWall = x;
+					break;
+				}
+			}
+			Integer[] values = new Integer[2];
+			values[0] = firstWall;
+			values[1] = lastWall;
+			outerWallsY.put(y,values);
+		}				
+		
 	}
 
 	public Agent getAgent(int id) {
@@ -201,6 +251,9 @@ public class World {
 	}
 	
 	public Agent getAgentToMoveBox(Box box) {
+		if(agents.size() == 1)
+			return agents.get(0);
+		
 		// Check if there is a suitable agent who has nothing to do
 		for(Agent agent:agents) {
 			if(agent.getColor().equals(box.getColor())) {
@@ -209,8 +262,7 @@ public class World {
 						return agent;
 				}
 			}
-		}
-		
+		}		
 		
 		for(Agent agent:agents) {
 			if(agent.getColor().equals(box.getColor()))
@@ -266,7 +318,7 @@ public class World {
 			Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, agent2.getId(), 
 					Command.CommandsToPath(agent1.getPosition(), plan));
 			agent2.setStatus(AgentStatus.ACTIVE);
-			agent1.setStatus(AgentStatus.WAITING);
+			agent1.sleep(30);
 			addJob(new TravelSubIntention(agent2.getPosition(), safePos, agent2.getId(), null, agent1.getId()));
 			return true;
 		}
@@ -964,4 +1016,61 @@ public class World {
 		
 		return false;
 	}
+	
+	public boolean simplePathCheck(Point startPos, Point endPos) {
+		int minX = Math.min(startPos.getX(), endPos.getX());
+		int maxX = Math.max(startPos.getX(), endPos.getX());		
+		int minY = Math.min(startPos.getY(), endPos.getY());
+		int maxY = Math.max(startPos.getY(), endPos.getY());
+		
+		Logger.logLine("simplePathCheck: " + minX + ", "+ minY + ", "+ maxX + ", "+ maxY);
+		for(int x= minX+1; x< maxX;x++) {
+			int firstWall = outerWallsX.get(x)[0];
+			int lastWall = outerWallsX.get(x)[1];
+			
+			boolean freeCellFound = false;
+			for(int y=firstWall+1;y<lastWall;y++) {
+				if(isFreeCell(new Point(x,y)) && checkPoint(new Point(x+1,y), startPos, endPos) &&
+						(checkPoint(new Point(x-1,y), startPos, endPos) || 
+						checkPoint(new Point(x,y+1), startPos, endPos) || 
+						checkPoint(new Point(x,y-1), startPos, endPos))) {
+					freeCellFound = true;
+					break;						
+				}
+			}
+			if(!freeCellFound) {
+				return false;
+			}
+		}
+		
+		for(int y= minY+1; y< maxY;y++) {
+			int firstWall = outerWallsY.get(y)[0];
+			int lastWall = outerWallsY.get(y)[1];
+			
+			boolean freeCellFound = false;
+			for(int x=firstWall+1;x<lastWall;x++) {
+				if(isFreeCell(new Point(x,y)) && checkPoint(new Point(x,y+1), startPos, endPos) &&
+						(checkPoint(new Point(x-1,y), startPos, endPos) || 
+						checkPoint(new Point(x+1,y), startPos, endPos) || 
+						checkPoint(new Point(x,y-1), startPos, endPos))) {
+					freeCellFound = true;
+					break;						
+				}
+			}
+			if(!freeCellFound) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	private boolean checkPoint(Point p, Point startPos, Point endPos) {
+		if(isFreeCell(p) || p.equals(startPos) || p.equals(endPos))
+			return true;
+		
+		return false;
+	}
 }
+
+
