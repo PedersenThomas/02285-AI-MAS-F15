@@ -52,8 +52,12 @@ public class IntentionDecomposer {
 			endPosition = ((MoveBoxSubIntention) intention).getEndPosition();
 		}
 		
-		Queue<Point> path = findPath(world, startPosition, endPosition);	
 		Queue<SubIntention> subIntentions = new LinkedList<>();
+		Queue<Point> path = findPath(world, startPosition, endPosition);	
+		if(path == null)
+			return subIntentions;
+		
+		
 		
 		int cnt = 0;
 	    Point lastPos = startPosition;
@@ -126,6 +130,9 @@ public class IntentionDecomposer {
 		if(!currentWorld.isPositionReachable(boxPosition, goalPosition, false, true,-1)) {
 			//SubIntention to clear path from Box to Goal.
 			pathFromBoxToGoal = findPath(currentWorld, boxPosition, goalPosition);
+			if(pathFromBoxToGoal == null)
+				return null;
+			
 			currentWorld = moveBoxesOnPathToSafePlaces(currentWorld, pathFromBoxToGoal, subIntentions, intention.getRootIntention(),agentId, true, intention.getOwner());
 
 			Logger.logLine("----------- Path ----------");
@@ -270,7 +277,8 @@ public class IntentionDecomposer {
 		search.addToFrontier(new PathNode(world, sourcePosition, targetPosition, true, true,-1));
 		while (true) {
 			if (search.frontierIsEmpty()) {
-				throw new RuntimeException("Unable to reach the target position");
+				//throw new RuntimeException("Unable to reach the target position");
+				return null;
 			}
 
 			PathNode leafNode = (PathNode) search.getAndRemoveLeaf();

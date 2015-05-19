@@ -6,6 +6,7 @@ import java.util.*;
 import javax.management.RuntimeErrorException;
 
 import client.Command.dir;
+import client.IntentionDecomposer.WorldSubIntentionsWrapper;
 import client.Search.PlannerNode;
 
 public class Client {
@@ -156,7 +157,14 @@ public class Client {
 					Queue<SubIntention> temp = null;
 					if((subIntentions != null && !subIntentions.isEmpty())) 
 						temp = new LinkedList<SubIntention>(subIntentions);
-					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id).subIntentions);
+					WorldSubIntentionsWrapper w = IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id);
+					if(w == null) {
+						Logger.logLine("Agent[" + this.getId() + "] I can't do it!");
+						world.notifyAgent(delegatedSubIntention.getOwner());
+						return NoOp;
+					}
+					subIntentions = new LinkedList<SubIntention>(w.subIntentions);
+					
 					if(temp!= null)
 						subIntentions.addAll(temp);
 				}				
