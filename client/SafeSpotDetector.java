@@ -3,6 +3,7 @@ package client;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Random;
 
 import client.Client.Agent;
 
@@ -19,6 +20,18 @@ public class SafeSpotDetector {
 				safeSpots.add(spoint);
 			}
 		}
+		
+		if(safeSpots.isEmpty()) {
+			for(Point point : world.getRechableCells(agentId)) {
+				if(world.isBoxAt(point)) {
+					continue;
+				}
+				SafePoint spoint = new SafePoint(point);
+				safeSpots.add(spoint);
+			}
+		}
+		
+		
 		return safeSpots;
 	}
 	
@@ -67,7 +80,7 @@ public class SafeSpotDetector {
 		//Find safepoints not on the path.
 		for (SafePoint safespot : safeSpots) {
 			if(world.isFreeCell(safespot) || (agent.getPosition().equals(safespot))) {
-				if(path == null || !path.contains(safespot)) {					
+				if(path == null || !path.contains(safespot)) {
 					safeSpotsNotOnPath.add(safespot);
 				}
 			}

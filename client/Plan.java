@@ -44,6 +44,7 @@ public class Plan {
 		if(subIntention == null) {
 			throw new RuntimeException("Intention is null");
 		}
+		Logger.logLine("Planing for Intention: " + subIntention);
 		
 		Point blockedCell = world.simplePathCheck(agent,subIntention.getStartPosition(), subIntention.getEndPosition());
 		if(blockedCell != null) {
@@ -55,7 +56,7 @@ public class Plan {
 		}
 		
 		
-		Logger.logLine("Planing for Intention: " + subIntention);
+		
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);
 		
@@ -120,6 +121,8 @@ public class Plan {
 			throw new RuntimeException("Planning for a invalid move: Agent and only move boxes of same color: " + subIntention.getBox() + " " + agent);
 		}
 		
+		Logger.logLine("[" + agent.getId() + "] Planing for Intention: " + subIntention);
+		
 		if(!world.isFreeCell(subIntention.getEndPosition())) {
 			Box box = world.getBoxAt(subIntention.getEndPosition());
 			if(box != null) {		
@@ -157,7 +160,7 @@ public class Plan {
 		}
 		
 		
-		Logger.logLine("[" + agent.getId() + "] Planing for Intention: " + subIntention);
+		
 		Heuristic h = new AStar(new HeuristicPlannerFunction(subIntention, agent.getId()));
 		strategy = new BestFirstSearch(h);
 

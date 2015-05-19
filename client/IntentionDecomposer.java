@@ -231,6 +231,10 @@ public class IntentionDecomposer {
 				}
 				
 				Point safePosition = SafeSpotDetector.getSafeSpotForBox(newWorld, box, path);
+				if(safePosition == null) {
+					continue;
+				}
+				
 				Logger.logLine("Safespot for " + box +": " +  safePosition);
 				
 				//Point savePosition = safeSpots.poll();

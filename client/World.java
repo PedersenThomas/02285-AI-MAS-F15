@@ -325,6 +325,7 @@ public class World {
 			Logger.logLine("["+agent1.getId()+"]: Hey [" + agent2.getId() + "], get out of my way!");
 			Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, agent2.getId(), 
 					Command.CommandsToPath(agent1.getPosition(), plan));
+			if(safePos == null) return false;
 			agent2.setStatus(AgentStatus.ACTIVE);
 			agent1.sleep(30);
 			addJob(new TravelSubIntention(agent2.getPosition(), safePos, agent2.getId(), null, agent1.getId()));
@@ -1161,7 +1162,8 @@ public class World {
 				if(checkPoint(new Point(x,y), startPos, endPos,agent) && 
 					checkPoint(new Point(x+1,y), startPos, endPos,agent) &&
 						isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()) &&
-						(checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
+						(startPos.equals(new Point(x,y)) || endPos.equals(new Point(x,y)) ||
+						checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
 						checkPoint(new Point(x,y+1), startPos, endPos,agent) || 
 						checkPoint(new Point(x,y-1), startPos, endPos,agent))) {
 					freeCellFound = true;
@@ -1182,7 +1184,8 @@ public class World {
 				if(checkPoint(new Point(x,y), startPos, endPos,agent) && 
 					checkPoint(new Point(x,y+1), startPos, endPos,agent) &&
 					isPositionReachable(startPos, new Point(x,y), true, true, agent.getId()) &&
-						(checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
+						(startPos.equals(new Point(x,y)) || endPos.equals(new Point(x,y)) ||
+						checkPoint(new Point(x-1,y), startPos, endPos,agent) || 
 						checkPoint(new Point(x+1,y), startPos, endPos,agent) || 
 						checkPoint(new Point(x,y-1), startPos, endPos,agent))) {
 					freeCellFound = true;
