@@ -28,8 +28,8 @@ public class Plan {
 	private Queue<Command> commandQueue;
 	
 	
-	private static final int maxItersStart = 1000;
-	private static final int maxItersIncrement = 300;
+	private static final int maxItersStart = 1500;
+	private static final int maxItersIncrement = 500;
 	private static int maxIters = maxItersStart;
 
 	public Plan(World world, SubIntention subIntention, Agent agent) {

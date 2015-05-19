@@ -58,6 +58,11 @@ public class IntentionDecomposer {
 			return subIntentions;
 		
 		
+		int stepSize = 8;		
+		if(path.size() > 100)
+			stepSize = 32;
+		if(path.size() > 300)
+			stepSize = 64;
 		
 		int cnt = 0;
 	    Point lastPos = startPosition;
@@ -67,7 +72,7 @@ public class IntentionDecomposer {
 			if(p.equals(endPosition))
 				owner = intention.getOwner();
 			
-			if((cnt % 8) == 0) {
+			if((cnt % stepSize) == 0) {
 				if(intention instanceof TravelSubIntention) {
 					subIntentions.add(new TravelSubIntention(lastPos,p, agentId,intention.getRootIntention(), owner));
 					lastPos = p;
