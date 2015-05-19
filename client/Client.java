@@ -5,6 +5,7 @@ import java.util.*;
 
 import javax.management.RuntimeErrorException;
 
+import client.Command.dir;
 import client.Search.PlannerNode;
 
 public class Client {

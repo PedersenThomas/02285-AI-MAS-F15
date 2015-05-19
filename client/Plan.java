@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Queue;
 
 import client.Command;
+import client.Command.dir;
 import client.Goal;
 import client.Logger;
 import client.Point;
@@ -54,8 +55,6 @@ public class Plan {
 			Logger.logLine("TravelPlanner: simplePathCheck failed");
 			return;
 		}
-		
-		
 		
 		Heuristic h = new AStar(new HeuristicPathFunction(world,subIntention.getEndPosition()));
 		strategy = new BestFirstSearch(h);

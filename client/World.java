@@ -1200,13 +1200,14 @@ public class World {
 		return null;
 	}
 	
-	private boolean checkPoint(Point p, Point startPos, Point endPos,Agent agent) {
+	public boolean checkPoint(Point p, Point startPos, Point endPos,Agent agent) {
 		Box b = getBoxAt(p);
 		if(		isFreeCell(p) || 
 				p.equals(agent.getPosition()) || 
 				p.equals(startPos) || 
 				p.equals(endPos) || 
-				(b!=null && b.getColor().equals(agent.getColor())))
+				b==null ||
+				b.getColor().equals(agent.getColor()))
 			return true;
 		
 		return false;
