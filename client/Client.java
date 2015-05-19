@@ -78,6 +78,10 @@ public class Client {
 			return id;
 		}
 		
+		
+		public int getInactivityCounter() {
+			return inactivityCounter;
+		}
 		public AgentStatus getStatus() {
 			return status;
 		}
@@ -129,9 +133,10 @@ public class Client {
 				//Make sure an agent has an intention.
 				if((delegatedSubIntention == null) && (subIntentions == null || subIntentions.isEmpty())) {									
 					//deliberate by choosing a set of intentions based on current beliefs
+					world.clearIntention(id);
 					intention = Intention.deliberate(world, this);
 					Logger.logLine("Agent[" + this.getId() + "] Got the intention: " + intention);
-					if(intention == null) {
+					if(intention == null) {						
 						return NoOp;
 					}
 					
@@ -256,10 +261,11 @@ public class Client {
 			}
 			
 			if(cmd instanceof NotifyAgentCommand) {
+				
 				this.clearIntention();
+				sleep(2);				
 			}
 			
-			inactivityCounter = 0;
 			Logger.logLine("["+id+"] " + cmd.toString() + "\t-> " + this.position.toString());
 			return cmd;
 		}

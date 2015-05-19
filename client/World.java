@@ -321,12 +321,14 @@ public class World {
 	
 	public boolean handleBlockingAgentConflict(Agent agent1, Agent agent2, LinkedList<Command> plan) {
 		if((agent2.getStatus() != AgentStatus.ACTIVE) ||
-				(getNumberOfUncompletedAndUnintendedGoals(agent2.getId())) == 0) {
+				((getNumberOfUncompletedAndUnintendedGoals(agent2.getId())) == 0) ||
+				(agent2.getInactivityCounter() >= 10)) {
 			Logger.logLine("["+agent1.getId()+"]: Hey [" + agent2.getId() + "], get out of my way!");
 			Point safePos = SafeSpotDetector.getSafeSpotForAgent(this, agent2.getId(), 
 					Command.CommandsToPath(agent1.getPosition(), plan));
 			if(safePos == null) return false;
 			agent2.setStatus(AgentStatus.ACTIVE);
+			//agent2.replan();
 			agent1.sleep(30);
 			addJob(new TravelSubIntention(agent2.getPosition(), safePos, agent2.getId(), null, agent1.getId()));
 			return true;
