@@ -77,10 +77,13 @@ public class Intention {
 														
 						}			
 					}
+					if(checkReachability == false)
+						break;
 					checkReachability = false;
 				}
 				// Add the box to the list of taken boxes
-				takenBoxes.add(intentenionsMap.get(goal).getKey());				
+				if(intentenionsMap.get(goal) != null)
+					takenBoxes.add(intentenionsMap.get(goal).getKey());				
 			}
 			else {
 				// If goal is already completed then add it to the list of taken boxes

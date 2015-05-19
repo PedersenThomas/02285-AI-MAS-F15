@@ -58,11 +58,9 @@ public class IntentionDecomposer {
 			return subIntentions;
 		
 		
-		int stepSize = 8;		
-		if(path.size() > 100)
-			stepSize = 32;
-		if(path.size() > 300)
-			stepSize = 64;
+		int stepSize = path.size() / 4;		
+		if(stepSize < 10)
+			stepSize = 10;
 		
 		int cnt = 0;
 	    Point lastPos = startPosition;
@@ -84,6 +82,12 @@ public class IntentionDecomposer {
 			}
 		}		
 		if(!lastPos.equals(endPosition)) {
+			if(((cnt % stepSize) <= stepSize/2) && (subIntentions.size() > 1)) {
+				LinkedList<SubIntention> list = (LinkedList<SubIntention>)subIntentions;
+				lastPos = list.getLast().getStartPosition();				
+				list.removeLast();
+			}
+			
 			if(intention instanceof TravelSubIntention) {
 				subIntentions.add(new TravelSubIntention(lastPos,endPosition, agentId,intention.getRootIntention(), intention.getOwner()));
 			}
@@ -102,6 +106,8 @@ public class IntentionDecomposer {
 
 		World currentWorld = world;
 		Queue<Point> pathFromAgentToBox = findPath(currentWorld, agentPosition, endPosition);	
+		if(pathFromAgentToBox == null)
+			return null;
 				
 		
 		if(!currentWorld.isPositionReachable(agentPosition, endPosition, false, true,agentId)) {
@@ -291,8 +297,11 @@ public class IntentionDecomposer {
 			if (leafNode.getPosition().equals(targetPosition)) {
 				Queue<Point> path = leafNode.extractListOfPossitions();
 				//do not want to clear the objectives away from the path
+				
 				path.poll();
-				removeLastFromQueue(path);
+				if(path.size() > 0) {					
+					removeLastFromQueue(path);
+				}
 
 				return path;
 			}

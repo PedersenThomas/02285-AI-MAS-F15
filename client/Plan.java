@@ -136,7 +136,7 @@ public class Plan {
 
 			Agent otherAgent = world.getAgentAt(subIntention.getEndPosition());
 			if(otherAgent != null && otherAgent.getId() != agent.getId()) {	
-				world.handleBlockingAgentConflict(agent, otherAgent, null);				
+				world.handleBlockingAgentConflict(agent, otherAgent, null);	
 				return;
 			}
 			

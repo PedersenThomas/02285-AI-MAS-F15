@@ -97,7 +97,8 @@ public class Client {
 		
 		public void sleep(int time) {
 			this.status = AgentStatus.WAITING;
-			sleepTime = time;
+			if(time > sleepTime)
+				sleepTime = time;
 		}
 
 		/**
@@ -138,6 +139,7 @@ public class Client {
 						Logger.logLine("Agent[" + this.getId() + "] Couldn't put the intention in the world.");
 						return NoOp;
 					}
+					
 					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeIntention(intention, world, this.id));
 				}
 				
