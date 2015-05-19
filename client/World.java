@@ -655,17 +655,26 @@ public class World {
 	 * 
 	 * @return boolean value which tells whether there is made a change.
 	 */
-	public void notifyAgent(int agentId) {
+	public void notifyAgent(int agentId) {		
 		Agent a = this.getAgent(agentId);
-		a.setStatus(AgentStatus.ACTIVE);		
+		a.setStatus(AgentStatus.ACTIVE);	
+		//a.clearIntention();
+		
+		/*List<SubIntention> removeJobs = new ArrayList<SubIntention>();
+		for(SubIntention job: jobList) {
+			if(job.getOwner() == agentId) {
+				removeJobs.add(job);
+			}
+		}
+		jobList.removeAll(removeJobs);*/
 		
 		// Delete all jobs! They might be outdated!
-		/*while(!jobList.isEmpty()) {
+		while(!jobList.isEmpty()) {
 			SubIntention si = jobList.get(0);
 			a = this.getAgent(si.getOwner());
 			a.setStatus(AgentStatus.ACTIVE);
 			jobList.remove(0);				
-		}*/
+		}
 	}
 	
 	
@@ -1143,7 +1152,7 @@ public class World {
 		int minY = Math.min(startPos.getY(), endPos.getY());
 		int maxY = Math.max(startPos.getY(), endPos.getY());
 		
-		for(int x= minX+1; x< maxX;x++) {
+		for(int x= minX; x< maxX;x++) {
 			int firstWall = outerWallsX.get(x)[0];
 			int lastWall = outerWallsX.get(x)[1];
 			
@@ -1156,7 +1165,7 @@ public class World {
 						checkPoint(new Point(x,y+1), startPos, endPos,agent) || 
 						checkPoint(new Point(x,y-1), startPos, endPos,agent))) {
 					freeCellFound = true;
-					break;						
+					break;	
 				}
 			}
 			if(!freeCellFound) {
@@ -1164,7 +1173,7 @@ public class World {
 			}
 		}
 		
-		for(int y= minY+1; y< maxY;y++) {
+		for(int y= minY; y< maxY;y++) {
 			int firstWall = outerWallsY.get(y)[0];
 			int lastWall = outerWallsY.get(y)[1];
 			

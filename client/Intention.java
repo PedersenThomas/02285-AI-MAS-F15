@@ -96,11 +96,12 @@ public class Intention {
 			Goal intendedGoal = goals.get(i);
 			if(intentenionsMap.containsKey(intendedGoal)) {	
 			  Intention newIntention = new Intention(intendedGoal, intentenionsMap.get(intendedGoal).getKey());
-			  if(newIntention.equals(agent.getIntention()))
+			  if(newIntention.equals(agent.getIntention()) && intentenionsMap.size() > 1)
 				  continue;
 			  return newIntention;
 			}
 		}
+		world.clearIntention(agent.getId());
 		return null;
 	}
 	

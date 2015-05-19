@@ -89,6 +89,10 @@ public class Client {
 			this.status = status;
 		}
 		
+		public void clearIntention() {
+			intention=null;
+		}
+		
 		public void sleep(int time) {
 			this.status = AgentStatus.WAITING;
 			sleepTime = time;
@@ -148,78 +152,62 @@ public class Client {
 						return NoOp;
 					}
 					
-					// Problem with notifying!
 					Queue<SubIntention> temp = null;
 					if((subIntentions != null && !subIntentions.isEmpty())) 
 						temp = new LinkedList<SubIntention>(subIntentions);
 					subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id).subIntentions);
 					if(temp!= null)
 						subIntentions.addAll(temp);
-					//return NoOp;
+				}				
+					
+				currentSubIntention = subIntentions.peek();	
+				while(currentSubIntention != null) {												
+			
+					// Check if this agent can do the job
+					if (currentSubIntention instanceof MoveBoxSubIntention) {
+						MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
+						if(!moveSubIntention.getBox().getColor().equals(color)) {
+							world.addJob(moveSubIntention);
+							subIntentions.poll();
+							Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
+							this.sleep(30);
+							Logger.logLine(this.id + " I am waiting>> ");
+							
+						} 
+						else {							
+							break;  // I can do it!
+						}
+					}
+					else {						
+						break;  // I can do it!
+					}
+					currentSubIntention = subIntentions.peek();
 				}
 				
-					
-					currentSubIntention = subIntentions.peek();	
-					while(currentSubIntention != null) {												
-				
-						// Check if this agent can do the job
-						if (currentSubIntention instanceof MoveBoxSubIntention) {
-							MoveBoxSubIntention moveSubIntention = (MoveBoxSubIntention)currentSubIntention;
-							if(!moveSubIntention.getBox().getColor().equals(color)) {
-								world.addJob(moveSubIntention);
-								subIntentions.poll();
-								Logger.logLine(this.id + ": Please do it! >> " + moveSubIntention);
-								this.sleep(30);
-								Logger.logLine(this.id + " I am waiting>> ");
-								
-							} 
-							else {
-								// I can do it!
-								break;
-							}
-						}
-						else {
-							// I can do it!
-							break;
-						}
-						currentSubIntention = subIntentions.peek();
-					}
-					
-					if(status == AgentStatus.WAITING)
-						return NoOp;
-					else
-						currentSubIntention = subIntentions.poll();
-				/*}			
-				else {
-					Logger.logLine("Agent[" + this.getId() + "] Have this cool Delegated subIntention: " + delegatedSubIntention);
-					
-					if(!world.validateJob(delegatedSubIntention,this)) {
-						Logger.logLine("Agent[" + this.getId() + "] Delegated subIntention is not valid anymore!");
-						world.notifyAgent(delegatedSubIntention.getOwner());
-						return NoOp;
-					}
-					
-					// Problem with notifying!
-					//subIntentions = new LinkedList<SubIntention>(IntentionDecomposer.decomposeSubIntention(delegatedSubIntention, world, this.id));
-					//return NoOp;
-					
-					currentSubIntention = delegatedSubIntention;
-				}*/	
-					
-				 
-				
+				if(status == AgentStatus.WAITING)
+					return NoOp;
+				else
+					currentSubIntention = subIntentions.poll();	
 				
 				plan = new Plan(world, currentSubIntention, this);
 				if(plan.isEmpty()) {
 					// Maybe the planner has recognized that it is better to wait
-					if(status != AgentStatus.WAITING) {
-						if(delegatedSubIntention != null) {
-							//Someone is waiting
-							world.getAgent(delegatedSubIntention.getOwner()).setStatus(AgentStatus.ACTIVE);
-						}
-						replan();
-						Logger.logLine("["+id+"] No plan -> find new intentions");
-						sleep(10);
+					if(status != AgentStatus.WAITING) {							
+						Queue<SubIntention> temp = new LinkedList<SubIntention>(subIntentions); 
+						subIntentions = IntentionDecomposer.splitSubIntention(currentSubIntention, world, id);
+						if(subIntentions.size() < 2) {
+							if(delegatedSubIntention != null) {
+								//Someone is waiting
+								world.getAgent(delegatedSubIntention.getOwner()).setStatus(AgentStatus.ACTIVE);
+							}
+							
+							Logger.logLine("["+id+"] No plan -> find new intentions");
+							replan();
+							sleep(6);
+						} else {
+							Logger.logLine("["+id+"] No plan -> Split subintentions");
+							subIntentions.addAll(temp);
+						}												
 					}
 
 					return NoOp;
@@ -254,6 +242,10 @@ public class Client {
 			//if intention is completed it should be removed from the sequence of active intentions in the world
 			if(plan.isEmpty() && intention != null && intention.getGoal().getPosition().equals(tempWorld.getBoxById(intention.getBox().getId()).getPosition())) {
 				world.clearIntention(this.id);
+			}
+			
+			if(cmd instanceof NotifyAgentCommand) {
+				this.clearIntention();
 			}
 			
 			inactivityCounter = 0;

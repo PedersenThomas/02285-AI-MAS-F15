@@ -39,6 +39,52 @@ public class IntentionDecomposer {
 			return null;
 	}
 	
+	public static Queue<SubIntention> splitSubIntention(SubIntention intention, World world,int agentId) {
+		Point startPosition = null;
+		Point endPosition = null;
+		
+		if(intention instanceof TravelSubIntention) {
+			startPosition = world.getAgent(agentId).getPosition();
+			endPosition = ((TravelSubIntention) intention).getEndPosition();
+		}
+		else if(intention instanceof MoveBoxSubIntention) {
+			startPosition = ((MoveBoxSubIntention) intention).getBox().getPosition();
+			endPosition = ((MoveBoxSubIntention) intention).getEndPosition();
+		}
+		
+		Queue<Point> path = findPath(world, startPosition, endPosition);	
+		Queue<SubIntention> subIntentions = new LinkedList<>();
+		
+		int cnt = 0;
+	    Point lastPos = startPosition;
+	    int owner = agentId;
+		for(Point p : path) {
+			cnt++;
+			if(p.equals(endPosition))
+				owner = intention.getOwner();
+			
+			if((cnt % 8) == 0) {
+				if(intention instanceof TravelSubIntention) {
+					subIntentions.add(new TravelSubIntention(lastPos,p, agentId,intention.getRootIntention(), owner));
+					lastPos = p;
+				}
+				else {
+					subIntentions.add(new MoveBoxSubIntention(((MoveBoxSubIntention) intention).getBox(),p, intention.getRootIntention(),owner));
+					lastPos = p;
+				}
+			}
+		}		
+		if(!lastPos.equals(endPosition)) {
+			if(intention instanceof TravelSubIntention) {
+				subIntentions.add(new TravelSubIntention(lastPos,endPosition, agentId,intention.getRootIntention(), intention.getOwner()));
+			}
+			else {
+				subIntentions.add(new MoveBoxSubIntention(((MoveBoxSubIntention) intention).getBox(),endPosition, intention.getRootIntention(), intention.getOwner()));
+			}
+		}
+		return subIntentions;		
+	}
+	
 	public static WorldSubIntentionsWrapper decomposeTavelSubIntention(TravelSubIntention intention, World world, int agentId){
 		ArrayList<SubIntention> subIntentions = new ArrayList<SubIntention>();
 		
